@@ -24,7 +24,7 @@ type Score struct {
 	Mods            int    `json:"mods"`
 }
 
-func NewScoreFromReplay(replay osr.Replay, beatmapFilename string) *Score {
+func NewScoreFromReplay(replay *osr.Replay, beatmapFilename string) *Score {
 	return &Score{
 		BeatmapFilename: beatmapFilename,
 		BeatmapChecksum: replay.BeatmapMD5,
