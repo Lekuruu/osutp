@@ -1,4 +1,4 @@
-module github.com/osuTitanic/tp
+module github.com/Lekuruu/osutp-web
 
 go 1.24.5
 
