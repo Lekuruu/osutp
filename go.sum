@@ -1,7 +1,13 @@
+github.com/bnch/uleb128 v0.0.0-20160221084957-fac1fe18ad59 h1:WmIm5PO5EyIEWq8ia2isZi+M8n4jb+jK8n62RUAQskA=
+github.com/bnch/uleb128 v0.0.0-20160221084957-fac1fe18ad59/go.mod h1:zsF7tgeh6SxSU4t28n0DKFAmrHwIrdgbsBC50nUWIi8=
 github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0 h1:DACJavvAHhabrF08vX0COfcOBJRhZ8lUbR+ZWIs0Y5g=
 github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0/go.mod h1:E/TSTwGwJL78qG/PmXZO1EjYhfJinVAhrmmHX6Z8B9k=
+github.com/itchio/lzma v0.0.0-20190703113020-d3e24e3e3d49 h1:+YrBMf3rkLjkT10zIHyVE4S7ma4hqvfjl6XgnzZwS6o=
+github.com/itchio/lzma v0.0.0-20190703113020-d3e24e3e3d49/go.mod h1:avNrevQMli1pYPsz1+HIHMvx95pk6O+6otbWqCZPeZI=
 github.com/natsukagami/go-osu-parser v0.0.0-20180720153006-fea426291a5b h1:EZBCRmPRu3hvMl6bPrSV+rk9olFHujuH00zAIVGWWRU=
 github.com/natsukagami/go-osu-parser v0.0.0-20180720153006-fea426291a5b/go.mod h1:MpFCxV2oHx6V4Gl+ZwtaVplg9sOz5+oHwXbHtoEsURQ=
+github.com/robloxxa/go-osr v0.0.0-20211123221033-7939beb231d2 h1:pGfvMf8l1uicMBVoprUWbDPASu+BgGIjnEAtZp9XSDM=
+github.com/robloxxa/go-osr v0.0.0-20211123221033-7939beb231d2/go.mod h1:3o+/suRh2Y8ARRrlIc0tgadDg8kA+pBEJqAARUEeqLk=
 golang.org/x/image v0.29.0 h1:HcdsyR4Gsuys/Axh0rDEmlBmB68rW1U9BUdB3UVHsas=
 golang.org/x/image v0.29.0/go.mod h1:RVJROnf3SLK8d26OW91j4FrIHGbsJ8QnbEocVTOWQDA=
 golang.org/x/text v0.27.0 h1:4fGWRpyh641NLlecmyl4LOe6yDdfaYNrGb2zdfo4JV4=

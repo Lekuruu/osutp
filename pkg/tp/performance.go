@@ -1,5 +1,14 @@
 package tp
 
+import (
+	"encoding/json"
+	"fmt"
+	"net/http"
+	"strings"
+
+	osr "github.com/robloxxa/go-osr"
+)
+
 // Score represents a score record for a beatmap.
 type Score struct {
 	BeatmapFilename string `json:"beatmapFilename"`
@@ -13,6 +22,22 @@ type Score struct {
 	AmountGeki      int    `json:"amountGeki"`
 	AmountKatu      int    `json:"amountKatu"`
 	Mods            int    `json:"mods"`
+}
+
+func NewScoreFromReplay(replay osr.Replay, beatmapFilename string) *Score {
+	return &Score{
+		BeatmapFilename: beatmapFilename,
+		BeatmapChecksum: replay.BeatmapMD5,
+		TotalScore:      int(replay.TotalScore),
+		MaxCombo:        int(replay.Combo),
+		Amount300:       int(replay.Count300),
+		Amount100:       int(replay.Count100),
+		Amount50:        int(replay.Count50),
+		AmountMiss:      int(replay.CountMiss),
+		AmountGeki:      int(replay.CountGeki),
+		AmountKatu:      int(replay.CountKatu),
+		Mods:            int(replay.Mods),
+	}
 }
 
 // PerformanceCalculationResult represents the computed performance of a score
