@@ -56,6 +56,8 @@ func (request *DifficultyCalculationRequest) Perform(serviceUrl string) (*Diffic
 		return nil, fmt.Errorf("failed to decode response: %v", err)
 	}
 
+	// NOTE: osu!tp.Service is not able to calculate this properly at the moment
+	result.MaxCombo = request.Beatmap.DifficultyMaxCombo
 	return &result, nil
 }
 

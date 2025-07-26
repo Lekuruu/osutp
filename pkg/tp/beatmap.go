@@ -22,6 +22,7 @@ type BeatmapBase struct {
 	DifficultyOverall          float64 `json:"difficultyOverall"`
 	DifficultySliderMultiplier float64 `json:"difficultySliderMultiplier"`
 	DifficultySliderTickRate   float64 `json:"difficultySliderTickRate"`
+	DifficultyMaxCombo         int     `json:"difficultyMaxCombo"`
 }
 
 func NewBeatmapBase(beatmap *osu.Beatmap) *BeatmapBase {
@@ -37,5 +38,6 @@ func NewBeatmapBase(beatmap *osu.Beatmap) *BeatmapBase {
 		DifficultyOverall:          beatmap.OverallDifficulty,
 		DifficultySliderMultiplier: beatmap.SliderMultiplier,
 		DifficultySliderTickRate:   float64(beatmap.SliderTickRate),
+		DifficultyMaxCombo:         beatmap.MaxCombo,
 	}
 }
