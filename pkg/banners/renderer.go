@@ -5,17 +5,13 @@ import (
 	"image"
 	"image/color"
 	"image/draw"
-	"os"
 
 	"golang.org/x/image/font"
 	"golang.org/x/image/math/fixed"
 	"golang.org/x/text/message"
 )
 
-const flagImagePath = "../../web/static/images/flags/"
-
 var printer = message.NewPrinter(message.MatchLanguage("en"))
-var imageCache = make(map[string]image.Image)
 
 const (
 	ColorDarkBlue = 0x1e1e64
@@ -27,36 +23,6 @@ var (
 	ColorBlackRGBA    = color.RGBA{0x00, 0x00, 0x28, 0xff}
 )
 
-func loadImage(location string) (image.Image, error) {
-	// Load the flag image from the specified location
-	img, err := os.Open(location)
-	if err != nil {
-		return nil, err
-	}
-	defer img.Close()
-
-	// Decode the image
-	decodedImage, _, err := image.Decode(img)
-	if err != nil {
-		return nil, err
-	}
-	return decodedImage, nil
-}
-
-func loadImageCached(location string) (image.Image, error) {
-	if img, ok := imageCache[location]; ok {
-		return img, nil
-	}
-
-	img, err := loadImage(location)
-	if err != nil {
-		return nil, err
-	}
-
-	imageCache[location] = img
-	return img, nil
-}
-
 func renderText(text string, face font.Face, color color.Color, img draw.Image, position image.Point) {
 	// Draw the text onto the image
 	d := &font.Drawer{
@@ -66,6 +32,11 @@ func renderText(text string, face font.Face, color color.Color, img draw.Image, 
 	}
 	d.Dot = fixed.P(position.X, position.Y)
 	d.DrawString(text)
+}
+
+func renderImage(src image.Image, dst draw.Image, position image.Point) {
+	// Draw the source image onto the destination image at the specified position
+	draw.Draw(dst, src.Bounds().Add(position), src, image.Point{}, draw.Over)
 }
 
 func renderGlobal(banner Banner) image.Image {
@@ -114,7 +85,7 @@ func renderCountry(banner Banner) image.Image {
 		lineHeight       = 12
 		marginX          = 20
 		marginY          = 10
-		flagHeight       = 24
+		flagHeight       = 11
 		spacingAfterFlag = 8
 	)
 
@@ -134,7 +105,10 @@ func renderCountry(banner Banner) image.Image {
 	textTpWidth := font.MeasureString(boldFont, textTp).Ceil()
 	textDotWidth := font.MeasureString(regularFont, textDot).Ceil()
 
-	width := marginX*2 + textPrefixWidth + textCountryRankWidth + textOfWidth + textCountryWidth + textTpWidth + textDotWidth
+	flagImage := loadFlagImage(banner.GetPlayer().CountryCode())
+	flagWidth := flagImage.Bounds().Max.X + 2
+
+	width := marginX*2 + textPrefixWidth + textCountryRankWidth + textOfWidth + textCountryWidth + textTpWidth + textDotWidth + flagWidth
 	height := marginY*2 + lineHeight*2
 	img := image.NewRGBA(image.Rect(0, 0, width, height))
 
@@ -156,23 +130,28 @@ func renderCountry(banner Banner) image.Image {
 		ColorDarkBlueRGBA, img,
 		image.Point{X: marginX + textPrefixWidth + textCountryRankWidth, Y: marginY + int(regularFont.Metrics().Ascent.Round())},
 	)
+	renderImage(
+		flagImage,
+		img,
+		image.Point{X: marginX + textPrefixWidth + textCountryRankWidth + textOfWidth, Y: marginY + lineHeight - flagHeight/2},
+	)
 	renderText(
 		textCountry,
 		regularFont,
 		ColorDarkBlueRGBA, img,
-		image.Point{X: marginX + textPrefixWidth + textCountryRankWidth + textOfWidth, Y: marginY + int(regularFont.Metrics().Ascent.Round())},
+		image.Point{X: marginX + textPrefixWidth + textCountryRankWidth + textOfWidth + flagWidth, Y: marginY + int(regularFont.Metrics().Ascent.Round())},
 	)
 	renderText(
 		textTp,
 		boldFont,
 		ColorBlackRGBA, img,
-		image.Point{X: marginX + textPrefixWidth + textCountryRankWidth + textOfWidth + textCountryWidth, Y: marginY + int(regularFont.Metrics().Ascent.Round())},
+		image.Point{X: marginX + textPrefixWidth + textCountryRankWidth + textOfWidth + flagWidth + textCountryWidth, Y: marginY + int(regularFont.Metrics().Ascent.Round())},
 	)
 	renderText(
 		textDot,
 		regularFont,
 		ColorDarkBlueRGBA, img,
-		image.Point{X: marginX + textPrefixWidth + textCountryRankWidth + textOfWidth + textCountryWidth + textTpWidth, Y: marginY + int(regularFont.Metrics().Ascent.Round())},
+		image.Point{X: marginX + textPrefixWidth + textCountryRankWidth + textOfWidth + flagWidth + textCountryWidth + textTpWidth, Y: marginY + int(regularFont.Metrics().Ascent.Round())},
 	)
 	return img
 }
