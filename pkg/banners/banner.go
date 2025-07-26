@@ -14,16 +14,13 @@ type Banner interface {
 
 	GetPlayer() Player
 	SetPlayer(player Player)
-	GetFont() font.Face
-	SetFont(font font.Face)
-	GetFontBold() font.Face
-	SetFontBold(font font.Face)
+	GetFont(key string) font.Face
+	SetFont(key string, font font.Face)
 }
 
 type BaseBanner struct {
-	player   Player
-	font     font.Face
-	fontBold font.Face
+	player Player
+	fonts  map[string]font.Face
 }
 
 func (b *BaseBanner) Id() int {
@@ -42,20 +39,12 @@ func (b *BaseBanner) SetPlayer(player Player) {
 	b.player = player
 }
 
-func (b *BaseBanner) GetFont() font.Face {
-	return b.font
+func (b *BaseBanner) GetFont(key string) font.Face {
+	return b.fonts[key]
 }
 
-func (b *BaseBanner) SetFont(font font.Face) {
-	b.font = font
-}
-
-func (b *BaseBanner) GetFontBold() font.Face {
-	return b.fontBold
-}
-
-func (b *BaseBanner) SetFontBold(font font.Face) {
-	b.fontBold = font
+func (b *BaseBanner) SetFont(key string, font font.Face) {
+	b.fonts[key] = font
 }
 
 type CleanStyleBanner struct {
@@ -96,13 +85,15 @@ func NewCleanStyleBanner(player Player) *CleanStyleBanner {
 	if err != nil {
 		return nil
 	}
-	return &CleanStyleBanner{
+	banner := &CleanStyleBanner{
 		BaseBanner: BaseBanner{
-			player:   player,
-			font:     defaultFont,
-			fontBold: defaultFontBold,
+			player: player,
+			fonts:  make(map[string]font.Face),
 		},
 	}
+	banner.SetFont("regular", defaultFont)
+	banner.SetFont("bold", defaultFontBold)
+	return banner
 }
 
 type CleanStyleCenteredBanner struct {
@@ -151,13 +142,15 @@ func NewCleanStyleCenteredBanner(player Player) *CleanStyleCenteredBanner {
 	if err != nil {
 		return nil
 	}
-	return &CleanStyleCenteredBanner{
+	banner := &CleanStyleCenteredBanner{
 		BaseBanner: BaseBanner{
-			player:   player,
-			font:     defaultFont,
-			fontBold: defaultFontBold,
+			player: player,
+			fonts:  make(map[string]font.Face),
 		},
 	}
+	banner.SetFont("regular", defaultFont)
+	banner.SetFont("bold", defaultFontBold)
+	return banner
 }
 
 type CleanStyleOneLineBanner struct {
@@ -197,11 +190,13 @@ func NewCleanStyleOneLineBanner(player Player) *CleanStyleOneLineBanner {
 	if err != nil {
 		return nil
 	}
-	return &CleanStyleOneLineBanner{
+	banner := &CleanStyleOneLineBanner{
 		BaseBanner: BaseBanner{
-			player:   player,
-			font:     defaultFont,
-			fontBold: defaultFontBold,
+			player: player,
+			fonts:  make(map[string]font.Face),
 		},
 	}
+	banner.SetFont("regular", defaultFont)
+	banner.SetFont("bold", defaultFontBold)
+	return banner
 }

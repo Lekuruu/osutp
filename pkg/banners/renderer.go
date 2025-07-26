@@ -48,7 +48,9 @@ func renderGlobal(banner Banner) image.Image {
 		"Global osu!tp rank for %s: #%d",
 		banner.GetPlayer().Username(), banner.GetPlayer().GlobalRank(),
 	)
-	textWidth := font.MeasureString(banner.GetFont(), text).Ceil()
+
+	regularFont := banner.GetFont("regular")
+	textWidth := font.MeasureString(regularFont, text).Ceil()
 
 	width := marginX*2 + textWidth
 	height := marginY*2 + lineHeight*2
@@ -57,9 +59,9 @@ func renderGlobal(banner Banner) image.Image {
 	// TODO: Make this more accurate to the original
 	renderText(
 		text,
-		banner.GetFont(),
+		regularFont,
 		color.White, img,
-		image.Point{X: marginX, Y: marginY + int(banner.GetFont().Metrics().Ascent.Round())},
+		image.Point{X: marginX, Y: marginY + int(regularFont.Metrics().Ascent.Round())},
 	)
 
 	return img
@@ -79,7 +81,9 @@ func renderCountry(banner Banner) image.Image {
 		banner.GetPlayer().Country(),
 		banner.GetPlayer().Tp(),
 	)
-	textWidth := font.MeasureString(banner.GetFont(), text).Ceil()
+
+	regularFont := banner.GetFont("regular")
+	textWidth := font.MeasureString(regularFont, text).Ceil()
 
 	width := marginX*2 + textWidth
 	height := marginY*2 + lineHeight*2
@@ -88,9 +92,9 @@ func renderCountry(banner Banner) image.Image {
 	// TODO: Make this more accurate to the original
 	renderText(
 		text,
-		banner.GetFont(),
+		regularFont,
 		color.White, img,
-		image.Point{X: marginX, Y: marginY + int(banner.GetFont().Metrics().Ascent.Round())},
+		image.Point{X: marginX, Y: marginY + int(regularFont.Metrics().Ascent.Round())},
 	)
 
 	return img
