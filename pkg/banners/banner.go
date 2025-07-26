@@ -85,6 +85,10 @@ func NewCleanStyleBanner(player Player) *CleanStyleBanner {
 	if err != nil {
 		return nil
 	}
+	defaultFontBoldLarge, err := LoadDefaultFontBold(25)
+	if err != nil {
+		return nil
+	}
 	banner := &CleanStyleBanner{
 		BaseBanner: BaseBanner{
 			player: player,
@@ -93,6 +97,7 @@ func NewCleanStyleBanner(player Player) *CleanStyleBanner {
 	}
 	banner.SetFont("regular", defaultFont)
 	banner.SetFont("bold", defaultFontBold)
+	banner.SetFont("bold_large", defaultFontBoldLarge)
 	return banner
 }
 
@@ -171,7 +176,7 @@ func (b *CleanStyleOneLineBanner) Name() string {
 }
 
 func (b *CleanStyleOneLineBanner) Render() image.Image {
-	const xOffset = -20
+	const xOffset = -30
 	top := renderGlobal(b)
 	bottom := renderCountry(b)
 
@@ -195,6 +200,10 @@ func NewCleanStyleOneLineBanner(player Player) *CleanStyleOneLineBanner {
 	if err != nil {
 		return nil
 	}
+	defaultFontBoldLarge, err := LoadDefaultFontBold(25)
+	if err != nil {
+		return nil
+	}
 	banner := &CleanStyleOneLineBanner{
 		BaseBanner: BaseBanner{
 			player: player,
@@ -203,5 +212,6 @@ func NewCleanStyleOneLineBanner(player Player) *CleanStyleOneLineBanner {
 	}
 	banner.SetFont("regular", defaultFont)
 	banner.SetFont("bold", defaultFontBold)
+	banner.SetFont("bold_large", defaultFontBoldLarge)
 	return banner
 }
