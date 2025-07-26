@@ -77,11 +77,11 @@ func (b *CleanStyleBanner) Render() image.Image {
 }
 
 func NewCleanStyleBanner(player Player) *CleanStyleBanner {
-	defaultFont, err := LoadDefaultFont(DefaultFontOptions())
+	defaultFont, err := LoadDefaultFont(DefaultFontOptions(20))
 	if err != nil {
 		return nil
 	}
-	defaultFontBold, err := LoadDefaultFontBold(DefaultFontOptions())
+	defaultFontBold, err := LoadDefaultFontBold(DefaultFontOptions(20))
 	if err != nil {
 		return nil
 	}
@@ -134,11 +134,11 @@ func (b *CleanStyleCenteredBanner) Render() image.Image {
 }
 
 func NewCleanStyleCenteredBanner(player Player) *CleanStyleCenteredBanner {
-	defaultFont, err := LoadDefaultFont(DefaultFontOptions())
+	defaultFont, err := LoadDefaultFont(DefaultFontOptions(20))
 	if err != nil {
 		return nil
 	}
-	defaultFontBold, err := LoadDefaultFontBold(DefaultFontOptions())
+	defaultFontBold, err := LoadDefaultFontBold(DefaultFontOptions(20))
 	if err != nil {
 		return nil
 	}
@@ -182,11 +182,11 @@ func (b *CleanStyleOneLineBanner) Render() image.Image {
 }
 
 func NewCleanStyleOneLineBanner(player Player) *CleanStyleOneLineBanner {
-	defaultFont, err := LoadDefaultFont(DefaultFontOptions())
+	defaultFont, err := LoadDefaultFont(DefaultFontOptions(20))
 	if err != nil {
 		return nil
 	}
-	defaultFontBold, err := LoadDefaultFontBold(DefaultFontOptions())
+	defaultFontBold, err := LoadDefaultFontBold(DefaultFontOptions(20))
 	if err != nil {
 		return nil
 	}

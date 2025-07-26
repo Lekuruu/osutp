@@ -28,9 +28,9 @@ func LoadTrueTypeFont(path string, options *truetype.Options) (font.Face, error)
 	return face, nil
 }
 
-func DefaultFontOptions() *truetype.Options {
+func DefaultFontOptions(size float64) *truetype.Options {
 	return &truetype.Options{
-		Size:              20,
+		Size:              size,
 		DPI:               72,
 		Hinting:           font.HintingFull,
 		GlyphCacheEntries: 1024,
