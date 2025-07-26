@@ -8,3 +8,5 @@ require (
 )
 
 require golang.org/x/text v0.27.0
+
+require github.com/natsukagami/go-osu-parser v0.0.0-20180720153006-fea426291a5b // indirect
