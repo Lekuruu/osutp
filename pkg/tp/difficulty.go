@@ -1,6 +1,13 @@
 package tp
 
-import osu "github.com/natsukagami/go-osu-parser"
+import (
+	"encoding/json"
+	"fmt"
+	"net/http"
+	"strings"
+
+	osu "github.com/natsukagami/go-osu-parser"
+)
 
 // DifficultyCalculationResult represents the computed difficulty and star ratings of a beatmap.
 type DifficultyCalculationResult struct {
@@ -24,6 +31,31 @@ type DifficultyCalculationResult struct {
 type DifficultyCalculationRequest struct {
 	Beatmap    *BeatmapBase    `json:"beatmap"`
 	HitObjects []HitObjectBase `json:"hitObjects"`
+}
+
+func (request *DifficultyCalculationRequest) Perform(serviceUrl string) (*DifficultyCalculationResult, error) {
+	jsonData, err := json.Marshal(request)
+	if err != nil {
+		return nil, err
+	}
+
+	jsonReader := strings.NewReader(string(jsonData))
+	resp, err := http.Post(serviceUrl+"/difficulty", "application/json", jsonReader)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("failed to calculate difficulty: %s", resp.Status)
+	}
+
+	var result DifficultyCalculationResult
+	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+		return nil, fmt.Errorf("failed to decode response: %v", err)
+	}
+
+	return &result, nil
 }
 
 func NewDifficultyCalculationRequest(beatmap *BeatmapBase, hitObjects []HitObjectBase) *DifficultyCalculationRequest {
