@@ -9,7 +9,10 @@ import (
 
 	"golang.org/x/image/font"
 	"golang.org/x/image/math/fixed"
+	"golang.org/x/text/message"
 )
+
+var printer = message.NewPrinter(message.MatchLanguage("en"))
 
 const (
 	ColorDarkBlue = 0x1e1e64
@@ -54,23 +57,37 @@ func renderGlobal(banner Banner) image.Image {
 		marginX    = 20
 		marginY    = 10
 	)
-	text := fmt.Sprintf(
-		"Global osu!tp rank for %s: #%d",
-		banner.GetPlayer().Username(), banner.GetPlayer().GlobalRank(),
-	)
+	textPrefix := "Global osu!tp rank for "
+	textUsername := fmt.Sprintf("%s: ", banner.GetPlayer().Username())
+	textRank := printer.Sprintf("#%d", banner.GetPlayer().GlobalRank())
 
 	boldFont := banner.GetFont("bold")
-	textWidth := font.MeasureString(boldFont, text).Ceil()
+	boldFontLarge := banner.GetFont("bold_large")
+	textPrefixWidth := font.MeasureString(boldFont, textPrefix).Ceil()
+	textUsernameWidth := font.MeasureString(boldFont, textUsername).Ceil()
+	textRankWidth := font.MeasureString(boldFontLarge, textRank).Ceil()
 
-	width := marginX*2 + textWidth
+	width := marginX*2 + textPrefixWidth + textUsernameWidth + textRankWidth
 	height := marginY*2 + lineHeight*2
 	img := image.NewRGBA(image.Rect(0, 0, width, height))
 
 	renderText(
-		text,
+		textPrefix,
 		boldFont,
 		ColorDarkBlueRGBA, img,
 		image.Point{X: marginX, Y: marginY + int(boldFont.Metrics().Ascent.Round())},
+	)
+	renderText(
+		textUsername,
+		boldFont,
+		ColorBlackRGBA, img,
+		image.Point{X: marginX + textPrefixWidth, Y: marginY + int(boldFont.Metrics().Ascent.Round())},
+	)
+	renderText(
+		textRank,
+		boldFontLarge,
+		ColorBlackRGBA, img,
+		image.Point{X: marginX + textPrefixWidth + textUsernameWidth, Y: marginY + int(boldFontLarge.Metrics().Ascent.Round()) - 4},
 	)
 	return img
 }
