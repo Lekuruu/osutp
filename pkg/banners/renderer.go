@@ -11,6 +11,16 @@ import (
 	"golang.org/x/image/math/fixed"
 )
 
+const (
+	ColorDarkBlue = 0x1e1e64
+	ColorBlack    = 0x000028
+)
+
+var (
+	ColorDarkBlueRGBA = color.RGBA{0x1e, 0x1e, 0x64, 0xff}
+	ColorBlackRGBA    = color.RGBA{0x00, 0x00, 0x28, 0xff}
+)
+
 func loadImage(location string) (image.Image, error) {
 	// Load the flag image from the specified location
 	img, err := os.Open(location)
@@ -49,21 +59,19 @@ func renderGlobal(banner Banner) image.Image {
 		banner.GetPlayer().Username(), banner.GetPlayer().GlobalRank(),
 	)
 
-	regularFont := banner.GetFont("regular")
-	textWidth := font.MeasureString(regularFont, text).Ceil()
+	boldFont := banner.GetFont("bold")
+	textWidth := font.MeasureString(boldFont, text).Ceil()
 
 	width := marginX*2 + textWidth
 	height := marginY*2 + lineHeight*2
 	img := image.NewRGBA(image.Rect(0, 0, width, height))
 
-	// TODO: Make this more accurate to the original
 	renderText(
 		text,
-		regularFont,
-		color.White, img,
-		image.Point{X: marginX, Y: marginY + int(regularFont.Metrics().Ascent.Round())},
+		boldFont,
+		ColorDarkBlueRGBA, img,
+		image.Point{X: marginX, Y: marginY + int(boldFont.Metrics().Ascent.Round())},
 	)
-
 	return img
 }
 
@@ -89,13 +97,11 @@ func renderCountry(banner Banner) image.Image {
 	height := marginY*2 + lineHeight*2
 	img := image.NewRGBA(image.Rect(0, 0, width, height))
 
-	// TODO: Make this more accurate to the original
 	renderText(
 		text,
 		regularFont,
-		color.White, img,
+		ColorDarkBlueRGBA, img,
 		image.Point{X: marginX, Y: marginY + int(regularFont.Metrics().Ascent.Round())},
 	)
-
 	return img
 }
