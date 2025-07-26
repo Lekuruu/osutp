@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title></title>
+</head>
+<body>
+  <script type="text/javascript" src="/js/wz_tooltip.js"></script>
+  <div class="bodytopbg">
+    <div class="mainbody">
+      <div class="top"></div>
+      <div class="header">
+        <a href="/players">
+          <div class="header-logo"></div>
+        </a>
+        <div class="header-content">
+          <h1><a href="/players">{{ .Title }}</a></h1>
+          <h2>{{ .Description }}</h2>
+          <p style="color:#5555AA">updated daily - last update: {{ .LastUpdate }}</p>
+        </div>
+        <div class="menu">
+          <ul class="sf-menu">
+            <li><a href="/changelog">Changelog</a></li>
+            <li><a href="/players">Player rating</a></li>
+            <li><a href="/scores">Score rating</a></li>
+            <li><a href="/beatmaps">Beatmap difficulty</a></li>
+            <li><a href="/banners">Banners</a></li>
+          </ul>
+        </div>
+      </div>

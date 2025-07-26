@@ -1,0 +1,316 @@
+ 
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+ 
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
+<title>osu! Statistics</title>
+<link rel="stylesheet" type="text/css" href="http://osustats.ppy.sh/nyan.css?ver=131227b"/>
+<link rel="stylesheet" type="text/css" href="http://osustats.ppy.sh/custom.css?ver=131227p"/>
+<script type="text/javascript" src="http://osustats.ppy.sh/js/jQuery.js?ver=20121117"></script>
+<script type="text/javascript" src="http://osustats.ppy.sh/js/expand.js?ver=20121117"></script>
+<script type="text/javascript" src="http://osustats.ppy.sh/js/OsFormating.js.php?ver=140629"></script>
+<!-- iframe block -->
+<script type="text/javascript">if (top.location != self.location)top.location=self.location;</script> 
+<style type="text/css" media="all">iframe{v:expression(this.src='about:blank',this.outerHTML='');}</style>
+<!-- fuck ie ! -->
+<style type="text/css">
+img { behavior: url(http://osustats.ppy.sh/js/fuckie/iepngfix.htc); border:none;}
+</style> 
+
+
+<script src="http://osustats.ppy.sh/js/msdropdown/jquery.dd.min.js" type="text/javascript"></script>
+<link rel="stylesheet" type="text/css" href="http://osustats.ppy.sh/js/msdropdown/dd.css" />
+
+
+</head>
+<body>
+
+<script language="javascript">
+$(document).ready(function(e) {
+try {
+$("body select").msDropDown();
+} catch(e) {
+alert(e.message);
+}
+});
+</script>
+
+<div id="wrapper">
+
+<!--[if lte IE 8]>
+<div id="message"><img src="/img/IE_is_not_a_web_browser.jpg" /><br />Ваш браузер устарел, необходимо обновиться.</div>
+<![endif]-->
+
+<div id="logo" style="position: relative;">
+<div id="loading"><img src="http://osustats.ppy.sh/img/loading-small.gif" alt="loading..." /></div>
+<a href="http://osustats.ppy.sh"><img src="http://osustats.ppy.sh/img/logo.png"></a></div><br />
+<div id="wynik_user"></div>
+<div id="wynik"><div id="insidewynik">Введите ник пользователя</div></div><br /><br />
+<form id="eee">
+	<input id="user1" class="username" name="user1" size="15" maxlength="40" value=""	tabindex="0" type="text">
+	<input type="hidden" hidden="true" id="start" name="start" value="0"/>
+	<script type="text/javascript">document.getElementById('user1').focus()</script>
+	<br />
+	<br />
+	<input tabindex="-1" id="click" type="submit" size="15" value="Найти!"  onclick="resloadPage();return false;" onsubmit="return false;"/>
+&nbsp;
+	<input tabindex="-1" id="click" type="submit" size="15" value="Дополнительно" onclick="jQuery('.collapse').slideFadeToggle(500);return false;" onsubmit="return false;"/>
+	<center>
+		<div class="collapse" style="display:none;">
+			<br />
+
+			<table class="opt">
+				<tr>
+					<td>
+						Второй ник:</td>
+					<td>
+						&nbsp;
+						<input class="optinput" type="text" name="ktoa" id="user2" size="15" maxlength="40" ></td>
+				</tr>
+				<tr>
+					<td>
+						Ранк:</td>
+					<td>
+						&nbsp;#&nbsp;
+						<input class="optinput" type="text" name="rod" size="2" maxlength="2" id="rod"  value=""						> - #&nbsp;
+						<input class="optinput" type="text" name="rdo" size="2" maxlength="2" id="rdo"  value=""></td>
+				</tr>
+				<tr>
+					<td>
+						Точность:</td>
+					<td>
+						&nbsp;
+						<input class="optinput" type="text" name="accmi" size="2" maxlength="7" id="accmi"  						>&nbsp;% -
+						<input class="optinput" type="text" name="accma" size="2" maxlength="7" id="accma"  >&nbsp;%</td>
+				</tr>
+				<tr>
+					<td>
+						Сложность:</td>
+					<td>
+						&nbsp;
+						<select tabindex="-1" class="optselect" name="diffi" id="diffi" style="width:154px;">
+							<option value="0"								>
+								Все</option>
+							<option value="1"								>
+								Easy</option>
+							<option value="2"								>
+								Normal</option>
+							<option value="3"								>
+								Hard</option>
+							<option value="4"								>
+								Insane</option>
+						</select>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						Режим игры:</td>
+					<td>
+						&nbsp;
+						<select tabindex="-1" class="optselect" name="GM" id="GM" style="width:154px;">
+							<option value="1" 								>
+								osu</option>
+							<option value="3"								>
+								Ctb</option>
+							<option value="2"								>
+								Taiko</option>
+							<option value="4"								>
+								mania</option>
+						</select>
+					</td>
+				</tr>
+
+				<tr>
+					<td>
+						Моды:</td>
+					<td>
+						&nbsp;
+						<input title="Ex: &quot;HDHR&quot; - will search scores with hidden & hardrock&#013;List of mods:&#013;EZ NF HT&#013;HR SD PF DT HD FL&#013;SO&#013;Mania mods aren't working yet						" class="optinput" type="text" name="mods" id="mods" size="9" value="">
+						<label title="Checked: It will show scores ONLY with specified mods&#013;Unchecked: It will show all possible combinations with specified mods">
+							<input type="checkbox" name="only" id="only" value="1"  >
+							Only</label>
+					</td>
+				</tr>
+
+				<tr>
+					<td>
+						Режим сортировки:</td>
+					<td>
+						&nbsp;
+						<select class="optselect" name="sortingw" id="sortingw" style="width:154px;">
+							<option value="1" >
+								По убыванию</option>
+							<option value="2"	>
+								По возрастанию</option>
+						</select>
+
+					</td>
+
+					<tr>
+						<td></td>
+						<td>
+							&nbsp;
+							<select tabindex="-1" class="optselect" name="sorting" id="sorting" style="width:154px;">
+								<option value="1"									>
+									Дата достижения</option>
+								<option value="2"									>
+									Дата ранка карты</option>
+								<option value="3"									>
+									Место</option>
+								<option value="4"									>
+									Комбо</option>
+								<option value="5"									>
+									Очки</option>
+								<option value="6"									>
+									Bpm</option>
+								<option value="7"									>
+									Acc</option>
+									<option value="9"									>
+									Score pp</option>
+							</select>
+						</td>
+						<tr class="rows">
+							<td>Number of rows:</td>
+							<td>
+								&nbsp;
+								<select tabindex="-1" class="optselect" onchange="changeNumberOfRows()" id="rowsNum" style="width:154px;">
+									<option value="2">2</option>
+									<option value="3">3</option>
+									<option value="4">4</option>
+								</select>
+							</td>
+						</tr>
+					</tr>
+					<tr>
+						<td>
+							Display method:</td>
+						<td>
+							&nbsp;
+							<select class="optselect" name="display" id="display" style="width:154px;">
+								<option value="0" >
+									Standard</option>
+								<option value="1" >
+									Table</option>
+							</select>
+						</td>
+
+					</tr>
+					<!--<tr>
+					<td></td>
+					<td>
+						<label>
+							<input type="checkbox" name="lost" id="lost" value="1" disabled="disabled" >
+							show scores lost over last month</label>
+					</td>
+				</tr>
+				-->
+			</table>
+
+		</div>
+
+	</form>
+<script type="text/javascript">
+			function changeNumberOfRows(){
+				var myselect = document.getElementById("rowsNum");
+				rows = parseInt(myselect.options[myselect.selectedIndex].value);
+				if($('#display').val()=="0")
+					if(LastData!=null)
+					{
+					  	if($('#user1').val().toLowerCase() == LastData['user1'].toLowerCase()) 
+						{
+							
+						  	if ( ($('#user2').val().toLowerCase()=='' && (typeof LastData['user2'] == 'undefined')) )
+						  	{
+						  		
+						  		changeResultWidth();
+						  		getResult(LastData);
+						  	}
+						  	else
+						  		jsonLoadPage();
+					  	}
+					  	else
+					  		jsonLoadPage();
+					  	
+					  	$('html, body').animate({ scrollTop: 0 }, 'fast');
+
+					}
+			}
+		</script>
+
+<br /><br />
+Last update was done 2d 8h 33m ago.<br/><b>Update in progress...</b><br/>Total Records: 6728415<br/>Updated every 24h.<br/> <br />
+<div id="credits">
+<center>
+Команда разработчиков osu! Statistics:<br /><br />
+<table>
+<tr>
+<td><a href="/u/Ezoda/1/0/1"><img src="http://osustats.ppy.sh/img/Ezoda.jpg"></a></td><td><a href="/u/Piotrekol/1/0/1"><img src="http://osustats.ppy.sh/img/Pio.png"></a></td><td><a href="/u/RadioNoise/1/0/1"><img src="http://osustats.ppy.sh/img/RadioNoise.png"></a></td>
+</tr>
+<tr id="creditstext">
+<td><a href="http://osu.ppy.sh/u/Ezoda">Ezoda</a></td><td><a href="http://osu.ppy.sh/u/Piotrekol">Piotrekol</a></td><td><a href="http://osu.ppy.sh/u/RadioNoise">RadioNoise</a></td>
+</tr>
+</table>
+<div id="translator">
+Перевели на русский: <a href="http://osu.ppy.sh/u/TicClick">TicClick</a> & <a href="http://osu.ppy.sh/u/senaya">senaya</a></div><br/>
+<div id="language">
+osu! Statistics is available in:</br>
+<div id="country_flags" style="margin-top:3px;">
+<a href="/en_us" title="English"><img src="http://osustats.ppy.sh/img/flags/us.png" /></a>
+<a href="/zh_cn" title="简体中文"><img src="http://osustats.ppy.sh/img/flags/cn.png" /></a>
+<a href="/zh_tw" title="繁體中文"><img src="http://osustats.ppy.sh/img/flags/tw.png" /></a>
+<a href="/pl_pl" title="Polski"><img src="http://osustats.ppy.sh/img/flags/pl.png" /></a>
+<a href="/de_de" title="Deutsch"><img src="http://osustats.ppy.sh/img/flags/de.png" /></a>
+<a href="/vi_vn" title="Tiếng Việt"><img src="http://osustats.ppy.sh/img/flags/vn.png" /></a>
+<a href="/fi_fi" title="Suomi"><img src="http://osustats.ppy.sh/img/flags/fi.png" /></a>
+<a href="/bg_bg" title="Български"><img src="http://osustats.ppy.sh/img/flags/bg.png" /></a>
+<a href="/fr_fr" title="Français"><img src="http://osustats.ppy.sh/img/flags/fr.png" /></a><br/>
+<a href="/el_gr" title="Ελληνική"><img src="http://osustats.ppy.sh/img/flags/gr.png" /></a>
+<a href="/it_it" title="Italiano"><img src="http://osustats.ppy.sh/img/flags/it.png" /></a>
+<a href="/es_es" title="Español"><img src="http://osustats.ppy.sh/img/flags/es.png" /></a>
+<a href="/id_id" title="Indonesia"><img src="http://osustats.ppy.sh/img/flags/id.png" /></a>
+<a href="/pt_br" title="Português"><img src="http://osustats.ppy.sh/img/flags/br.png" /></a>
+<a href="/ru_ru" title="Русский"><img src="http://osustats.ppy.sh/img/flags/ru.png" /></a>
+<a href="/nb_no" title="Norsk"><img src="http://osustats.ppy.sh/img/flags/no.png" /></a>
+<a href="/ja_jp" title="日本語"><img src="http://osustats.ppy.sh/img/flags/jp.png" /></a> 
+<a href="/ko_kr" title="한국어"><img src="http://osustats.ppy.sh/img/flags/kr.png" /></a>
+
+</div>
+
+</div></br>
+<div id="changelog">
+	Tell me what you would like to see on this page!  <a href="https://osu.ppy.sh/forum/t/51911&start=0"><b>Post</b> there</a>/<a href="http://osu.ppy.sh/forum/ucp.php?i=pm&mode=compose&u=304520">Send <b>PM</b></a>/</br>Contact me <b>in-game</b>(Piotrekol)</br>
+	</br>
+</div>
+</center>
+</div>
+
+
+<script>offset = 1; jsonLoadPage();</script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-41918707-1', 'ppy.sh');
+  ga('send', 'pageview');
+var _gaq = _gaq || [];
+_gaq.push(['_setAccount', 'UA-41918707-1']);
+_gaq.push(['_trackPageview']);
+
+(function() {
+  var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+  ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+  var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+})();
+
+setTimeout(function() { 
+if(jQuery('.collapse').css("display")=="none")
+	jQuery('.collapse').slideFadeToggle(500);
+return false;
+ }, 3000);  
+</script>
+</body>
+</html> 
