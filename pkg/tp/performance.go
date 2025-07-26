@@ -22,3 +22,41 @@ type PerformanceCalculationResult struct {
 	Aim   float64 `json:"aim"`
 	Acc   float64 `json:"accuracy"`
 }
+
+// PerformanceCalculationRequest represents a request to calculate the performance of a score.
+type PerformanceCalculationRequest struct {
+	Score      *Score                       `json:"score"`
+	Difficulty *DifficultyCalculationResult `json:"difficulty"`
+}
+
+func (request *PerformanceCalculationRequest) Perform(serviceUrl string) (*PerformanceCalculationResult, error) {
+	jsonData, err := json.Marshal(request)
+	if err != nil {
+		return nil, err
+	}
+
+	jsonReader := strings.NewReader(string(jsonData))
+	resp, err := http.Post(serviceUrl+"/performance", "application/json", jsonReader)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("failed to calculate performance: %s", resp.Status)
+	}
+
+	var result PerformanceCalculationResult
+	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+		return nil, fmt.Errorf("failed to decode response: %v", err)
+	}
+
+	return &result, nil
+}
+
+func NewPerformanceCalculationRequest(score *Score, difficulty *DifficultyCalculationResult) *PerformanceCalculationRequest {
+	return &PerformanceCalculationRequest{
+		Score:      score,
+		Difficulty: difficulty,
+	}
+}

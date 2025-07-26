@@ -28,6 +28,7 @@ type DifficultyCalculationResult struct {
 	SliderTickRate    float64 `json:"sliderTickRate"`
 }
 
+// DifficultyCalculationRequest represents a request to calculate the difficulty of a beatmap.
 type DifficultyCalculationRequest struct {
 	Beatmap    *BeatmapBase    `json:"beatmap"`
 	HitObjects []HitObjectBase `json:"hitObjects"`
