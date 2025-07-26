@@ -51,17 +51,35 @@ type HitObjectBase struct {
 }
 
 func NewHitObjectBase(hitObject osu.HitObject) *HitObjectBase {
+	startTime := hitObject.StartTime
+	endTime := hitObject.EndTime
+	if endTime == 0 {
+		endTime = hitObject.StartTime
+	}
+
+	startPosition := Vector2{
+		X: hitObject.Position.X,
+		Y: hitObject.Position.Y,
+	}
+	endPosition := Vector2{
+		X: hitObject.EndPosition.X,
+		Y: hitObject.EndPosition.Y,
+	}
+	if endPosition.X == 0 && endPosition.Y == 0 {
+		endPosition = startPosition
+	}
+
 	return &HitObjectBase{
-		StartTime:         hitObject.StartTime,
-		EndTime:           hitObject.EndTime,
+		StartTime:         startTime,
+		EndTime:           endTime,
 		Type:              NewHitObjectType(hitObject.ObjectName, hitObject.NewCombo),
 		SoundType:         NewHitObjectSoundType(hitObject.SoundTypes),
 		SegmentCount:      hitObject.RepeatCount + 1,
 		SpatialLength:     hitObject.PixelLength,
-		ComboColourOffset: 0, // TODO
-		ComboColourIndex:  0, // TODO
-		Position:          Vector2{X: hitObject.Position.X, Y: hitObject.Position.Y},
-		EndPosition:       Vector2{X: hitObject.EndPosition.X, Y: hitObject.EndPosition.Y},
+		Position:          startPosition,
+		EndPosition:       endPosition,
+		ComboColourOffset: 0,     // TODO
+		ComboColourIndex:  0,     // TODO
 		StackCount:        0,     // TODO
 		ComboNumber:       0,     // TODO
 		LastInCombo:       false, // TODO
