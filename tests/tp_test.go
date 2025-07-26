@@ -11,8 +11,16 @@ import (
 
 var serviceUrl = flag.String("service_url", "http://localhost:5028", "URL of the tp service")
 
-func TestBeatmapDiffcalc(t *testing.T) {
-	beatmap, err := osu.ParseFile("tp_test_beatmap.osu")
+func TestBeatmapRogUnlimitation(t *testing.T) {
+	performBeatmapDifficultyCalculation(t, "tp_test_rogunlimitation.osu")
+}
+
+func TestBeatmapFreedomDive(t *testing.T) {
+	performBeatmapDifficultyCalculation(t, "tp_test_freedomdive.osu")
+}
+
+func performBeatmapDifficultyCalculation(t *testing.T, beatmapFile string) {
+	beatmap, err := osu.ParseFile(beatmapFile)
 	if err != nil {
 		t.Fatalf("Failed to parse beatmap: %v", err)
 	}
