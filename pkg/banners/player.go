@@ -6,7 +6,6 @@ type Player interface {
 	Username() string
 	Country() string
 	CountryCode() string
-	CountryFlagLocation() string
 	GlobalRank() int
 	CountryRank() int
 	CountryRankOrdinal() string
@@ -33,10 +32,6 @@ func (p *BasePlayer) Country() string {
 
 func (p *BasePlayer) CountryCode() string {
 	return p.countryCode
-}
-
-func (p *BasePlayer) CountryFlagLocation() string {
-	return p.countryFlag
 }
 
 func (p *BasePlayer) GlobalRank() int {

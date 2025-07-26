@@ -12,7 +12,10 @@ import (
 	"golang.org/x/text/message"
 )
 
+const flagImagePath = "../../web/static/images/flags/"
+
 var printer = message.NewPrinter(message.MatchLanguage("en"))
+var imageCache = make(map[string]image.Image)
 
 const (
 	ColorDarkBlue = 0x1e1e64
@@ -38,6 +41,20 @@ func loadImage(location string) (image.Image, error) {
 		return nil, err
 	}
 	return decodedImage, nil
+}
+
+func loadImageCached(location string) (image.Image, error) {
+	if img, ok := imageCache[location]; ok {
+		return img, nil
+	}
+
+	img, err := loadImage(location)
+	if err != nil {
+		return nil, err
+	}
+
+	imageCache[location] = img
+	return img, nil
 }
 
 func renderText(text string, face font.Face, color color.Color, img draw.Image, position image.Point) {
@@ -100,25 +117,62 @@ func renderCountry(banner Banner) image.Image {
 		flagHeight       = 24
 		spacingAfterFlag = 8
 	)
-	text := fmt.Sprintf(
-		"Rated %s of %s with %dtp.",
-		banner.GetPlayer().CountryRankOrdinal(),
-		banner.GetPlayer().Country(),
-		banner.GetPlayer().Tp(),
-	)
 
+	textPrefix := "Rated "
+	textCountryRank := banner.GetPlayer().CountryRankOrdinal()
+	textOf := " of "
+	textCountry := fmt.Sprintf("%s with ", banner.GetPlayer().Country())
+	textTp := printer.Sprintf("%dtp", banner.GetPlayer().Tp())
+	textDot := "."
+
+	boldFont := banner.GetFont("bold")
 	regularFont := banner.GetFont("regular")
-	textWidth := font.MeasureString(regularFont, text).Ceil()
+	textPrefixWidth := font.MeasureString(regularFont, textPrefix).Ceil()
+	textCountryRankWidth := font.MeasureString(boldFont, textCountryRank).Ceil()
+	textOfWidth := font.MeasureString(regularFont, textOf).Ceil()
+	textCountryWidth := font.MeasureString(regularFont, textCountry).Ceil()
+	textTpWidth := font.MeasureString(boldFont, textTp).Ceil()
+	textDotWidth := font.MeasureString(regularFont, textDot).Ceil()
 
-	width := marginX*2 + textWidth
+	width := marginX*2 + textPrefixWidth + textCountryRankWidth + textOfWidth + textCountryWidth + textTpWidth + textDotWidth
 	height := marginY*2 + lineHeight*2
 	img := image.NewRGBA(image.Rect(0, 0, width, height))
 
 	renderText(
-		text,
+		textPrefix,
 		regularFont,
 		ColorDarkBlueRGBA, img,
 		image.Point{X: marginX, Y: marginY + int(regularFont.Metrics().Ascent.Round())},
+	)
+	renderText(
+		textCountryRank,
+		boldFont,
+		ColorBlackRGBA, img,
+		image.Point{X: marginX + textPrefixWidth, Y: marginY + int(regularFont.Metrics().Ascent.Round())},
+	)
+	renderText(
+		textOf,
+		regularFont,
+		ColorDarkBlueRGBA, img,
+		image.Point{X: marginX + textPrefixWidth + textCountryRankWidth, Y: marginY + int(regularFont.Metrics().Ascent.Round())},
+	)
+	renderText(
+		textCountry,
+		regularFont,
+		ColorDarkBlueRGBA, img,
+		image.Point{X: marginX + textPrefixWidth + textCountryRankWidth + textOfWidth, Y: marginY + int(regularFont.Metrics().Ascent.Round())},
+	)
+	renderText(
+		textTp,
+		boldFont,
+		ColorBlackRGBA, img,
+		image.Point{X: marginX + textPrefixWidth + textCountryRankWidth + textOfWidth + textCountryWidth, Y: marginY + int(regularFont.Metrics().Ascent.Round())},
+	)
+	renderText(
+		textDot,
+		regularFont,
+		ColorDarkBlueRGBA, img,
+		image.Point{X: marginX + textPrefixWidth + textCountryRankWidth + textOfWidth + textCountryWidth + textTpWidth, Y: marginY + int(regularFont.Metrics().Ascent.Round())},
 	)
 	return img
 }
