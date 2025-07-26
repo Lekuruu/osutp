@@ -3,6 +3,8 @@ package banners
 import (
 	"image"
 	"os"
+
+	"golang.org/x/image/draw"
 )
 
 var imageCache = make(map[string]image.Image)
@@ -35,4 +37,18 @@ func loadImageCached(location string) (image.Image, error) {
 
 	imageCache[location] = img
 	return img, nil
+}
+
+func resizeImage(img image.Image, scale float64) image.Image {
+	if scale <= 0 {
+		return img
+	}
+
+	newWidth := int(float64(img.Bounds().Dx()) * scale)
+	newHeight := int(float64(img.Bounds().Dy()) * scale)
+
+	resizedImg := image.NewRGBA(image.Rect(0, 0, newWidth, newHeight))
+	draw.CatmullRom.Scale(resizedImg, resizedImg.Bounds(), img, img.Bounds(), draw.Over, nil)
+
+	return resizedImg
 }
