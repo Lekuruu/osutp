@@ -45,7 +45,7 @@ type PerformanceCalculationResult struct {
 	Total float64 `json:"total"`
 	Speed float64 `json:"speed"`
 	Aim   float64 `json:"aim"`
-	Acc   float64 `json:"accuracy"`
+	Acc   float64 `json:"acc"`
 }
 
 // PerformanceCalculationRequest represents a request to calculate the performance of a score.
