@@ -1,6 +1,8 @@
 package common
 
 import (
+	"log"
+
 	"github.com/Lekuruu/osutp-web/internal/database"
 	"gorm.io/gorm"
 )
@@ -13,12 +15,14 @@ type State struct {
 func NewState() *State {
 	config, err := LoadConfig()
 	if err != nil {
-		panic(err)
+		log.Fatalf("Failed to load configuration: %v", err)
+		return nil
 	}
 
 	db, err := database.CreateSession(config.Database.Path)
 	if err != nil {
-		panic(err)
+		log.Fatalf("Failed to initialize database: %v", err)
+		return nil
 	}
 
 	return &State{

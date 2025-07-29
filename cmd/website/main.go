@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/Lekuruu/osutp-web/internal/common"
@@ -24,6 +25,9 @@ func InitializeRoutes(server *common.Server) {
 }
 
 func main() {
+	log.SetFlags(0)
+	log.SetOutput(common.NewLogger("osutp"))
+
 	state := common.NewState()
 	if state == nil {
 		return
