@@ -11,6 +11,7 @@ import (
 func InitializeRoutes(server *common.Server) {
 	server.Router.HandleFunc("/", server.ContextMiddleware(routes.Index)).Methods("GET")
 	server.Router.HandleFunc("/players", server.ContextMiddleware(routes.Players)).Methods("GET")
+	server.Router.HandleFunc("/changelog", server.ContextMiddleware(routes.Changelog)).Methods("GET")
 
 	// Initialize static routes
 	server.Router.PathPrefix("/js/").Handler(http.StripPrefix("/js/", http.FileServer(http.Dir("web/static/js/"))))
