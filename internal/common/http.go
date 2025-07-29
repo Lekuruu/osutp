@@ -35,6 +35,7 @@ type Context struct {
 	Request  *http.Request
 	State    *State
 	Vars     map[string]string
+	Start    time.Time
 }
 
 // Serve starts the HTTP server and listens for incoming requests.
@@ -88,6 +89,7 @@ func (server *Server) ContextMiddleware(handler func(*Context)) http.HandlerFunc
 			Request:  r,
 			State:    server.State,
 			Vars:     mux.Vars(r),
+			Start:    time.Now(),
 		}
 
 		w.Header().Set("Server", server.Name)

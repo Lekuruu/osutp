@@ -12,9 +12,7 @@ func CreateSession(path string) (*gorm.DB, error) {
 	}
 
 	var models = []interface{}{
-		// &User{},
-		// &Upload{},
-		// &Pool{},
+		&Page{},
 	}
 
 	err = db.AutoMigrate(models...)
