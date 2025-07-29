@@ -104,10 +104,10 @@ func (server *Server) LoggingMiddleware(next http.Handler) http.Handler {
 		start := time.Now()
 		next.ServeHTTP(rc, r)
 		duration := time.Since(start)
-		log.Printf("[%d] %s %s (%s)",
-			rc.Status(),
+		log.Printf("%s \"%s\" %d (%s)",
 			r.Method,
 			r.RequestURI,
+			rc.Status(),
 			duration,
 		)
 	})
