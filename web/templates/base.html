@@ -40,7 +40,7 @@
 {{ define "footer" }}
       <div class="footer-content">
         <p>
-          <span style="font-weight:bold">8,291,153</span> views | query took <span style="font-weight:bold">0.0067</span> seconds
+          <span style="font-weight:bold">{{ .PageViews }}</span> views | query took <span style="font-weight:bold">{{ .LoadTime }}</span> seconds
         </p>
         <div class="line"></div>
         <p>
