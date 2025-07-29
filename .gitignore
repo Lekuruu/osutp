@@ -126,3 +126,4 @@ fabric.properties
 .data
 .env
 tests/*.png
+build.ps1

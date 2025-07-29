@@ -1,8 +1,15 @@
+{{ define "header" }}
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="utf-8">
-  <title></title>
+  <link rel="shortcut icon" href="/favicon.ico" type="image/vnd.microsoft.icon" />
+  <link rel="icon" href="/favicon.ico" type="image/vnd.microsoft.icon" />
+  <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+  <meta name="description" content="An attempt to accurately compute osu! beatmap difficulty and player ranking." />
+  <meta name="author" content="Tom94" />
+  <meta name="keywords" content="osu,osu!,tp,rating,rating system,osu! rating system,tom94,pancake,osu! ranking system,ranking system,ranking,system" />
+  <link rel="stylesheet" type="text/css" href="/css/style.css" media="all" />
+  <title>{{ .Title }}</title>
 </head>
 <body>
   <script type="text/javascript" src="/js/wz_tooltip.js"></script>
@@ -28,3 +35,4 @@
           </ul>
         </div>
       </div>
+{{ end }}
