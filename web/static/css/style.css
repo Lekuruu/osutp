@@ -2,27 +2,30 @@ body {
 	background: #d7e4fe;
 	margin: 0;
 	padding: 0;
-	font-family: "Arial Grande",Tahoma,Helvetica,Arial,sans-serif;
+	font-family: "Arial Grande", Tahoma, Helvetica, Arial, sans-serif;
 	font-size: 8pt;
 }
 
 textarea {
-	font-family: "Arial Grande",Tahoma,Helvetica,Arial,sans-serif;
+	font-family: "Arial Grande", Tahoma, Helvetica, Arial, sans-serif;
 	font-size: 8pt;
 }
 
-input,select {
+input,
+select {
 	border: 1px solid #90ace7;
 	font-size: 100%;
 	border-radius: 3px;
 }
 
-input[type="submit"],input[type="button"] {
+input[type="submit"],
+input[type="button"] {
 	background-color: #fff;
 	border-radius: 2px;
 }
 
-input[type="submit"]:hover,input[type="button"]:hover {
+input[type="submit"]:hover,
+input[type="button"]:hover {
 	background-color: #dee6ff;
 }
 
@@ -38,8 +41,7 @@ input:focus {
 	outline: 0;
 	color: #333;
 	border-color: #aaaaff;
-
-	box-shadow: inset 0 1px 3px rgba(0,0,0,.05),0 0 8px rgba(82,168,236,.6);
+	box-shadow: inset 0 1px 3px rgba(0, 0, 0, .05), 0 0 8px rgba(82, 168, 236, .6);
 }
 
 :focus {
@@ -57,8 +59,9 @@ a:hover {
 	text-decoration: underline;
 }
 
-h1, h2 {
-	
+h1,
+h2 {
+
 	margin: 0 10px 0 10px;
 	padding: 0;
 	color: #42a2ff;
@@ -66,7 +69,6 @@ h1, h2 {
 }
 
 h1 {
-
 	font-weight: normal;
 	font-size: 25pt;
 	margin-top: 5px;
@@ -74,19 +76,16 @@ h1 {
 }
 
 h1 a {
-
 	color: #42a2ff;
 	text-decoration: none;
 }
 
 h1 a:hover {
-
 	color: #3292df;
 	text-decoration: none;
 }
 
 h2 {
-
 	font-weight: normal;
 	font-size: 12pt;
 	margin-top: 1px;
@@ -94,13 +93,11 @@ h2 {
 }
 
 h2 a {
-
 	color: #42a2ff;
 	text-decoration: none;
 }
 
 h2 a:hover {
-
 	color: #3292df;
 	text-decoration: none;
 }
@@ -110,68 +107,51 @@ img {
 }
 
 p {
-	
 	margin: 0 15px 0 15px;
-	font-family: "Arial Grande",Tahoma,Helvetica,Arial,sans-serif;
+	font-family: "Arial Grande", Tahoma, Helvetica, Arial, sans-serif;
 	font-size: 8pt;
-
-
 }
 
 
-
-
-
 .bodytopbg {
-	
-	background: #d7e4fe url("/web/20130530041311im_/http://osutp.net/images/bg-top.png") repeat-x;
+	background: #d7e4fe url("/images/bg-top.png") repeat-x;
 	min-height: 700px;
 }
 
 .mainbody {
-
 	position: relative;
 	margin: auto;
 	width: 864px;
 }
 
 .description {
-
 	margin-bottom: 30px;
 }
 
 .banner {
-
-
 	margin-bottom: 30px;
 }
 
 .banner h2 {
-
 	margin-left: 12px;
 }
 
-.banner p, .banner img {
-
+.banner p,
+.banner img {
 	margin-left: 15px;
 }
-
-
 
 
 .beatmaps {
 	padding-top: 10px;
 	padding-bottom: 10px;
-	
 	border-spacing: 0px;
-	
 	margin: auto;
 	width: 100%;
 }
 
 .beatmaps th {
-
-	padding-left:7px;
+	padding-left: 7px;
 	text-align: left;
 	height: 17px;
 	background: #d9deff;
@@ -180,7 +160,6 @@ p {
 }
 
 .beatmaps td {
-
 	text-align: left;
 	height: 14px;
 }
@@ -200,40 +179,36 @@ p {
 	cursor: pointer;
 }
 
-.beatmaps tr.row1:hover,.beatmaps tr.row2:hover,.beatmaps tr.row-highlight:hover {
+.beatmaps tr.row1:hover,
+.beatmaps tr.row2:hover,
+.beatmaps tr.row-highlight:hover {
 	background: #ccccff;
 	cursor: pointer;
 }
 
 
 .content-with-bg {
-
-	background-image: url("/web/20130530041311im_/http://osutp.net/images/bg.png");
+	background-image: url("/images/bg.png");
 	padding: 10px 2px 1px 2px;
 	min-height: 10px;
 }
 
 .country-list {
-
 	text-align: center;
 }
 
 
 .changelog {
-
 	padding: 0;
 	margin: 0;
-	
 }
 
 
 .changelog li {
-
 	display: block;
 }
 
 .changelog-header {
-
 	padding: 3px 0 0 15px;
 	text-align: left;
 	height: 24px;
@@ -241,49 +216,35 @@ p {
 	border-top: 2px solid #e9e9ff;
 	border-bottom: 2px solid #5292bf;
 	display: block;
-	
 	color: #000000;
-	
 	font-size: 12pt;
 	font-weight: bold;
-	
 	text-shadow: #bbbbee 0px 0px 5px;
 }
 
-
 .changelog table {
-
 	padding: 5px 0 2px 30px;
 	margin: 0 0 40px 0;
-	
 	width: 100%;
-	
 	text-align: left;
 	height: 15px;
 	background: #fafdff;
 	border-bottom: 1px solid #72a2df;
-
 	font-size: 8pt;
 	font-weight: normal;
-	
 	text-shadow: none;
-
 }
 
 .changelog table td {
-
 	padding: 0;
 	margin: 0;
 	border: none;
 }
 
 
-
 .menu {
-
 	border-top: 1px solid #498cee;
 	border-bottom: 2px solid #e9e9ff;
-
 	padding: 0;
 	position: absolute;
 	margin: 0 2px 0 2px;
@@ -293,91 +254,67 @@ p {
 	width: 860px;
 }
 
-
 .top {
-
 	background-repeat: no-repeat;
-	background-image: url("/web/20130530041311im_/http://osutp.net/images/header.png");
-	background-position: bottom; 
+	background-image: url("/images/header.png");
+	background-position: bottom;
 	height: 100px;
 }
 
 .header {
-
 	margin: 0;
-	background-image: url("/web/20130530041311im_/http://osutp.net/images/bg.png");
+	background-image: url("/images/bg.png");
 	padding: 32px 0px 0px 0px;
 	height: 103px;
 }
 
 .header-logo {
-
 	margin: -130px 0px 0px 20px;
-
 	background-repeat: no-repeat;
-	background-image: url("/web/20130530041311im_/http://osutp.net/images/logo.png");
+	background-image: url("/images/logo.png");
 	padding: 30px 0px 0px 0px;
 	height: 174px;
-	
 }
 
 .header-content {
-
-	
 	margin: -104px 0px 0px 260px;
-
 	text-align: center;
 	height: 99px;
 }
 
-
 .sf-menu {
-	
 	margin: 0;
 	padding: 0;
 }
 
-
-
 .sf-menu a {
-
 	line-height: 29px;
 	padding-right: 1em;
 	padding-left: 1em;
 	text-decoration: none;
 	font-weight: bold;
 	display: block;
-
-	
 	font-size: 10.5pt;
 }
 
-.sf-menu a,.sf-menu a:visited {
-
+.sf-menu a,
+.sf-menu a:visited {
 	color: #000000;
 }
 
-
-.sf-menu a:hover  {
-	
+.sf-menu a:hover {
 	color: #FFFFFF;
 }
 
 .sf-menu li {
-	
 	display: inline-block;
 	background: #d9deff;
 }
 
 .sf-menu li:hover {
-	
 	background: #498cee;
 	border-bottom: 1px solid #89acfe;
 }
-
-
-
-
 
 .error {
 	font-weight: bold;
@@ -389,17 +326,14 @@ p {
 	color: #00A000;
 }
 
-
 .footer {
-
 	clear: both;
-	background-image: url("/web/20130530041311im_/http://osutp.net/images/footer.png");
+	background-image: url("/images/footer.png");
 	min-height: 50px;
 	background-repeat: no-repeat;
 }
 
 .footer-content {
-
 	padding-top: 30px;
 	padding-bottom: 10px;
 	text-align: center;
@@ -419,8 +353,6 @@ p {
 	height: 11px;
 }
 
-
-
 .form {
 	padding-top: 10px;
 	padding-bottom: 10px;
@@ -430,14 +362,11 @@ p {
 
 
 .line {
-
-
 	height: 1px;
 	margin: 3px auto 3px auto;
 	width: 55%;
 	background: #7777BB;
 }
-
 
 .pagination {
 	padding-top: 10px;
