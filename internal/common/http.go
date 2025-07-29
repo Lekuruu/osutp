@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/gorilla/mux"
 )
@@ -98,9 +99,14 @@ func (server *Server) ContextMiddleware(handler func(*Context)) http.HandlerFunc
 func (server *Server) LoggingMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		rc := &ResponseContext{w: w}
-		// start := time.Now()
+		start := time.Now()
 		next.ServeHTTP(rc, r)
-		// time := time.Since(start)
-		// TODO: Logging
+		duration := time.Since(start)
+		log.Printf("[%d] %s %s (%s)",
+			rc.Status(),
+			r.Method,
+			r.RequestURI,
+			duration,
+		)
 	})
 }
