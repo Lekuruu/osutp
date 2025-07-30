@@ -8,23 +8,30 @@ import (
 	"time"
 
 	"github.com/Lekuruu/osutp-web/internal/common"
+	"github.com/Lekuruu/osutp-web/internal/services"
+	"github.com/xeonx/timeago"
 )
 
 var templates *template.Template
 
-func renderTemplate(ctx *common.Context, tmpl string, pageData interface{}) {
+func renderTemplate(ctx *common.Context, tmpl string, pageData map[string]interface{}) {
+	lastUpdate, err := services.PageLastUpdated("players", ctx.State)
+	if err != nil {
+		ctx.Response.WriteHeader(500)
+		return
+	}
+
 	data := map[string]interface{}{
 		"Title":       "osu!DiffCalc - web version",
 		"Description": "An attempt to accurately compute beatmap difficulty and player ranking.",
 		"LoadTime":    fmt.Sprintf("%.4f", time.Since(ctx.Start).Seconds()),
+		"LastUpdate":  timeago.English.Format(lastUpdate),
 	}
-	if pageData != nil {
-		for k, v := range pageData.(map[string]interface{}) {
-			data[k] = v
-		}
+	for k, v := range pageData {
+		data[k] = v
 	}
 
-	err := templates.ExecuteTemplate(ctx.Response, tmpl, data)
+	err = templates.ExecuteTemplate(ctx.Response, tmpl, data)
 	if err != nil {
 		http.Error(ctx.Response, "Template execution error", http.StatusInternalServerError)
 		log.Println("Template execution error:", err)
