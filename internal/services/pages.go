@@ -1,6 +1,8 @@
 package services
 
 import (
+	"time"
+
 	"github.com/Lekuruu/osutp-web/internal/common"
 	"github.com/Lekuruu/osutp-web/internal/database"
 	"gorm.io/gorm"
@@ -45,4 +47,14 @@ func IncreasePageViews(pageName string, state *common.State) (int64, error) {
 	}
 
 	return PageViews(pageName, state)
+}
+
+func PageLastUpdated(pageName string, state *common.State) (time.Time, error) {
+	var page database.Page
+	query := state.Database.Model(&database.Page{}).Where("name = ?", pageName)
+	result := query.First(&page)
+	if result.Error != nil {
+		return time.Now(), result.Error
+	}
+	return page.LastUpdate, nil
 }
