@@ -10,7 +10,10 @@ import (
 
 func InitializeRoutes(server *common.Server) {
 	server.Router.HandleFunc("/", server.ContextMiddleware(routes.Index)).Methods("GET")
+	server.Router.HandleFunc("/scores", server.ContextMiddleware(routes.Scores)).Methods("GET")
 	server.Router.HandleFunc("/players", server.ContextMiddleware(routes.Players)).Methods("GET")
+	server.Router.HandleFunc("/banners", server.ContextMiddleware(routes.Banners)).Methods("GET")
+	server.Router.HandleFunc("/beatmaps", server.ContextMiddleware(routes.Beatmaps)).Methods("GET")
 	server.Router.HandleFunc("/changelog", server.ContextMiddleware(routes.Changelog)).Methods("GET")
 
 	// Initialize static routes
