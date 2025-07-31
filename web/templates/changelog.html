@@ -1,10 +1,28 @@
 {{ define "changelog" }}
 {{ template "header" . }}
+<div class="description">
     <h1>Changelog</h1>
     <p>
         This changelog reflects the latest changes to this website and the underlying tp system.
         It doesn't feature precise information about the algorithms to keep it understandable.
         An in-depth breakdown is to be included in an upcoming info-page.
     </p>
+</div>
+<ul class="changelog">
+    {{ range $date, $changelogs := .Changelogs }}
+    <li class="changelog-header">{{ $date }}</li>
+    <li>
+        <table>
+            <tbody>
+                {{ range $changelogs }}
+                <tr>
+                    <td>{{ .Time }}&nbsp;&nbsp;&nbsp;<span style="font-weight:bold">{{ .Area }}</span>: {{ .Description }}</td>
+                </tr>
+                {{ end }}
+            </tbody>
+        </table>
+    </li>
+    {{ end }}
+</ul>
 {{ template "footer" . }}
 {{ end }}

@@ -7,3 +7,18 @@ type Page struct {
 	Views      int64     `gorm:"not null;default:0"`
 	LastUpdate time.Time `gorm:"not null;default:CURRENT_TIMESTAMP"`
 }
+
+type Changelog struct {
+	Id          int       `gorm:"primaryKey;autoIncrement;not null"`
+	Area        string    `gorm:"not null"`
+	Description string    `gorm:"not null"`
+	CreatedAt   time.Time `gorm:"not null;default:CURRENT_TIMESTAMP"`
+}
+
+func (changelog *Changelog) Date() string {
+	return changelog.CreatedAt.UTC().Format("Jan 02, 2006")
+}
+
+func (changelog *Changelog) Time() string {
+	return changelog.CreatedAt.UTC().Format("15:04")
+}
