@@ -1,0 +1,101 @@
+{{ define "info" }}
+{{ template "header" . }}
+    <h1>In-depth explaination of tp</h1>
+
+    <h2>Beatmap difficulty</h2>
+    <p>
+        The foundation of tp calculation is beatmap difficulty itself. Instead of using the (arguably) broken star rating,
+        osu!tp features it's own difficulty calculator.<br />
+        At first map-changing mods are applied:
+    </p>
+
+    <dl style="margin-top:15px">
+        <dt>&#9679; <span class="mod-dt">DoubleTime</span></dt>
+        <dd>Speeds the whole map up by a factor of 3/2 and decreases the timing windows for approach circles and getting
+            accurate hits.</dd>
+        <dt>&#9679; <span class="mod-ht">HalfTime</span></dt>
+        <dd>Slows the whole map down by a factor of 4/3 and increases the timing windows for approach circles and getting
+            accurate hits.</dd>
+        <dt>&#9679; <span class="mod-hr">HardRock</span></dt>
+        <dd>Increases ApproachRate, OverallDifficulty and HP drain by a factor of 1.4. CircleSize is increased by a factor
+            of 1.3 (the circles get smaller).</dd>
+        <dt>&#9679; <span class="mod-easy">Easy</span></dt>
+        <dd>Halves ApproachRate, OverallDifficulty, CircleSize and HP drain.</dd>
+    </dl>
+
+    <p style="margin-top:18px">
+        Afterwards the beatmap is scaled in size according to its CircleSize. This is done so that
+        maps with different CircleSize can be treated equally. Finally HitObject stacking is taken into account and applied,
+        then the actual difficulty algorithm is applied to the map.
+    </p>
+    <p style="margin-top:10px">
+        In this algorithm every HitObject in the map gets assigned a strain value for aim and for
+        speed. It represents how hard it is to aim or click the particular HitObject, depending on the previous HitObjects
+        and their strain values.
+    </p>
+
+    <table>
+        <tr>
+            <td><img src="/straingraph/129891" alt="Straingraph of xi - FREEDOM DiVE [FOUR DIMENSIONS]"/></td>
+            <td style="font-size:7pt">
+                <span style="color:#ddbb00">&#9632;</span> Speed<br />
+                <span style="color:#6666ff">&#9632;</span> Aim
+            </td>
+        </tr>
+    </table>
+
+    <p style="font-size:7pt;text-align:right">
+        <span style="font-style:italic">
+            Strain-graph of <a href="http://osu.ppy.sh/b/129891">xi - FREEDOM DiVE [FOUR DIMENSIONS]</a>
+        </span>
+    </p>
+
+    <p style="margin-top:15px">
+        When the strain values are calculated the algorithm looks for the sections with the highest
+        strain values and adds those up with decreasing weight to calculate speed and aim difficulty of the beatmap with the
+        specified mod combination. Last but not least the non-map-changing mods, <span class="mod-hd">Hidden</span> and
+        <span class="mod-fl">FlashLight</span>, add a flat percentage bonus to the aim difficulty.
+    </p>
+
+    <h2 style="margin-top:20px">Score rating</h2>
+    <p>
+        osu!tp periodically queries all top50 scores from the official game. This is currently a technical limitation of the
+        osu! API. As soon as it's possible to query more scores, it will start doing so. Building on the previously
+        established beatmap difficulty every score is rated in terms of aim, speed and accuracy.
+    </p>
+
+    <dl style="margin-top:15px">
+        <dt>&#9679; Aim</dt>
+        <dd>The aim value of a score relies heavily on the beatmap's aim difficulty. High combo and low miss count mean a
+            high aim value. An extremely low ApproachRate or an extremely high one add a bonus to the aim value. Map length
+            slightly increases the aim value aswell.</dd>
+        <dt>&#9679; Speed</dt>
+        <dd>The speed value of a score relies heavily on the beatmap's speed difficulty. Just like with the aim value high
+            combo and low miss count are necessary for a high speed value. While map length, too, affects the speed value,
+            ApproachRate or any other reading related aspect don't.</dd>
+        <dt>&#9679; Accuracy</dt>
+        <dd>Unlike the speed or aim value the accuracy value does not rely on high combo. Only the accuracy itself,
+            OverallDifficulty and map length are being looked at. However, sliders and spinners are ignored for the
+            calculation because they offer free 300s on any OverallDifficulty.</dd>
+    </dl>
+
+    <p style="margin-top:18px">
+        The total tp value of a score is calculated by adding the aim, speed and accuracy value
+        together. While interesting for comparing scores among themselves it is irrelevant for player tp calculation.
+    </p>
+
+    <h2 style="margin-top:20px">Player rating</h2>
+    <p>
+        The last step after computing score rating is to collect all of the aim, speed and accuracy scores from every player.
+        The scores are then sorted decreasingly by their value and the best ones form each player's tp rating in aim, speed
+        or accuracy respectively. To make it clear: aim, speed and accuracy ratings are calculated separately.<br />
+        Each player's total tp rating is simply the sum of his/her aim, speed and accuracy rating.
+    </p>
+
+    <h2 style="margin-top:20px">Country rating</h2>
+    <p>
+        The country rating works in the same way as the player rating does. The players of each country are sorted
+        decreasingly by their value and the best ones make up the country's tp rating.
+    </p>
+{{ template "footer" . }}
+{{ end }}
