@@ -9,12 +9,12 @@
     </p>
 </div>
 <ul class="changelog">
-    {{ range $date, $changelogs := .Changelogs }}
-    <li class="changelog-header">{{ $date }}</li>
+    {{ range .Changelogs }}
+    <li class="changelog-header">{{ .Date }}</li>
     <li>
         <table>
             <tbody>
-                {{ range $changelogs }}
+                {{ range .Changelogs }}
                 <tr>
                     <td>{{ .Time }}&nbsp;&nbsp;&nbsp;<span style="font-weight:bold">{{ .Area }}</span>: {{ .Description }}</td>
                 </tr>

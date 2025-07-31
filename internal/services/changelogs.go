@@ -5,6 +5,11 @@ import (
 	"github.com/Lekuruu/osutp-web/internal/database"
 )
 
+type ChangelogBatch struct {
+	Date       string
+	Changelogs []*database.Changelog
+}
+
 func CreateChangelog(changelog *database.Changelog, state *common.State) error {
 	result := state.Database.Create(changelog)
 	if result.Error != nil {
@@ -22,24 +27,37 @@ func FetchChangelog(changelogId int, state *common.State) (*database.Changelog, 
 	return changelog, nil
 }
 
-func FetchChangelogs(limit int, state *common.State) (map[string][]*database.Changelog, error) {
+func FetchChangelogs(limit int, state *common.State) ([]*ChangelogBatch, error) {
 	var logs []database.Changelog
 	result := state.Database.Order("created_at DESC").Limit(limit).Find(&logs)
 	if result.Error != nil {
 		return nil, result.Error
 	}
 
-	reversed := make([]database.Changelog, len(logs))
-	for i, entry := range logs {
-		reversed[len(logs)-1-i] = entry
-	}
-
-	grouped := make(map[string][]*database.Changelog)
-	for i := range reversed {
-		entry := &reversed[i]
+	var batches []*ChangelogBatch
+	for i := range logs {
+		entry := &logs[i]
 		day := entry.Date()
-		grouped[day] = append(grouped[day], entry)
+
+		if len(batches) == 0 {
+			batches = append(batches, &ChangelogBatch{
+				Date:       day,
+				Changelogs: []*database.Changelog{entry},
+			})
+			continue
+		}
+
+		previousBatch := batches[len(batches)-1]
+		if previousBatch.Date != day {
+			batches = append(batches, &ChangelogBatch{
+				Date:       day,
+				Changelogs: []*database.Changelog{entry},
+			})
+			continue
+		}
+
+		previousBatch.Changelogs = append(previousBatch.Changelogs, entry)
 	}
 
-	return grouped, nil
+	return batches, nil
 }
