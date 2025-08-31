@@ -39,6 +39,14 @@ func TestPerformanceGimmeGimme(t *testing.T) {
 	)
 }
 
+func TestPerformanceMatzcore(t *testing.T) {
+	performScorePerformanceTest(
+		t,
+		"performance_test_matzcore.osr",
+		"difficulty_test_matzcore.osu",
+	)
+}
+
 func performScorePerformanceTest(t *testing.T, replayFile string, beatmapFile string) {
 	t.Helper()
 

@@ -24,6 +24,10 @@ func TestBeatmapGimmeGimme(t *testing.T) {
 	performBeatmapDifficultyCalculation(t, "difficulty_test_gimmegimme.osu", 0)
 }
 
+func TestBeatmapMatzcore(t *testing.T) {
+	performBeatmapDifficultyCalculation(t, "difficulty_test_matzcore.osu", 0)
+}
+
 func performBeatmapDifficultyCalculation(t *testing.T, beatmapFile string, mods int) *tp.DifficultyCalculationResult {
 	t.Helper()
 
