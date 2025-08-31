@@ -16,6 +16,14 @@ func TestBeatmapFreedomDive(t *testing.T) {
 	performBeatmapDifficultyCalculation(t, "difficulty_test_freedomdive.osu", 0)
 }
 
+func TestBeatmapRemoteControl(t *testing.T) {
+	performBeatmapDifficultyCalculation(t, "difficulty_test_remotecontrol.osu", 0)
+}
+
+func TestBeatmapGimmeGimme(t *testing.T) {
+	performBeatmapDifficultyCalculation(t, "difficulty_test_gimmegimme.osu", 0)
+}
+
 func performBeatmapDifficultyCalculation(t *testing.T, beatmapFile string, mods int) *tp.DifficultyCalculationResult {
 	t.Helper()
 

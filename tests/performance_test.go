@@ -31,6 +31,14 @@ func TestPerformanceRogUnlimitation(t *testing.T) {
 	)
 }
 
+func TestPerformanceGimmeGimme(t *testing.T) {
+	performScorePerformanceTest(
+		t,
+		"performance_test_gimmegimme.osr",
+		"difficulty_test_gimmegimme.osu",
+	)
+}
+
 func performScorePerformanceTest(t *testing.T, replayFile string, beatmapFile string) {
 	t.Helper()
 
