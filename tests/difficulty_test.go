@@ -39,6 +39,13 @@ func performBeatmapDifficultyCalculation(t *testing.T, beatmapFile string, mods 
 		t.Fatalf("Failed to perform difficulty calculation request: %v", err)
 	}
 
-	t.Logf("Difficulty Calculation Result: %.2f\n", response.StarRating)
+	t.Logf(
+		"Difficulty Calculation Result: %.2f* (Aim: %.2f* / %.2f, Speed: %.2f* / %.2f)\n",
+		response.StarRating,
+		response.AimStars,
+		response.AimDifficulty,
+		response.SpeedStars,
+		response.SpeedDifficulty,
+	)
 	return response
 }
