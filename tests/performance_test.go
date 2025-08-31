@@ -23,7 +23,6 @@ func TestPerformanceFreedomDive(t *testing.T) {
 		t.Fatal("failed to calculate beatmap difficulty")
 	}
 
-	// Perform performance calculation
 	request := tp.NewPerformanceCalculationRequest(score, beatmapDifficulty)
 	result, err := request.Perform(*serviceUrl)
 	if err != nil {
@@ -49,7 +48,31 @@ func TestPerformanceRemoteControl(t *testing.T) {
 		t.Fatal("failed to calculate beatmap difficulty")
 	}
 
-	// Perform performance calculation
+	request := tp.NewPerformanceCalculationRequest(score, beatmapDifficulty)
+	result, err := request.Perform(*serviceUrl)
+	if err != nil {
+		t.Fatalf("failed to calculate performance: %v", err)
+	}
+
+	t.Logf("Performance: %.2f (Aim: %.2f, Speed: %.2f, Acc: %.2f)", result.Total, result.Aim, result.Speed, result.Acc)
+}
+
+func TestPerformanceRogUnlimitation(t *testing.T) {
+	replay, err := osr.NewReplayFromFile("performance_test_rogunlimitation.osr")
+	if err != nil {
+		t.Fatalf("failed to load replay: %v", err)
+	}
+
+	score := tp.NewScoreFromReplay(replay, "difficulty_test_rogunlimitation.osu")
+	if score == nil {
+		t.Fatal("failed to create score from replay")
+	}
+
+	beatmapDifficulty := performBeatmapDifficultyCalculation(t, "difficulty_test_rogunlimitation.osu", score.Mods)
+	if beatmapDifficulty == nil {
+		t.Fatal("failed to calculate beatmap difficulty")
+	}
+
 	request := tp.NewPerformanceCalculationRequest(score, beatmapDifficulty)
 	result, err := request.Perform(*serviceUrl)
 	if err != nil {
