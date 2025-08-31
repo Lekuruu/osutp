@@ -32,6 +32,7 @@ type DifficultyCalculationResult struct {
 type DifficultyCalculationRequest struct {
 	Beatmap    *BeatmapBase    `json:"beatmap"`
 	HitObjects []HitObjectBase `json:"hitObjects"`
+	Mods       int             `json:"mods"`
 }
 
 func (request *DifficultyCalculationRequest) Perform(serviceUrl string) (*DifficultyCalculationResult, error) {
@@ -68,7 +69,7 @@ func NewDifficultyCalculationRequest(beatmap *BeatmapBase, hitObjects []HitObjec
 	}
 }
 
-func NewDifficultyCalculationRequestFromBeatmap(beatmap osu.Beatmap) *DifficultyCalculationRequest {
+func NewDifficultyCalculationRequestFromBeatmap(beatmap osu.Beatmap, mods int) *DifficultyCalculationRequest {
 	hitObjects := make([]HitObjectBase, len(beatmap.HitObjects))
 	for i, obj := range beatmap.HitObjects {
 		hitObjects[i] = *NewHitObjectBase(obj)
@@ -76,5 +77,6 @@ func NewDifficultyCalculationRequestFromBeatmap(beatmap osu.Beatmap) *Difficulty
 	return &DifficultyCalculationRequest{
 		Beatmap:    NewBeatmapBase(&beatmap),
 		HitObjects: hitObjects,
+		Mods:       mods,
 	}
 }

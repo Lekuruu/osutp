@@ -18,7 +18,7 @@ func TestPerformanceFreedomDive(t *testing.T) {
 		t.Fatal("failed to create score from replay")
 	}
 
-	beatmapDifficulty := performBeatmapDifficultyCalculation(t, "difficulty_test_freedomdive.osu")
+	beatmapDifficulty := performBeatmapDifficultyCalculation(t, "difficulty_test_freedomdive.osu", score.Mods)
 	if beatmapDifficulty == nil {
 		t.Fatal("failed to calculate beatmap difficulty")
 	}
@@ -44,7 +44,7 @@ func TestPerformanceRemoteControl(t *testing.T) {
 		t.Fatal("failed to create score from replay")
 	}
 
-	beatmapDifficulty := performBeatmapDifficultyCalculation(t, "difficulty_test_remotecontrol.osu")
+	beatmapDifficulty := performBeatmapDifficultyCalculation(t, "difficulty_test_remotecontrol.osu", score.Mods)
 	if beatmapDifficulty == nil {
 		t.Fatal("failed to calculate beatmap difficulty")
 	}

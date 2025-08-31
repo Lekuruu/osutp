@@ -9,20 +9,20 @@ import (
 )
 
 func TestBeatmapRogUnlimitation(t *testing.T) {
-	performBeatmapDifficultyCalculation(t, "difficulty_test_rogunlimitation.osu")
+	performBeatmapDifficultyCalculation(t, "difficulty_test_rogunlimitation.osu", 0)
 }
 
 func TestBeatmapFreedomDive(t *testing.T) {
-	performBeatmapDifficultyCalculation(t, "difficulty_test_freedomdive.osu")
+	performBeatmapDifficultyCalculation(t, "difficulty_test_freedomdive.osu", 0)
 }
 
-func performBeatmapDifficultyCalculation(t *testing.T, beatmapFile string) *tp.DifficultyCalculationResult {
+func performBeatmapDifficultyCalculation(t *testing.T, beatmapFile string, mods int) *tp.DifficultyCalculationResult {
 	beatmap, err := osu.ParseFile(beatmapFile)
 	if err != nil {
 		t.Fatalf("Failed to parse beatmap: %v", err)
 	}
 
-	request := tp.NewDifficultyCalculationRequestFromBeatmap(beatmap)
+	request := tp.NewDifficultyCalculationRequestFromBeatmap(beatmap, mods)
 	if request == nil {
 		t.Fatal("Failed to create difficulty calculation request from beatmap")
 	}
