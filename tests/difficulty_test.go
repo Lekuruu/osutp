@@ -17,6 +17,8 @@ func TestBeatmapFreedomDive(t *testing.T) {
 }
 
 func performBeatmapDifficultyCalculation(t *testing.T, beatmapFile string, mods int) *tp.DifficultyCalculationResult {
+	t.Helper()
+
 	beatmap, err := osu.ParseFile(beatmapFile)
 	if err != nil {
 		t.Fatalf("Failed to parse beatmap: %v", err)
