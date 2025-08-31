@@ -2,6 +2,7 @@ package common
 
 import (
 	"log"
+	"os"
 
 	"github.com/Lekuruu/osutp-web/internal/database"
 	"gorm.io/gorm"
@@ -16,6 +17,12 @@ func NewState() *State {
 	config, err := LoadConfig()
 	if err != nil {
 		log.Fatalf("Failed to load configuration: %v", err)
+		return nil
+	}
+
+	// Ensure data path exists
+	if err := os.MkdirAll(".data", os.ModePerm); err != nil {
+		log.Fatalf("Failed to create data directory: %v", err)
 		return nil
 	}
 
