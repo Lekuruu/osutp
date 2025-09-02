@@ -16,6 +16,10 @@ func TestBeatmapFreedomDive(t *testing.T) {
 	performBeatmapDifficultyCalculation(t, "difficulty_test_freedomdive.osu", 0)
 }
 
+func TestBeatmapFreedomDiveAnother(t *testing.T) {
+	performBeatmapDifficultyCalculation(t, "difficulty_test_freedomdive_another.osu", 0)
+}
+
 func TestBeatmapRemoteControl(t *testing.T) {
 	performBeatmapDifficultyCalculation(t, "difficulty_test_remotecontrol.osu", 0)
 }
@@ -30,6 +34,10 @@ func TestBeatmapMatzcore(t *testing.T) {
 
 func TestBeatmapRedGoose(t *testing.T) {
 	performBeatmapDifficultyCalculation(t, "difficulty_test_redgoose.osu", 0)
+}
+
+func TestBeatmapAirman(t *testing.T) {
+	performBeatmapDifficultyCalculation(t, "difficulty_test_airman.osu", 0)
 }
 
 func performBeatmapDifficultyCalculation(t *testing.T, beatmapFile string, mods int) *tp.DifficultyCalculationResult {

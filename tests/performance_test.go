@@ -15,6 +15,14 @@ func TestPerformanceFreedomDive(t *testing.T) {
 	)
 }
 
+func TestPerformanceFreedomDiveAnother(t *testing.T) {
+	performScorePerformanceTest(
+		t,
+		"performance_test_freedomdive_another.osr",
+		"difficulty_test_freedomdive_another.osu",
+	)
+}
+
 func TestPerformanceRemoteControl(t *testing.T) {
 	performScorePerformanceTest(
 		t,
@@ -52,6 +60,14 @@ func TestPerformanceRedGoose(t *testing.T) {
 		t,
 		"performance_test_redgoose.osr",
 		"difficulty_test_redgoose.osu",
+	)
+}
+
+func TestPerformanceAirman(t *testing.T) {
+	performScorePerformanceTest(
+		t,
+		"performance_test_airman.osr",
+		"difficulty_test_airman.osu",
 	)
 }
 
