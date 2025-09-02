@@ -47,6 +47,14 @@ func TestPerformanceMatzcore(t *testing.T) {
 	)
 }
 
+func TestPerformanceRedGoose(t *testing.T) {
+	performScorePerformanceTest(
+		t,
+		"performance_test_redgoose.osr",
+		"difficulty_test_redgoose.osu",
+	)
+}
+
 func performScorePerformanceTest(t *testing.T, replayFile string, beatmapFile string) {
 	t.Helper()
 
