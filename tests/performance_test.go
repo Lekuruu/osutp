@@ -71,6 +71,14 @@ func TestPerformanceAirman(t *testing.T) {
 	)
 }
 
+func TestPerformanceKillerSong(t *testing.T) {
+	performScorePerformanceTest(
+		t,
+		"performance_test_killersong.osr",
+		"difficulty_test_killersong.osu",
+	)
+}
+
 func performScorePerformanceTest(t *testing.T, replayFile string, beatmapFile string) {
 	t.Helper()
 

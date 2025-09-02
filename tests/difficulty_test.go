@@ -40,6 +40,10 @@ func TestBeatmapAirman(t *testing.T) {
 	performBeatmapDifficultyCalculation(t, "difficulty_test_airman.osu", 0)
 }
 
+func TestBeatmapKillerSong(t *testing.T) {
+	performBeatmapDifficultyCalculation(t, "difficulty_test_killersong.osu", 0)
+}
+
 func performBeatmapDifficultyCalculation(t *testing.T, beatmapFile string, mods int) *tp.DifficultyCalculationResult {
 	t.Helper()
 
