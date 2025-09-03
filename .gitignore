@@ -122,6 +122,9 @@ fabric.properties
 .history
 .ionide
 
+# air temporary data
+tmp/
+
 # Application data
 .data
 .env
