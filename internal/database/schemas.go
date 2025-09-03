@@ -1,6 +1,9 @@
 package database
 
-import "time"
+import (
+	"fmt"
+	"time"
+)
 
 type Page struct {
 	Name       string    `gorm:"primaryKey;not null"`
@@ -24,12 +27,21 @@ func (changelog *Changelog) Time() string {
 }
 
 type Beatmap struct {
-	ID                   uint                 `gorm:"primaryKey"`
-	SetID                int                  `gorm:"column:set_id;index"`
-	Title                string               `gorm:"not null"`
-	Artist               string               `gorm:"not null"`
-	Creator              string               `gorm:"not null"`
-	Source               string               `gorm:"not null"`
-	Tags                 string               `gorm:"not null"`
+	ID                   int `gorm:"primaryKey"`
+	SetID                int `gorm:"column:set_id;index"`
+	Title                string
+	Artist               string
+	Creator              string
+	Source               string
+	Tags                 string
+	Version              string               `gorm:"not null"`
+	Status               int                  `gorm:"not null;default:1"`
+	AR                   float64              `gorm:"not null"`
+	OD                   float64              `gorm:"not null"`
+	CS                   float64              `gorm:"not null"`
 	DifficultyAttributes DifficultyAttributes `gorm:"type:json"`
+}
+
+func (beatmap *Beatmap) FullName() string {
+	return fmt.Sprintf("%s - %s (%s) [%s]", beatmap.Artist, beatmap.Title, beatmap.Creator, beatmap.Version)
 }
