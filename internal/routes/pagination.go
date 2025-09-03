@@ -16,6 +16,9 @@ func NewPaginationData(currentPage, totalPages, perPage, totalResults int) *Pagi
 	if end > totalResults && totalResults > 0 {
 		end = totalResults
 	}
+	if start <= 0 {
+		start = 1
+	}
 	return &PaginationData{
 		CurrentPage:  currentPage,
 		TotalPages:   totalPages,
