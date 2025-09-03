@@ -39,8 +39,13 @@ func renderTemplate(ctx *common.Context, tmpl string, pageData map[string]interf
 }
 
 func init() {
+	funcs := template.FuncMap{
+		"add": func(a, b int) int { return a + b },
+		"sub": func(a, b int) int { return a - b },
+	}
+
 	var err error
-	templates, err = template.ParseGlob("web/templates/*.html")
+	templates, err = template.New("").Funcs(funcs).ParseGlob("web/templates/*.html")
 	if err != nil {
 		log.Fatalf("Failed to parse templates: %v", err)
 	}

@@ -1,0 +1,43 @@
+{{ define "pagination" }}
+<div class="pagination">
+  Displaying {{ .Start }} to {{ .End }} of 
+  {{ if or (eq .TotalResults 0) (not .TotalResults) }}
+    too many results.
+  {{ else }} {{ .TotalResults }}
+    results.
+  {{ end }}<br>
+
+  {{ if gt .TotalPages 1 }}
+    {{ if gt .CurrentPage 1 }}
+        <a href="?p={{ sub .CurrentPage 1 }}">prev</a>
+    {{ end }}
+
+    {{ range $i := (add .TotalPages 1) }}
+        {{ if eq $i 0 }}
+        {{/* Skip this "page" */}}
+        {{ else }}
+            {{ if eq $i $.CurrentPage }}
+            <b>{{ $i }}</b>
+            {{ else if eq $i (sub $.CurrentPage 10) }}
+            <a href="?p=1">1</a>
+            ...
+            {{ else if eq $i (add $.CurrentPage 10) }}
+            ... 
+            <a href="?p={{ $.TotalPages }}">{{ $.TotalPages }}</a>
+            {{ else if gt $i (add $.CurrentPage 9) }}
+            
+            {{ else if lt $i (sub $.CurrentPage 9) }}
+
+            {{ else }}
+            <a href="?p={{ $i }}">{{ $i }}</a>
+            {{ end }}
+        {{ end }}
+    {{ end }}
+
+    {{ if lt .CurrentPage .TotalPages }}
+        <a href="?p={{ add .CurrentPage 1 }}">next</a>
+    {{ end }}
+  {{ end }}
+  <div></div>
+</div>
+{{ end }}

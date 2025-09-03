@@ -1,0 +1,38 @@
+package routes
+
+type PaginationData struct {
+	PageViews    int
+	CurrentPage  int
+	TotalPages   int
+	PerPage      int
+	TotalResults int
+	Start        int
+	End          int
+}
+
+func NewPaginationData(currentPage, totalPages, perPage, totalResults int) *PaginationData {
+	start := (currentPage - 1) * perPage
+	end := start + perPage
+	if end > totalResults && totalResults > 0 {
+		end = totalResults
+	}
+	return &PaginationData{
+		CurrentPage:  currentPage,
+		TotalPages:   totalPages,
+		PerPage:      perPage,
+		TotalResults: totalResults,
+		Start:        start,
+		End:          end,
+	}
+}
+
+func TestPaginationData() *PaginationData {
+	return &PaginationData{
+		CurrentPage:  1,
+		TotalPages:   100,
+		PerPage:      50,
+		TotalResults: 0,
+		Start:        1,
+		End:          50,
+	}
+}
