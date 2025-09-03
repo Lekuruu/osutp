@@ -22,3 +22,14 @@ func (changelog *Changelog) Date() string {
 func (changelog *Changelog) Time() string {
 	return changelog.CreatedAt.UTC().Format("15:04")
 }
+
+type Beatmap struct {
+	ID                   uint                 `gorm:"primaryKey"`
+	SetID                int                  `gorm:"column:set_id;index"`
+	Title                string               `gorm:"not null"`
+	Artist               string               `gorm:"not null"`
+	Creator              string               `gorm:"not null"`
+	Source               string               `gorm:"not null"`
+	Tags                 string               `gorm:"not null"`
+	DifficultyAttributes DifficultyAttributes `gorm:"type:json"`
+}
