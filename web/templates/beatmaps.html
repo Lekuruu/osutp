@@ -1,9 +1,82 @@
 {{ define "beatmaps" }}
 {{ template "header" . }}
-    <h1>Beatmap difficulty</h1>
-    <p>
-        The level of a beatmap is determined by it's so called speed and aim difficulty.
-        Speed difficulty is greatly determined by how fast the map is while aim difficulty depends on how hard it is to aim correctly.
-    </p>
+<h1>Beatmap difficulty</h1>
+<p>
+    The level of a beatmap is determined by it's so called speed and aim difficulty.
+    Speed difficulty is greatly determined by how fast the map is while aim difficulty depends on how hard it is to aim
+    correctly.
+</p>
+<form class="form" action="/beatmaps" method="get">
+    <table class="search-form-limits">
+        <tbody>
+            <tr>
+                <th>Mods</th>
+                <th>Approach rate</th>
+                <th>Circle size</th>
+                <th>Overall difficulty</th>
+                <th>Speed to aim ratio</th>
+            </tr>
+            <tr>
+                <td>
+                    <table class="search-form-mods">
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <input type="checkbox" name="DT" value="1" onclick="this.form.HT.checked=false">
+                                    <span class="mod-dt">DoubleTime</span>
+                                </td>
+                                <td>
+                                    <input type="checkbox" name="HR" value="1" onclick="this.form.EZ.checked=false">
+                                    <span class="mod-hr">HardRock</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <input type="checkbox" name="HT" value="1" onclick="this.form.DT.checked=false">
+                                    <span class="mod-ht">HalfTime</span>
+                                </td>
+                                <td>
+                                    <input type="checkbox" name="EZ" value="1" onclick="this.form.HR.checked=false">
+                                    <span class="mod-easy">Easy</span>
+                                </td>
+                            </tr>
+
+                        </tbody>
+                    </table>
+                </td>
+                <td>
+                    <input type="text" name="arl" size="4" maxlength="5" value="-5"> -
+                    <input type="text" name="arh" size="4" maxlength="5" value="11">
+                </td>
+                <td>
+                    <input type="text" name="csl" size="4" maxlength="5" value="0"> -
+                    <input type="text" name="csh" size="4" maxlength="5" value="10">
+                </td>
+                <td>
+                    <input type="text" name="odl" size="4" maxlength="5" value="-4.33"> -
+                    <input type="text" name="odh" size="4" maxlength="5" value="11">
+                </td>
+                <td>
+                    <input type="text" name="s" size="2" maxlength="3" value="50" onkeyup="if(this.value &gt; 100) this.value=100; if(this.value &lt; 0) this.value=0; this.form.elements[11].value=100-this.value">
+
+                    :
+
+                    <input type="text" size="2" maxlength="3" value="50" onkeyup="if(this.value &gt; 100) this.value=100; if(this.value &lt; 0) this.value=0; this.form.s.value=100-this.value">
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <div class="search-form-search">
+        <input type="text" name="n" size="30" maxlength="30" placeholder="Beatmap name">
+        <input type="submit" value="Search">
+        <input type="reset" value="Reset">
+        <input type="reset" value="Default" onclick="document.location='/beatmaps'">
+        <select name="u" size="1">
+            <option value="0">All</option>
+            <option value="1" selected="selected">Ranked</option>
+            <option value="2">Unranked</option>
+        </select>
+    </div>
+</form>
 {{ template "footer" . }}
 {{ end }}
