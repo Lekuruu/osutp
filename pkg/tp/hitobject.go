@@ -1,6 +1,8 @@
 package tp
 
-import osu "github.com/natsukagami/go-osu-parser"
+import (
+	osu "github.com/natsukagami/go-osu-parser"
+)
 
 // Vector2 represents a 2D point or vector.
 type Vector2 struct {
@@ -74,7 +76,7 @@ func NewHitObjectBase(hitObject osu.HitObject) *HitObjectBase {
 		EndTime:           endTime,
 		Type:              NewHitObjectType(hitObject.ObjectName, hitObject.NewCombo),
 		SoundType:         NewHitObjectSoundType(hitObject.SoundTypes),
-		SegmentCount:      hitObject.RepeatCount + 1,
+		SegmentCount:      hitObject.RepeatCount,
 		SpatialLength:     hitObject.PixelLength,
 		Position:          startPosition,
 		EndPosition:       endPosition,
