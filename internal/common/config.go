@@ -10,6 +10,7 @@ type Config struct {
 	Database struct {
 		Path string `envconfig:"DB_PATH" default:"./.data/osutp.db"`
 	}
+	TpServiceUrl string `envconfig:"TP_SERVICE_URL" default:"http://localhost:5028"`
 }
 
 func LoadConfig() (*Config, error) {

@@ -39,6 +39,10 @@ type Beatmap struct {
 	AR                   float64              `gorm:"not null"`
 	OD                   float64              `gorm:"not null"`
 	CS                   float64              `gorm:"not null"`
+	AmountNormal         int                  `gorm:"not null"`
+	AmountSliders        int                  `gorm:"not null"`
+	AmountSpinners       int                  `gorm:"not null"`
+	MaxCombo             int                  `gorm:"not null"`
 	DifficultyAttributes DifficultyAttributes `gorm:"type:json"`
 }
 

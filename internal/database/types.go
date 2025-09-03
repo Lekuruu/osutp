@@ -6,7 +6,7 @@ import (
 	"fmt"
 )
 
-type DifficultyAttributes map[string]map[string]float64
+type DifficultyAttributes map[uint32]map[string]float64
 
 func (d *DifficultyAttributes) Scan(value interface{}) error {
 	bytes, ok := value.([]byte)

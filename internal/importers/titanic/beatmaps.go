@@ -95,6 +95,10 @@ func (beatmap *BeatmapModel) ToSchema(beatmapset *BeatmapsetModel) *database.Bea
 		AR:                   beatmap.AR,
 		OD:                   beatmap.OD,
 		CS:                   beatmap.CS,
+		AmountNormal:         beatmap.CountNormal,
+		AmountSliders:        beatmap.CountSlider,
+		AmountSpinners:       beatmap.CountSpinner,
+		MaxCombo:             beatmap.MaxCombo,
 		DifficultyAttributes: database.DifficultyAttributes{},
 	}
 }
@@ -133,6 +137,15 @@ func ImportBeatmapsByDifficulty(page int, state *common.State) error {
 				return result.Error
 			}
 
+			file, err := fetchBeatmapFile(beatmap.ID)
+			if err != nil {
+				return err
+			}
+
+			err = common.UpdateBeatmapDifficulty(file, schema, state)
+			if err != nil {
+				return err
+			}
 			fmt.Printf("Imported Beatmap: '%s' (https://osu.titanic.sh/b/%d)\n", schema.FullName(), schema.ID)
 		}
 	}
@@ -157,6 +170,17 @@ func performSearchRequest(request BeatmapSearchRequest) ([]BeatmapsetModel, erro
 		return nil, err
 	}
 	return results, nil
+}
+
+func fetchBeatmapFile(beatmapId int) ([]byte, error) {
+	url := fmt.Sprintf("%s/beatmaps/%d/file", TitanicApiBaseurl, beatmapId)
+	resp, err := http.Get(url)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	return io.ReadAll(resp.Body)
 }
 
 func dereferenceString(s *string) string {
