@@ -1,6 +1,8 @@
 package common
 
 import (
+	"math"
+
 	"github.com/Lekuruu/osutp-web/internal/database"
 	"github.com/Lekuruu/osutp-web/pkg/tp"
 	osu "github.com/natsukagami/go-osu-parser"
@@ -28,15 +30,15 @@ func UpdateBeatmapDifficulty(file []byte, schema *database.Beatmap, state *State
 			return err
 		}
 		attributes[mod] = map[string]float64{}
-		attributes[mod]["ApproachRate"] = float64(response.ApproachRate)
-		attributes[mod]["OverallDifficulty"] = float64(response.OverallDifficulty)
-		attributes[mod]["HpDrainRate"] = float64(response.HpDrainRate)
-		attributes[mod]["CircleSize"] = float64(response.CircleSize)
-		attributes[mod]["SpeedDifficulty"] = response.SpeedDifficulty
-		attributes[mod]["AimDifficulty"] = response.AimDifficulty
-		attributes[mod]["SpeedStars"] = response.SpeedStars
-		attributes[mod]["AimStars"] = response.AimStars
-		attributes[mod]["StarRating"] = response.StarRating
+		attributes[mod]["ApproachRate"] = round(float64(response.ApproachRate), 6)
+		attributes[mod]["OverallDifficulty"] = round(float64(response.OverallDifficulty), 6)
+		attributes[mod]["HpDrainRate"] = round(float64(response.HpDrainRate), 6)
+		attributes[mod]["CircleSize"] = round(float64(response.CircleSize), 6)
+		attributes[mod]["SpeedDifficulty"] = round(response.SpeedDifficulty, 6)
+		attributes[mod]["AimDifficulty"] = round(response.AimDifficulty, 6)
+		attributes[mod]["SpeedStars"] = round(response.SpeedStars, 6)
+		attributes[mod]["AimStars"] = round(response.AimStars, 6)
+		attributes[mod]["StarRating"] = round(response.StarRating, 6)
 	}
 
 	schema.DifficultyAttributes = attributes
@@ -46,4 +48,9 @@ func UpdateBeatmapDifficulty(file []byte, schema *database.Beatmap, state *State
 	schema.MaxCombo = beatmap.MaxCombo
 	state.Database.Save(schema)
 	return nil
+}
+
+func round(val float64, precision uint) float64 {
+	ratio := math.Pow(10, float64(precision))
+	return math.Round(val*ratio) / ratio
 }

@@ -131,6 +131,7 @@ func ImportBeatmapsByDifficulty(page int, state *common.State) error {
 			if exists, _ := services.BeatmapExists(beatmap.ID, state); exists {
 				continue
 			}
+
 			schema := beatmap.ToSchema(&beatmapset)
 			result := state.Database.Create(schema)
 			if result.Error != nil {
@@ -146,6 +147,7 @@ func ImportBeatmapsByDifficulty(page int, state *common.State) error {
 			if err != nil {
 				return err
 			}
+
 			fmt.Printf("Imported Beatmap: '%s' (https://osu.titanic.sh/b/%d)\n", schema.FullName(), schema.ID)
 		}
 	}
