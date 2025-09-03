@@ -3,6 +3,7 @@ package tp
 import (
 	"encoding/json"
 	"fmt"
+	"math"
 	"net/http"
 	"strings"
 
@@ -26,6 +27,20 @@ type DifficultyCalculationResult struct {
 	OverallDifficulty float32 `json:"overallDifficulty"`
 	SliderMultiplier  float64 `json:"sliderMultiplier"`
 	SliderTickRate    float64 `json:"sliderTickRate"`
+}
+
+func (result *DifficultyCalculationResult) Level() float64 {
+	aimLevel := result.AimLevel()
+	speedLevel := result.SpeedLevel()
+	return ((speedLevel + aimLevel) + math.Abs(speedLevel-aimLevel)) / 2.125
+}
+
+func (result *DifficultyCalculationResult) AimLevel() float64 {
+	return approximateTpLevel(result.AimDifficulty)
+}
+
+func (result *DifficultyCalculationResult) SpeedLevel() float64 {
+	return approximateTpLevel(result.SpeedDifficulty)
 }
 
 // DifficultyCalculationRequest represents a request to calculate the difficulty of a beatmap.
@@ -79,4 +94,8 @@ func NewDifficultyCalculationRequestFromBeatmap(beatmap osu.Beatmap, mods int) *
 		HitObjects: hitObjects,
 		Mods:       mods,
 	}
+}
+
+func approximateTpLevel(value float64) float64 {
+	return 0.0877*value - 68.3
 }
