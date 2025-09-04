@@ -79,6 +79,46 @@ func TestPerformanceKillerSong(t *testing.T) {
 	)
 }
 
+func TestPerformanceBakaNA(t *testing.T) {
+	performScorePerformanceTest(
+		t,
+		"performance_test_bakana.osr",
+		"difficulty_test_bakana.osu",
+	)
+}
+
+func TestPerformanceBoozehound(t *testing.T) {
+	performScorePerformanceTest(
+		t,
+		"performance_test_boozehound.osr",
+		"difficulty_test_boozehound.osu",
+	)
+}
+
+func TestPerformnaceFourSeasonsOfLoneliness(t *testing.T) {
+	performScorePerformanceTest(
+		t,
+		"performance_test_fourseasonsofloneliness.osr",
+		"difficulty_test_fourseasonsofloneliness.osu",
+	)
+}
+
+func TestPerformanceNyanNyan(t *testing.T) {
+	performScorePerformanceTest(
+		t,
+		"performance_test_nyanyan.osr",
+		"difficulty_test_nyanyan.osu",
+	)
+}
+
+func TestPerformanceWahrheit(t *testing.T) {
+	performScorePerformanceTest(
+		t,
+		"performance_test_wahrheit.osr",
+		"difficulty_test_wahrheit.osu",
+	)
+}
+
 func performScorePerformanceTest(t *testing.T, replayFile string, beatmapFile string) {
 	t.Helper()
 

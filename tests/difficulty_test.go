@@ -44,6 +44,26 @@ func TestBeatmapKillerSong(t *testing.T) {
 	performBeatmapDifficultyCalculation(t, "difficulty_test_killersong.osu", 0)
 }
 
+func TestBeatmapBakaNA(t *testing.T) {
+	performBeatmapDifficultyCalculation(t, "difficulty_test_bakana.osu", 0)
+}
+
+func TestBeatmapBoozehound(t *testing.T) {
+	performBeatmapDifficultyCalculation(t, "difficulty_test_boozehound.osu", 0)
+}
+
+func TestBeatmapFourSeasonsOfLoneliness(t *testing.T) {
+	performBeatmapDifficultyCalculation(t, "difficulty_test_fourseasonsofloneliness.osu", 0)
+}
+
+func TestBeatmapNyanNyan(t *testing.T) {
+	performBeatmapDifficultyCalculation(t, "difficulty_test_nyanyan.osu", 0)
+}
+
+func TestBeatmapWahrheit(t *testing.T) {
+	performBeatmapDifficultyCalculation(t, "difficulty_test_wahrheit.osu", 0)
+}
+
 func performBeatmapDifficultyCalculation(t *testing.T, beatmapFile string, mods int) *tp.DifficultyCalculationResult {
 	t.Helper()
 
