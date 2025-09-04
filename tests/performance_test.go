@@ -119,6 +119,14 @@ func TestPerformanceWahrheit(t *testing.T) {
 	)
 }
 
+func TestPerformancePoinsettia(t *testing.T) {
+	performScorePerformanceTest(
+		t,
+		"performance_test_poinsettia.osr",
+		"difficulty_test_poinsettia.osu",
+	)
+}
+
 func performScorePerformanceTest(t *testing.T, replayFile string, beatmapFile string) {
 	t.Helper()
 
