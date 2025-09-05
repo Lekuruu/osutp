@@ -94,6 +94,12 @@ func ProcessScores(scores []ScoreModel, beatmap *database.Beatmap, state *common
 			// Only process osu! standard scores
 			continue
 		}
+		if score.User.Restricted {
+			// Skip & delete restricted users
+			services.DeleteScoresByPlayer(score.UserID, state)
+			services.DeletePlayer(score.UserID, state)
+			continue
+		}
 
 		scoreExists, err := services.ScoreExists(score.ID, state)
 		if err != nil {

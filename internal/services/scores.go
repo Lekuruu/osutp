@@ -68,3 +68,11 @@ func DeleteScore(id int, state *common.State) error {
 	}
 	return nil
 }
+
+func DeleteScoresByPlayer(playerId int, state *common.State) error {
+	result := state.Database.Where("player_id = ?", playerId).Delete(&database.Score{})
+	if result.Error != nil {
+		return result.Error
+	}
+	return nil
+}

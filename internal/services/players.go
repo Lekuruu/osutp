@@ -47,3 +47,11 @@ func PlayerExists(playerId int, state *common.State) (bool, error) {
 	}
 	return count > 0, nil
 }
+
+func DeletePlayer(playerId int, state *common.State) error {
+	result := state.Database.Delete(&database.Player{}, playerId)
+	if result.Error != nil {
+		return result.Error
+	}
+	return nil
+}
