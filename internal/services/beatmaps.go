@@ -34,23 +34,32 @@ func FetchBeatmapsBySetId(setId int, state *common.State) ([]database.Beatmap, e
 	return beatmaps, nil
 }
 
-func FetchTotalBeatmaps(state *common.State) (int64, error) {
+func FetchTotalBeatmaps(filters []string, state *common.State) (int64, error) {
 	var count int64
-	err := state.Database.Model(&database.Beatmap{}).Count(&count).Error
+	query := state.Database.Model(&database.Beatmap{})
+	for _, filter := range filters {
+		query = query.Where(filter)
+	}
+	err := query.Count(&count).Error
 	if err != nil {
 		return 0, err
 	}
 	return count, nil
 }
 
-func FetchBeatmapsByDifficulty(offset int, limit int, mods uint32, state *common.State) ([]*database.Beatmap, error) {
+func FetchBeatmapsByDifficulty(offset int, limit int, mods uint32, filters []string, state *common.State) ([]*database.Beatmap, error) {
 	var beatmaps []*database.Beatmap
-	result := state.Database.Model(&beatmaps).
+	query := state.Database.Model(&beatmaps).
 		Where("difficulty_attributes IS NOT NULL").
 		Order(fmt.Sprintf("json_extract(difficulty_attributes, '$.%d.StarRating') DESC", mods)).
 		Offset(offset).
-		Limit(limit).
-		Find(&beatmaps)
+		Limit(limit)
+
+	for _, filter := range filters {
+		query = query.Where(filter)
+	}
+
+	result := query.Find(&beatmaps)
 	if result.Error != nil {
 		return nil, result.Error
 	}
