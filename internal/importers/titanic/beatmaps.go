@@ -123,7 +123,7 @@ func ImportBeatmapsByDifficulty(page int, state *common.State) error {
 		Page:       page,
 	}
 
-	results, err := performSearchRequest(request, state)
+	results, err := PerformSearchRequest(request, state)
 	if err != nil {
 		return err
 	}
@@ -143,7 +143,7 @@ func ImportBeatmapsByDifficulty(page int, state *common.State) error {
 				return err
 			}
 
-			file, err := fetchBeatmapFile(beatmap.ID, state)
+			file, err := FetchBeatmapFile(beatmap.ID, state)
 			if err != nil {
 				return err
 			}
@@ -159,7 +159,7 @@ func ImportBeatmapsByDifficulty(page int, state *common.State) error {
 	return nil
 }
 
-func performSearchRequest(request BeatmapSearchRequest, state *common.State) ([]BeatmapsetModel, error) {
+func PerformSearchRequest(request BeatmapSearchRequest, state *common.State) ([]BeatmapsetModel, error) {
 	jsonData, _ := json.Marshal(request)
 	url := state.Config.Server.ApiUrl + "/beatmapsets/search"
 
@@ -179,7 +179,7 @@ func performSearchRequest(request BeatmapSearchRequest, state *common.State) ([]
 	return results, nil
 }
 
-func fetchBeatmapFile(beatmapId int, state *common.State) ([]byte, error) {
+func FetchBeatmapFile(beatmapId int, state *common.State) ([]byte, error) {
 	url := fmt.Sprintf("%s/beatmaps/%d/file", state.Config.Server.ApiUrl, beatmapId)
 	resp, err := http.Get(url)
 	if err != nil {
