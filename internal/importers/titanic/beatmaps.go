@@ -123,7 +123,7 @@ func ImportBeatmapsByDifficulty(page int, state *common.State) error {
 		Page:       page,
 	}
 
-	results, err := performSearchRequest(request)
+	results, err := performSearchRequest(request, state)
 	if err != nil {
 		return err
 	}
@@ -143,7 +143,7 @@ func ImportBeatmapsByDifficulty(page int, state *common.State) error {
 				return err
 			}
 
-			file, err := fetchBeatmapFile(beatmap.ID)
+			file, err := fetchBeatmapFile(beatmap.ID, state)
 			if err != nil {
 				return err
 			}
@@ -153,15 +153,15 @@ func ImportBeatmapsByDifficulty(page int, state *common.State) error {
 				return err
 			}
 
-			fmt.Printf("Imported Beatmap: '%s' (%s/b/%d)\n", schema.FullName(), TitanicWebBaseurl, schema.ID)
+			fmt.Printf("Imported Beatmap: '%s' (%s/b/%d)\n", schema.FullName(), state.Config.Server.WebUrl, schema.ID)
 		}
 	}
 	return nil
 }
 
-func performSearchRequest(request BeatmapSearchRequest) ([]BeatmapsetModel, error) {
+func performSearchRequest(request BeatmapSearchRequest, state *common.State) ([]BeatmapsetModel, error) {
 	jsonData, _ := json.Marshal(request)
-	url := TitanicApiBaseurl + "/beatmapsets/search"
+	url := state.Config.Server.ApiUrl + "/beatmapsets/search"
 
 	resp, err := http.Post(url, "application/json", bytes.NewBuffer(jsonData))
 	if err != nil {
@@ -179,8 +179,8 @@ func performSearchRequest(request BeatmapSearchRequest) ([]BeatmapsetModel, erro
 	return results, nil
 }
 
-func fetchBeatmapFile(beatmapId int) ([]byte, error) {
-	url := fmt.Sprintf("%s/beatmaps/%d/file", TitanicApiBaseurl, beatmapId)
+func fetchBeatmapFile(beatmapId int, state *common.State) ([]byte, error) {
+	url := fmt.Sprintf("%s/beatmaps/%d/file", state.Config.Server.ApiUrl, beatmapId)
 	resp, err := http.Get(url)
 	if err != nil {
 		return nil, err

@@ -1,8 +1,5 @@
 package titanic
 
-const TitanicApiBaseurl = "https://api.titanic.sh"
-const TitanicWebBaseurl = "https://osu.titanic.sh"
-
 const (
 	GameModeOsu   = 0
 	GameModeTaiko = 1
