@@ -159,6 +159,20 @@ func ImportBeatmapsByDifficulty(page int, state *common.State) error {
 	return nil
 }
 
+func UpdateBeatmapDifficulty(beatmapID int, state *common.State) error {
+	beatmap, err := services.FetchBeatmapById(beatmapID, state)
+	if err != nil {
+		return err
+	}
+
+	file, err := FetchBeatmapFile(beatmap.ID, state)
+	if err != nil {
+		return err
+	}
+
+	return common.UpdateBeatmapDifficulty(file, beatmap, state)
+}
+
 func PerformSearchRequest(request BeatmapSearchRequest, state *common.State) ([]BeatmapsetModel, error) {
 	jsonData, _ := json.Marshal(request)
 	url := state.Config.Server.ApiUrl + "/beatmapsets/search"

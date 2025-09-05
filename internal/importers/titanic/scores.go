@@ -123,7 +123,7 @@ func ProcessScores(scores []ScoreModel, beatmap *database.Beatmap, state *common
 		schema.SpeedTp = response.Speed
 		schema.AccTp = response.Acc
 
-		user, err := services.FetchUserById(score.UserID, state)
+		user, err := services.FetchPlayerById(score.UserID, state)
 		if err != nil && err != gorm.ErrRecordNotFound {
 			fmt.Println("Failed to fetch user:", err)
 			continue
@@ -131,7 +131,7 @@ func ProcessScores(scores []ScoreModel, beatmap *database.Beatmap, state *common
 
 		if user == nil {
 			user = score.User.ToSchema()
-			if err := services.CreateUser(user, state); err != nil {
+			if err := services.PlayerUser(user, state); err != nil {
 				fmt.Println("Failed to create user:", err)
 				continue
 			}

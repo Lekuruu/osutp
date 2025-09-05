@@ -5,7 +5,7 @@ import (
 	"github.com/Lekuruu/osutp-web/internal/database"
 )
 
-func CreateUser(player *database.Player, state *common.State) error {
+func PlayerUser(player *database.Player, state *common.State) error {
 	result := state.Database.Create(player)
 	if result.Error != nil {
 		return result.Error
@@ -13,16 +13,16 @@ func CreateUser(player *database.Player, state *common.State) error {
 	return nil
 }
 
-func FetchUserById(userID int, state *common.State) (*database.Player, error) {
+func FetchPlayerById(playerId int, state *common.State) (*database.Player, error) {
 	player := &database.Player{}
-	result := state.Database.First(player, userID)
+	result := state.Database.First(player, playerId)
 	if result.Error != nil {
 		return nil, result.Error
 	}
 	return player, nil
 }
 
-func FetchUserByName(name string, state *common.State) (*database.Player, error) {
+func FetchPlayerByName(name string, state *common.State) (*database.Player, error) {
 	player := &database.Player{}
 	result := state.Database.Where("name = ?", name).First(player)
 	if result.Error != nil {
@@ -31,9 +31,18 @@ func FetchUserByName(name string, state *common.State) (*database.Player, error)
 	return player, nil
 }
 
-func UserExists(userID int, state *common.State) (bool, error) {
+func FetchAllPlayers(state *common.State) ([]*database.Player, error) {
+	var players []*database.Player
+	result := state.Database.Find(&players)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return players, nil
+}
+
+func PlayerExists(playerId int, state *common.State) (bool, error) {
 	var count int64
-	if err := state.Database.Model(&database.Player{}).Where("id = ?", userID).Count(&count).Error; err != nil {
+	if err := state.Database.Model(&database.Player{}).Where("id = ?", playerId).Count(&count).Error; err != nil {
 		return false, err
 	}
 	return count > 0, nil

@@ -18,6 +18,7 @@ func UpdateBeatmapDifficulty(file []byte, schema *database.Beatmap, state *State
 	if err != nil {
 		return err
 	}
+
 	attributes := database.DifficultyAttributes{}
 	for _, mod := range modCombinations {
 		request := tp.NewDifficultyCalculationRequestFromBeatmap(beatmap, int(mod))

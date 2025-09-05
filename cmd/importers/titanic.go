@@ -26,5 +26,6 @@ func main() {
 	}
 
 	titanic.ImportOrUpdateLeaderboards(beatmapBatch, state)
+	titanic.UpdatePlayerRatings(state)
 	fmt.Println("Import completed.")
 }

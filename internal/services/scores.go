@@ -34,16 +34,28 @@ func ScoreExists(id int, state *common.State) (bool, error) {
 	return count > 0, nil
 }
 
-func FetchPersonalBestScore(playerID int, beatmapID int, state *common.State) (*database.Score, error) {
+func FetchPersonalBestScore(playerId int, beatmapID int, state *common.State) (*database.Score, error) {
 	score := &database.Score{}
 	result := state.Database.
-		Where("player_id = ? AND beatmap_id = ?", playerID, beatmapID).
+		Where("player_id = ? AND beatmap_id = ?", playerId, beatmapID).
 		Order("total_tp DESC").
 		First(score)
 	if result.Error != nil {
 		return nil, result.Error
 	}
 	return score, nil
+}
+
+func FetchPersonalBestScores(playerId int, state *common.State) ([]database.Score, error) {
+	var scores []database.Score
+	result := state.Database.
+		Where("player_id = ?", playerId).
+		Order("total_tp DESC").
+		Find(&scores)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return scores, nil
 }
 
 func DeleteScore(id int, state *common.State) error {
