@@ -95,6 +95,7 @@ type Score struct {
 	ID         int       `gorm:"primaryKey;autoIncrement;not null"`
 	BeatmapID  int       `gorm:"not null;index"`
 	PlayerID   int       `gorm:"not null;index"`
+	Checksum   string    `gorm:"not null;size:32"`
 	TotalScore int64     `gorm:"not null"`
 	MaxCombo   int       `gorm:"not null"`
 	Mods       uint32    `gorm:"not null;default:0"`
