@@ -15,7 +15,7 @@ func main() {
 	// Update logger name
 	state.Logger = common.NewLogger("titanic")
 
-	err := titanic.ImportBeatmapsByDifficulty(6, state)
+	err := titanic.ImportBeatmapsByDifficulty(0, state)
 	if err != nil {
 		state.Logger.Logf("Error occurred while importing beatmaps: %v", err)
 		return
