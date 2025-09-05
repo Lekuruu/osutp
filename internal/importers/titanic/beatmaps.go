@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"time"
 
 	"github.com/Lekuruu/osutp-web/internal/common"
 	"github.com/Lekuruu/osutp-web/internal/database"
@@ -109,8 +110,6 @@ func (beatmap *BeatmapModel) ToSchema(beatmapset *BeatmapsetModel) *database.Bea
 	}
 }
 
-const TitanicApiBaseurl = "https://api.titanic.sh"
-
 func ImportBeatmapsByDifficulty(page int, state *common.State) error {
 	mode := GameModeOsu
 	request := BeatmapSearchRequest{
@@ -154,7 +153,7 @@ func ImportBeatmapsByDifficulty(page int, state *common.State) error {
 				return err
 			}
 
-			fmt.Printf("Imported Beatmap: '%s' (https://osu.titanic.sh/b/%d)\n", schema.FullName(), schema.ID)
+			fmt.Printf("Imported Beatmap: '%s' (%s/b/%d)\n", schema.FullName(), TitanicWebBaseurl, schema.ID)
 		}
 	}
 	return nil
