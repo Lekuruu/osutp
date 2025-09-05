@@ -27,6 +27,7 @@ func renderTemplate(ctx *common.Context, tmpl string, pageData map[string]interf
 		"Description": "An attempt to accurately compute beatmap difficulty and player ranking.",
 		"LoadTime":    fmt.Sprintf("%.4f", time.Since(ctx.Start).Seconds()),
 		"LastUpdate":  timeago.English.Format(lastUpdate),
+		"Server":      ctx.State.Config.Server,
 		"Query":       ctx.Request.URL.Query(),
 	}
 	for k, v := range pageData {
