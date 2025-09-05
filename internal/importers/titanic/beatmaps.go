@@ -82,6 +82,11 @@ type BeatmapModel struct {
 }
 
 func (beatmap *BeatmapModel) ToSchema(beatmapset *BeatmapsetModel) *database.Beatmap {
+	createdAt, err := time.Parse("2006-01-02T15:04:05", beatmap.CreatedAt)
+	if err != nil {
+		createdAt = time.Now().UTC()
+	}
+
 	return &database.Beatmap{
 		ID:                   beatmap.ID,
 		SetID:                beatmap.SetID,
@@ -99,6 +104,7 @@ func (beatmap *BeatmapModel) ToSchema(beatmapset *BeatmapsetModel) *database.Bea
 		AmountSliders:        beatmap.CountSlider,
 		AmountSpinners:       beatmap.CountSpinner,
 		MaxCombo:             beatmap.MaxCombo,
+		CreatedAt:            createdAt,
 		DifficultyAttributes: database.DifficultyAttributes{},
 	}
 }

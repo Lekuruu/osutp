@@ -43,6 +43,7 @@ type Beatmap struct {
 	AmountSliders        int                  `gorm:"not null"`
 	AmountSpinners       int                  `gorm:"not null"`
 	MaxCombo             int                  `gorm:"not null"`
+	CreatedAt            time.Time            `gorm:"not null;default:CURRENT_TIMESTAMP"`
 	LastScoreUpdate      time.Time            `gorm:"not null;default:CURRENT_TIMESTAMP"`
 	DifficultyAttributes DifficultyAttributes `gorm:"type:json;default:null"`
 }
