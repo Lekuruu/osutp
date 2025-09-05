@@ -90,6 +90,11 @@ func ImportOrUpdateLeaderboards(beatmaps []*database.Beatmap, state *common.Stat
 
 func ProcessScores(scores []ScoreModel, beatmap *database.Beatmap, state *common.State) error {
 	for _, score := range scores {
+		if score.Mode != 0 {
+			// Only process osu! standard scores
+			continue
+		}
+
 		scoreExists, err := services.ScoreExists(score.ID, state)
 		if err != nil {
 			fmt.Println("Failed to check if score exists:", err)
