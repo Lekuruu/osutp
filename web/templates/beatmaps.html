@@ -77,7 +77,49 @@
             <option value="2">Unranked</option>
         </select>
     </div>
+    {{ template "pagination" .Pagination }}
+    <table class="beatmaps">
+        <tbody>
+            <tr>
+                <th>Rank</th>
+                <th>Beatmap name</th>
+                <th style="padding-left:0px">Level (speed | aim)</th>
+                <th onmouseover="Tip('Approach rate')" onmouseout="UnTip()">AR</th>
+                <th onmouseover="Tip('Circle size')" onmouseout="UnTip()">CS</th>
+                <th onmouseover="Tip('Overall difficulty')" onmouseout="UnTip()">OD</th>
+                <th></th>
+            </tr>
+            {{ $index := 0 }}
+            {{ range $map := .Beatmaps }}
+            <tr class="row2">
+                {{ $starRating := $map.StarRating 0 }}
+                {{ $aimStars := $map.AimStars 0 }}
+                {{ $speedStars := $map.SpeedStars 0 }}
+                {{ $approachRate := $map.ApproachRate 0 }}
+                {{ $circleSize := $map.CircleSize 0 }}
+                {{ $overallDifficulty := $map.OverallDifficulty 0 }}
+                <td><span style="font-weight:bold">#{{ add $index $.Pagination.Start }}</span></td>
+                {{ $index = add $index 1 }}
+                <td onmouseover="Tip('Creator: {{ $map.Creator }}&lt;br/&gt;Source: {{ $map.Source }}')" onmouseout="UnTip()">
+                    <a href="http://osu.ppy.sh/b/{{ $map.ID }}">
+                        <span style="color:#6666aa">{{ $map.Artist }}</span> - <span style="color:#000000">{{ $map.Title }}</span> 
+                        <span style="color:#222244">[{{ $map.Version }}]</span>
+                    </a>
+                </td>
+                <td style="padding-left:10px">
+                    <span style="font-weight:bold">{{ printf "%.2f" $starRating }}</span>
+                    ({{ printf "%.2f" $speedStars }} | {{ printf "%.2f" $aimStars }})
+                </td>
+                <td style="text-align:center">{{ printf "%.1f" $approachRate }}</td>
+                <td style="text-align:center">{{ printf "%.1f" $circleSize }}</td>
+                <td style="text-align:center">{{ printf "%.1f" $overallDifficulty }}</td>
+                <td style="text-align:center" onmouseover="Tip('Last update: {{ $map.LastScoreUpdate.Format "2006-02-01" }}')" onmouseout="UnTip()">
+                    <a href="/scores?bid={{ $map.ID }}">scores</a>
+                </td>
+            {{ end }}
+        </tbody>
+    </table>
+    {{ template "pagination" .Pagination }}
 </form>
-{{ template "pagination" .Pagination }}
 {{ template "footer" . }}
 {{ end }}

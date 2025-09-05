@@ -133,9 +133,9 @@ func ImportBeatmapsByDifficulty(page int, state *common.State) error {
 			}
 
 			schema := beatmap.ToSchema(&beatmapset)
-			result := state.Database.Create(schema)
-			if result.Error != nil {
-				return result.Error
+			err := services.CreateBeatmap(schema, state)
+			if err != nil {
+				return err
 			}
 
 			file, err := fetchBeatmapFile(beatmap.ID)

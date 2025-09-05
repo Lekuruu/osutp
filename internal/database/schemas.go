@@ -43,9 +43,34 @@ type Beatmap struct {
 	AmountSliders        int                  `gorm:"not null"`
 	AmountSpinners       int                  `gorm:"not null"`
 	MaxCombo             int                  `gorm:"not null"`
-	DifficultyAttributes DifficultyAttributes `gorm:"type:json"`
+	LastScoreUpdate      time.Time            `gorm:"not null;default:CURRENT_TIMESTAMP"`
+	DifficultyAttributes DifficultyAttributes `gorm:"type:json;default:null"`
 }
 
 func (beatmap *Beatmap) FullName() string {
 	return fmt.Sprintf("%s - %s (%s) [%s]", beatmap.Artist, beatmap.Title, beatmap.Creator, beatmap.Version)
+}
+
+func (beatmap *Beatmap) ApproachRate(mods uint32) float64 {
+	return beatmap.DifficultyAttributes[mods]["ApproachRate"]
+}
+
+func (beatmap *Beatmap) OverallDifficulty(mods uint32) float64 {
+	return beatmap.DifficultyAttributes[mods]["OverallDifficulty"]
+}
+
+func (beatmap *Beatmap) CircleSize(mods uint32) float64 {
+	return beatmap.DifficultyAttributes[mods]["CircleSize"]
+}
+
+func (beatmap *Beatmap) StarRating(mods uint32) float64 {
+	return beatmap.DifficultyAttributes[mods]["StarRating"]
+}
+
+func (beatmap *Beatmap) SpeedStars(mods uint32) float64 {
+	return beatmap.DifficultyAttributes[mods]["SpeedStars"]
+}
+
+func (beatmap *Beatmap) AimStars(mods uint32) float64 {
+	return beatmap.DifficultyAttributes[mods]["AimStars"]
 }
