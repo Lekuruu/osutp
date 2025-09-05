@@ -3,6 +3,8 @@ package database
 import (
 	"fmt"
 	"time"
+
+	"github.com/Lekuruu/osutp-web/pkg/tp"
 )
 
 type Page struct {
@@ -52,6 +54,35 @@ func (beatmap *Beatmap) FullName() string {
 	return fmt.Sprintf("%s - %s (%s) [%s]", beatmap.Artist, beatmap.Title, beatmap.Creator, beatmap.Version)
 }
 
+func (beatmap *Beatmap) DifficultyCalculationResult(mods uint32) (*tp.DifficultyCalculationResult, error) {
+	if beatmap.DifficultyAttributes == nil {
+		return nil, fmt.Errorf("no difficulty attributes available for beatmap %d", beatmap.ID)
+	}
+
+	attributes, ok := beatmap.DifficultyAttributes[mods]
+	if !ok {
+		return nil, fmt.Errorf("no difficulty attributes available for beatmap %d with mods %d", beatmap.ID, mods)
+	}
+
+	return &tp.DifficultyCalculationResult{
+		AmountNormal:      beatmap.AmountNormal,
+		AmountSliders:     beatmap.AmountSliders,
+		AmountSpinners:    beatmap.AmountSpinners,
+		MaxCombo:          beatmap.MaxCombo,
+		SpeedDifficulty:   attributes["SpeedDifficulty"],
+		AimDifficulty:     attributes["AimDifficulty"],
+		SpeedStars:        attributes["SpeedStars"],
+		AimStars:          attributes["AimStars"],
+		StarRating:        attributes["StarRating"],
+		ApproachRate:      float32(attributes["ApproachRate"]),
+		CircleSize:        float32(attributes["CircleSize"]),
+		OverallDifficulty: float32(attributes["OverallDifficulty"]),
+		HpDrainRate:       float32(attributes["HpDrainRate"]),
+		SliderMultiplier:  0,
+		SliderTickRate:    0,
+	}, nil
+}
+
 func (beatmap *Beatmap) ApproachRate(mods uint32) float64 {
 	return beatmap.DifficultyAttributes[mods]["ApproachRate"]
 }
@@ -95,8 +126,7 @@ type Score struct {
 	ID         int       `gorm:"primaryKey;autoIncrement;not null"`
 	BeatmapID  int       `gorm:"not null;index"`
 	PlayerID   int       `gorm:"not null;index"`
-	Checksum   string    `gorm:"not null;size:32"`
-	TotalScore int64     `gorm:"not null"`
+	TotalScore int       `gorm:"not null"`
 	MaxCombo   int       `gorm:"not null"`
 	Mods       uint32    `gorm:"not null;default:0"`
 	FullCombo  bool      `gorm:"not null;default:false"`
@@ -114,4 +144,43 @@ type Score struct {
 	AccTp      float64   `gorm:"not null;default:0;index"`
 	CreatedAt  time.Time `gorm:"not null;default:CURRENT_TIMESTAMP"`
 	LastUpdate time.Time `gorm:"not null;default:CURRENT_TIMESTAMP"`
+}
+
+func (score *Score) DifficultyMods() uint32 {
+	var difficultyMods uint32
+	if score.Mods&tp.DoubleTime != 0 {
+		difficultyMods |= tp.DoubleTime
+	}
+	if score.Mods&tp.Nightcore != 0 {
+		difficultyMods |= tp.DoubleTime
+	}
+	if score.Mods&tp.HardRock != 0 {
+		difficultyMods |= tp.HardRock
+	}
+	if score.Mods&tp.Easy != 0 {
+		difficultyMods |= tp.Easy
+	}
+	if score.Mods&tp.HalfTime != 0 {
+		difficultyMods |= tp.HalfTime
+	}
+	return difficultyMods
+}
+
+func (score *Score) CalculationRequest(difficulty *tp.DifficultyCalculationResult) *tp.PerformanceCalculationRequest {
+	return &tp.PerformanceCalculationRequest{
+		Score: &tp.Score{
+			TotalScore:      score.TotalScore,
+			MaxCombo:        score.MaxCombo,
+			Amount300:       score.Amount300,
+			Amount100:       score.Amount100,
+			Amount50:        score.Amount50,
+			AmountMiss:      score.AmountMiss,
+			AmountGeki:      score.AmountGeki,
+			AmountKatu:      score.AmountKatu,
+			Mods:            int(score.Mods),
+			BeatmapFilename: "",
+			BeatmapChecksum: "",
+		},
+		Difficulty: difficulty,
+	}
 }
