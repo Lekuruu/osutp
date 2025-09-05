@@ -75,6 +75,11 @@ func (score *ScoreModel) ToSchema() *database.Score {
 
 func ImportOrUpdateLeaderboards(beatmaps []*database.Beatmap, state *common.State) {
 	for _, beatmap := range beatmaps {
+		if beatmap.Status <= 0 {
+			// Map is not ranked/approved/loved
+			continue
+		}
+
 		scores, err := PerformLeaderboardRequest(beatmap.ID, 0, state)
 		if err != nil {
 			state.Logger.Log("Failed to fetch leaderboard for beatmap", beatmap.ID, ":", err)
