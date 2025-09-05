@@ -43,7 +43,7 @@ func FetchTotalBeatmaps(state *common.State) (int64, error) {
 	return count, nil
 }
 
-func FetchBeatmapsByDifficulty(offset int, limit int, mods int, state *common.State) ([]*database.Beatmap, error) {
+func FetchBeatmapsByDifficulty(offset int, limit int, mods uint32, state *common.State) ([]*database.Beatmap, error) {
 	var beatmaps []*database.Beatmap
 	result := state.Database.Model(&beatmaps).
 		Where("difficulty_attributes IS NOT NULL").

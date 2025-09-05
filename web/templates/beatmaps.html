@@ -92,12 +92,12 @@
             {{ $index := 0 }}
             {{ range $map := .Beatmaps }}
             <tr class="row2">
-                {{ $starRating := $map.StarRating 0 }}
-                {{ $aimStars := $map.AimStars 0 }}
-                {{ $speedStars := $map.SpeedStars 0 }}
-                {{ $approachRate := $map.ApproachRate 0 }}
-                {{ $circleSize := $map.CircleSize 0 }}
-                {{ $overallDifficulty := $map.OverallDifficulty 0 }}
+                {{ $starRating := $map.StarRating $.Mods }}
+                {{ $aimStars := $map.AimStars $.Mods }}
+                {{ $speedStars := $map.SpeedStars $.Mods }}
+                {{ $approachRate := $map.ApproachRate $.Mods }}
+                {{ $circleSize := $map.CircleSize $.Mods }}
+                {{ $overallDifficulty := $map.OverallDifficulty $.Mods }}
                 <td><span style="font-weight:bold">#{{ add $index $.Pagination.Start }}</span></td>
                 {{ $index = add $index 1 }}
                 <td onmouseover="Tip('Creator: {{ $map.Creator }}&lt;br/&gt;Source: {{ $map.Source }}')" onmouseout="UnTip()">
