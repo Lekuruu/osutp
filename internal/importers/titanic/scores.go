@@ -105,6 +105,11 @@ func ProcessScores(scores []ScoreModel, beatmap *database.Beatmap, state *common
 		}
 
 		schema := score.ToSchema()
+		if schema.Relaxing() {
+			// Skip relax/autopilot scores
+			continue
+		}
+
 		difficulty, err := beatmap.DifficultyCalculationResult(schema.DifficultyMods())
 		if err != nil {
 			// Beatmap most likely has no difficulty attributes so we try to update it

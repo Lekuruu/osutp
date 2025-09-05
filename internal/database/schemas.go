@@ -146,6 +146,10 @@ type Score struct {
 	LastUpdate time.Time `gorm:"not null;default:CURRENT_TIMESTAMP"`
 }
 
+func (score *Score) Relaxing() bool {
+	return score.Mods&tp.Relax != 0 || score.Mods&tp.Autopilot != 0
+}
+
 func (score *Score) DifficultyMods() uint32 {
 	var difficultyMods uint32
 	if score.Mods&tp.DoubleTime != 0 {
