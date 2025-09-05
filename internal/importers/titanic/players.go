@@ -1,7 +1,7 @@
 package titanic
 
 import (
-	"fmt"
+	"sort"
 	"time"
 
 	"github.com/Lekuruu/osutp-web/internal/common"
@@ -47,17 +47,58 @@ func UpdatePlayerRatings(state *common.State) error {
 		return err
 	}
 
+	// Update each player's rating based on their best scores
 	for _, player := range players {
 		bestScores, err := services.FetchPersonalBestScores(player.ID, state)
 		if err != nil {
-			fmt.Println("Failed to fetch scores for player", player.ID, ":", err)
+			state.Logger.Log("Failed to fetch scores for player", player.ID, ":", err)
 			continue
 		}
 
 		if err := common.UpdatePlayerRating(player, bestScores, state); err != nil {
-			fmt.Println("Failed to process player", player.ID, ":", err)
+			state.Logger.Log("Failed to process player", player.ID, ":", err)
 			continue
 		}
+
+		state.Logger.Logf("Updated player '%s' with total tp: %.2f (#%d)", player.Name, player.TotalTp, player.GlobalRank)
+	}
+
+	// Sort players by total tp
+	sort.Slice(players, func(i, j int) bool {
+		return players[i].TotalTp > players[j].TotalTp
+	})
+	playersByCountry := make(map[string][]*database.Player)
+
+	// Update global rank & rank delta
+	state.Logger.Log("Updating global ranks...")
+
+	for index, player := range players {
+		previousRank := player.GlobalRank
+		player.GlobalRank = index + 1
+		rankDelta := previousRank - player.GlobalRank
+		player.RecentRankChange = rankDelta
+		player.LastUpdate = time.Now().UTC()
+		playersByCountry[player.Country] = append(playersByCountry[player.Country], player)
+
+		if previousRank == 0 {
+			// No rank change for new players
+			player.RecentRankChange = 0
+		}
+	}
+	state.Logger.Log("Updated country ranks...")
+
+	// Update country ranks
+	for _, countryPlayers := range playersByCountry {
+		sort.Slice(countryPlayers, func(i, j int) bool {
+			return countryPlayers[i].TotalTp > countryPlayers[j].TotalTp
+		})
+		for index, player := range countryPlayers {
+			player.CountryRank = index + 1
+		}
+	}
+
+	if err := state.Database.Save(&players).Error; err != nil {
+		return err
 	}
 	return nil
 }
