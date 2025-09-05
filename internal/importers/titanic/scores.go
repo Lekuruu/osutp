@@ -77,12 +77,12 @@ func ImportOrUpdateLeaderboards(beatmaps []*database.Beatmap, state *common.Stat
 	for _, beatmap := range beatmaps {
 		scores, err := PerformLeaderboardRequest(beatmap.ID, 0, state)
 		if err != nil {
-			fmt.Println("Failed to fetch leaderboard for beatmap", beatmap.ID, ":", err)
+			state.Logger.Log("Failed to fetch leaderboard for beatmap", beatmap.ID, ":", err)
 			continue
 		}
 
 		if err := ProcessScores(scores, beatmap, state); err != nil {
-			fmt.Println("Failed to process scores for beatmap", beatmap.ID, ":", err)
+			state.Logger.Log("Failed to process scores for beatmap", beatmap.ID, ":", err)
 			continue
 		}
 	}
@@ -97,7 +97,7 @@ func ProcessScores(scores []ScoreModel, beatmap *database.Beatmap, state *common
 
 		scoreExists, err := services.ScoreExists(score.ID, state)
 		if err != nil {
-			fmt.Println("Failed to check if score exists:", err)
+			state.Logger.Log("Failed to check if score exists:", err)
 			continue
 		}
 		if scoreExists {
@@ -108,7 +108,7 @@ func ProcessScores(scores []ScoreModel, beatmap *database.Beatmap, state *common
 		difficulty, err := beatmap.DifficultyCalculationResult(schema.DifficultyMods())
 		if err != nil {
 			// Beatmap most likely has no difficulty attributes so we try to update it
-			fmt.Println("Failed to get difficulty calculation result:", err)
+			state.Logger.Log("Failed to get difficulty calculation result:", err)
 			UpdateBeatmapDifficulty(beatmap.ID, state)
 			continue
 		}
@@ -116,7 +116,7 @@ func ProcessScores(scores []ScoreModel, beatmap *database.Beatmap, state *common
 		request := schema.CalculationRequest(difficulty)
 		response, err := request.Perform(state.Config.TpServiceUrl)
 		if err != nil {
-			fmt.Println("Failed to calculate performance:", err)
+			state.Logger.Log("Failed to calculate performance:", err)
 			continue
 		}
 
@@ -127,21 +127,21 @@ func ProcessScores(scores []ScoreModel, beatmap *database.Beatmap, state *common
 
 		user, err := services.FetchPlayerById(score.UserID, state)
 		if err != nil && err != gorm.ErrRecordNotFound {
-			fmt.Println("Failed to fetch user:", err)
+			state.Logger.Log("Failed to fetch user:", err)
 			continue
 		}
 
 		if user == nil {
 			user = score.User.ToSchema()
 			if err := services.PlayerUser(user, state); err != nil {
-				fmt.Println("Failed to create user:", err)
+				state.Logger.Log("Failed to create user:", err)
 				continue
 			}
 		}
 
 		personalBest, err := services.FetchPersonalBestScore(user.ID, beatmap.ID, state)
 		if err != nil && err != gorm.ErrRecordNotFound {
-			fmt.Println("Failed to fetch personal best score:", err)
+			state.Logger.Log("Failed to fetch personal best score:", err)
 			continue
 		}
 
@@ -152,17 +152,17 @@ func ProcessScores(scores []ScoreModel, beatmap *database.Beatmap, state *common
 		// Delete old personal best
 		if personalBest != nil {
 			if err := services.DeleteScore(personalBest.ID, state); err != nil {
-				fmt.Println("Failed to delete old personal best score:", err)
+				state.Logger.Log("Failed to delete old personal best score:", err)
 				continue
 			}
 		}
 
 		if err := services.CreateScore(schema, state); err != nil {
-			fmt.Println("Failed to create score:", err)
+			state.Logger.Log("Failed to create score:", err)
 			continue
 		}
 
-		fmt.Printf("Imported score from '%s' on beatmap '%s' with %.2ftp\n", user.Name, beatmap.FullName(), schema.TotalTp)
+		state.Logger.Logf("Imported score from '%s' on beatmap '%s' with %.2ftp", user.Name, beatmap.FullName(), schema.TotalTp)
 	}
 	return nil
 }

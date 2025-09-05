@@ -11,6 +11,7 @@ import (
 type State struct {
 	Config   *Config
 	Database *gorm.DB
+	Logger   *Logger
 }
 
 func NewState() *State {
@@ -33,6 +34,7 @@ func NewState() *State {
 	}
 
 	return &State{
+		Logger:   NewLogger("osutp"),
 		Config:   config,
 		Database: db,
 	}

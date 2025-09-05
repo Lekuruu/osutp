@@ -30,13 +30,13 @@ func InitializeRoutes(server *common.Server) {
 }
 
 func main() {
-	log.SetFlags(0)
-	log.SetOutput(common.NewLogger("osutp"))
-
 	state := common.NewState()
 	if state == nil {
 		return
 	}
+
+	log.SetFlags(0)
+	log.SetOutput(state.Logger)
 
 	server := common.NewServer(
 		state.Config.Web.Host,

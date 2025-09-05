@@ -153,7 +153,7 @@ func ImportBeatmapsByDifficulty(page int, state *common.State) error {
 				return err
 			}
 
-			fmt.Printf("Imported Beatmap: '%s' (%s/b/%d)\n", schema.FullName(), state.Config.Server.WebUrl, schema.ID)
+			state.Logger.Logf("Imported Beatmap: '%s' (%s/b/%d)", schema.FullName(), state.Config.Server.WebUrl, schema.ID)
 		}
 	}
 	return nil
