@@ -26,6 +26,11 @@ type BeatmapBase struct {
 }
 
 func NewBeatmapBase(beatmap *osu.Beatmap) *BeatmapBase {
+	if beatmap.ApproachRate <= 0 {
+		// Some older beatmaps don't have AR set, so we set it to OD instead
+		beatmap.ApproachRate = beatmap.OverallDifficulty
+	}
+
 	return &BeatmapBase{
 		Artist:                     beatmap.Artist,
 		ArtistUnicode:              beatmap.ArtistUnicode,
