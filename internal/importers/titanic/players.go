@@ -63,6 +63,11 @@ func UpdatePlayerRatings(state *common.State) error {
 		state.Logger.Logf("Updated player '%s' with total tp: %.2f (#%d)", player.Name, player.TotalTp, player.GlobalRank)
 	}
 
+	// Save updated player data
+	if err := state.Database.Save(&players).Error; err != nil {
+		return err
+	}
+
 	// Sort players by total tp
 	sort.Slice(players, func(i, j int) bool {
 		return players[i].TotalTp > players[j].TotalTp

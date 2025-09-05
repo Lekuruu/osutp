@@ -21,10 +21,6 @@ func UpdatePlayerRating(player *database.Player, bestScores []database.Score, st
 	player.AimTp = calculateWeightedRating(aimValues)
 	player.SpeedTp = calculateWeightedRating(speedValues)
 	player.AccuracyTp = calculateWeightedRating(accValues)
-
-	if err := state.Database.Save(player).Error; err != nil {
-		return err
-	}
 	return nil
 }
 
