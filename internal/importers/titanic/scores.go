@@ -107,7 +107,9 @@ func ProcessScores(scores []ScoreModel, beatmap *database.Beatmap, state *common
 		schema := score.ToSchema()
 		difficulty, err := beatmap.DifficultyCalculationResult(schema.DifficultyMods())
 		if err != nil {
+			// Beatmap most likely has no difficulty attributes so we try to update it
 			fmt.Println("Failed to get difficulty calculation result:", err)
+			UpdateBeatmapDifficulty(beatmap.ID, state)
 			continue
 		}
 
