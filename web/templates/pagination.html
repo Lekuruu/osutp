@@ -1,7 +1,8 @@
 {{ define "pagination" }}
+{{ if gt .TotalResults 0 }}
 <div class="pagination">
   Displaying {{ .Start }} to {{ .End }} of 
-  {{ if or (eq .TotalResults 0) (not .TotalResults) }}
+  {{ if or (eq .TotalResults -1) (not .TotalResults) }}
     too many results.
   {{ else }} {{ .TotalResults }}
     results.
@@ -40,4 +41,5 @@
   {{ end }}
   <div></div>
 </div>
+{{ end }}
 {{ end }}

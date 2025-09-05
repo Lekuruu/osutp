@@ -13,7 +13,7 @@ type PaginationData struct {
 func NewPaginationData(currentPage, totalPages, perPage, totalResults int) *PaginationData {
 	start := (currentPage - 1) * perPage
 	end := start + perPage
-	if end > totalResults && totalResults > 0 {
+	if end > totalResults && totalResults != -1 {
 		end = totalResults
 	}
 	if start <= 0 {
