@@ -15,6 +15,8 @@ func CreateSession(path string) (*gorm.DB, error) {
 		&Page{},
 		&Changelog{},
 		&Beatmap{},
+		&Player{},
+		&Score{},
 	}
 
 	err = db.AutoMigrate(models...)

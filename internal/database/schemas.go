@@ -75,3 +75,42 @@ func (beatmap *Beatmap) SpeedStars(mods uint32) float64 {
 func (beatmap *Beatmap) AimStars(mods uint32) float64 {
 	return beatmap.DifficultyAttributes[mods]["AimStars"]
 }
+
+type Player struct {
+	ID               int       `gorm:"primaryKey;autoIncrement;not null"`
+	Name             string    `gorm:"not null;uniqueIndex"`
+	Country          string    `gorm:"not null;default:'XX'"`
+	GlobalRank       int       `gorm:"not null;default:0;index"`
+	CountryRank      int       `gorm:"not null;default:0;index"`
+	RecentRankChange int       `gorm:"not null;default:0"`
+	TotalTp          float64   `gorm:"not null;default:0;index"`
+	AimTp            float64   `gorm:"not null;default:0"`
+	SpeedTp          float64   `gorm:"not null;default:0"`
+	AccuracyTp       float64   `gorm:"not null;default:0"`
+	CreatedAt        time.Time `gorm:"not null;default:CURRENT_TIMESTAMP"`
+	LastUpdate       time.Time `gorm:"not null;default:CURRENT_TIMESTAMP"`
+}
+
+type Score struct {
+	ID         int       `gorm:"primaryKey;autoIncrement;not null"`
+	BeatmapID  int       `gorm:"not null;index"`
+	PlayerID   int       `gorm:"not null;index"`
+	TotalScore int64     `gorm:"not null"`
+	MaxCombo   int       `gorm:"not null"`
+	Mods       uint32    `gorm:"not null;default:0"`
+	FullCombo  bool      `gorm:"not null;default:false"`
+	Grade      string    `gorm:"not null;default:'N';size:2"`
+	Accuracy   float64   `gorm:"not null"`
+	Amount300  int       `gorm:"not null"`
+	Amount100  int       `gorm:"not null"`
+	Amount50   int       `gorm:"not null"`
+	AmountGeki int       `gorm:"not null"`
+	AmountKatu int       `gorm:"not null"`
+	AmountMiss int       `gorm:"not null"`
+	TotalTp    float64   `gorm:"not null;default:0;index"`
+	AimTp      float64   `gorm:"not null;default:0;index"`
+	SpeedTp    float64   `gorm:"not null;default:0;index"`
+	AccTp      float64   `gorm:"not null;default:0;index"`
+	CreatedAt  time.Time `gorm:"not null;default:CURRENT_TIMESTAMP"`
+	LastUpdate time.Time `gorm:"not null;default:CURRENT_TIMESTAMP"`
+}
