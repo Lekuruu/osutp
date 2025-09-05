@@ -25,10 +25,10 @@ func Beatmaps(ctx *common.Context) {
 
 	filters := []string{}
 	filters = ApplyRankedFilter(filters, ctx)
-	filters = ApplyRatioFilter(filters, currentMods, ctx)
 	filters = ApplyDifficultyFilter("CircleSize", "cs", filters, currentMods, ctx)
 	filters = ApplyDifficultyFilter("ApproachRate", "ar", filters, currentMods, ctx)
 	filters = ApplyDifficultyFilter("OverallDifficulty", "od", filters, currentMods, ctx)
+	filters, speedRatio, aimRatio := ApplyRatioFilter(filters, currentMods, ctx)
 
 	beatmaps, err := services.FetchBeatmapsByDifficulty(
 		queryOffset, beatmapsPerPage,
@@ -52,7 +52,8 @@ func Beatmaps(ctx *common.Context) {
 		"PageViews":  pageViews,
 		"Beatmaps":   beatmaps,
 		"Mods":       currentMods,
-		"Query":      ctx.Request.URL.Query(),
+		"SpeedRatio": speedRatio,
+		"AimRatio":   aimRatio,
 	}
 	renderTemplate(ctx, "beatmaps", data)
 }
@@ -119,15 +120,15 @@ func ApplyDifficultyFilter(name string, short string, filters []string, mods uin
 	return filters
 }
 
-func ApplyRatioFilter(filters []string, mods uint32, ctx *common.Context) []string {
+func ApplyRatioFilter(filters []string, mods uint32, ctx *common.Context) ([]string, string, string) {
 	speed := ctx.Request.URL.Query().Get("s")
 	if speed == "" || speed == "50" {
-		return filters
+		return filters, "50", "50"
 	}
 
 	speedValue, err := strconv.ParseFloat(speed, 32)
 	if err != nil || speedValue <= 0 || speedValue >= 100 {
-		return filters
+		return filters, "50", "50"
 	}
 
 	// Compute requested ratio
@@ -146,7 +147,8 @@ func ApplyRatioFilter(filters []string, mods uint32, ctx *common.Context) []stri
 	)
 
 	filters = append(filters, fmt.Sprintf("%s BETWEEN %f AND %f", ratioExpression, minRatio, maxRatio))
-	return filters
+	aim := strconv.Itoa(int(aimValue))
+	return filters, speed, aim
 }
 
 func getDifficultyAttribute(name string, mods uint32) string {

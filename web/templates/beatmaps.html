@@ -22,21 +22,25 @@
                         <tbody>
                             <tr>
                                 <td>
-                                    <input type="checkbox" name="DT" value="1" onclick="this.form.HT.checked=false">
+                                    {{ $doubleTime := query "DT" "0" .Query }}
+                                    <input type="checkbox" name="DT" value="1" onclick="this.form.HT.checked=false" {{ if eq $doubleTime "1" }}checked{{ end }}>
                                     <span class="mod-dt">DoubleTime</span>
                                 </td>
                                 <td>
-                                    <input type="checkbox" name="HR" value="1" onclick="this.form.EZ.checked=false">
+                                    {{ $hardRock := query "HR" "0" .Query }}
+                                    <input type="checkbox" name="HR" value="1" onclick="this.form.EZ.checked=false" {{ if eq $hardRock "1" }}checked{{ end }}>
                                     <span class="mod-hr">HardRock</span>
                                 </td>
                             </tr>
                             <tr>
                                 <td>
-                                    <input type="checkbox" name="HT" value="1" onclick="this.form.DT.checked=false">
+                                    {{ $halfTime := query "HT" "0" .Query }}
+                                    <input type="checkbox" name="HT" value="1" onclick="this.form.DT.checked=false" {{ if eq $halfTime "1" }}checked{{ end }}>
                                     <span class="mod-ht">HalfTime</span>
                                 </td>
                                 <td>
-                                    <input type="checkbox" name="EZ" value="1" onclick="this.form.HR.checked=false">
+                                    {{ $easy := query "EZ" "0" .Query }}
+                                    <input type="checkbox" name="EZ" value="1" onclick="this.form.HR.checked=false" {{ if eq $easy "1" }}checked{{ end }}>
                                     <span class="mod-easy">Easy</span>
                                 </td>
                             </tr>
@@ -45,36 +49,38 @@
                     </table>
                 </td>
                 <td>
-                    <input type="text" name="arl" size="4" maxlength="5" value="-5"> -
-                    <input type="text" name="arh" size="4" maxlength="5" value="11">
+                    <input type="text" name="arl" size="4" maxlength="5" value="{{ query "arl" "0" .Query }}"> -
+                    <input type="text" name="arh" size="4" maxlength="5" value="{{ query "arh" "11" .Query }}">
                 </td>
                 <td>
-                    <input type="text" name="csl" size="4" maxlength="5" value="0"> -
-                    <input type="text" name="csh" size="4" maxlength="5" value="10">
+                    <input type="text" name="csl" size="4" maxlength="5" value="{{ query "csl" "0" .Query }}"> -
+                    <input type="text" name="csh" size="4" maxlength="5" value="{{ query "csh" "10" .Query }}">
                 </td>
                 <td>
-                    <input type="text" name="odl" size="4" maxlength="5" value="-4.33"> -
-                    <input type="text" name="odh" size="4" maxlength="5" value="11">
+                    <input type="text" name="odl" size="4" maxlength="5" value="{{ query "odl" "0" .Query }}"> -
+                    <input type="text" name="odh" size="4" maxlength="5" value="{{ query "odh" "11" .Query }}">
                 </td>
                 <td>
-                    <input type="text" name="s" size="2" maxlength="3" value="50" onkeyup="if(this.value &gt; 100) this.value=100; if(this.value &lt; 0) this.value=0; this.form.elements[11].value=100-this.value">
+                    <input type="text" name="s" size="2" maxlength="3" value="{{ .SpeedRatio }}" onkeyup="if(this.value &gt; 100) this.value=100; if(this.value &lt; 0) this.value=0; this.form.elements[11].value=100-this.value">
 
                     :
 
-                    <input type="text" size="2" maxlength="3" value="50" onkeyup="if(this.value &gt; 100) this.value=100; if(this.value &lt; 0) this.value=0; this.form.s.value=100-this.value">
+                    <input type="text" size="2" maxlength="3" value="{{ .AimRatio }}" onkeyup="if(this.value &gt; 100) this.value=100; if(this.value &lt; 0) this.value=0; this.form.s.value=100-this.value">
                 </td>
             </tr>
         </tbody>
     </table>
     <div class="search-form-search">
-        <input type="text" name="n" size="30" maxlength="30" placeholder="Beatmap name">
+        {{ $nameFilter := query "n" "" .Query }}
+        <input type="text" name="n" size="30" maxlength="30" placeholder="Beatmap name" value="{{ $nameFilter }}">
         <input type="submit" value="Search">
         <input type="reset" value="Reset">
         <input type="reset" value="Default" onclick="document.location='/beatmaps'">
         <select name="u" size="1">
-            <option value="0">All</option>
-            <option value="1" selected="selected">Ranked</option>
-            <option value="2">Unranked</option>
+            {{ $rankedFilter := query "u" "1" .Query }}
+            <option value="0" {{ if eq $rankedFilter "0" }}selected{{ end }}>All</option>
+            <option value="1" {{ if eq $rankedFilter "1" }}selected{{ end }}>Ranked</option>
+            <option value="2" {{ if eq $rankedFilter "2" }}selected{{ end }}>Unranked</option>
         </select>
     </div>
     {{ template "pagination" .Pagination }}

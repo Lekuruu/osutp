@@ -5,6 +5,7 @@ import (
 	"html/template"
 	"log"
 	"net/http"
+	"net/url"
 	"time"
 
 	"github.com/Lekuruu/osutp-web/internal/common"
@@ -26,6 +27,7 @@ func renderTemplate(ctx *common.Context, tmpl string, pageData map[string]interf
 		"Description": "An attempt to accurately compute beatmap difficulty and player ranking.",
 		"LoadTime":    fmt.Sprintf("%.4f", time.Since(ctx.Start).Seconds()),
 		"LastUpdate":  timeago.English.Format(lastUpdate),
+		"Query":       ctx.Request.URL.Query(),
 	}
 	for k, v := range pageData {
 		data[k] = v
@@ -42,6 +44,13 @@ func init() {
 	funcs := template.FuncMap{
 		"add": func(a, b int) int { return a + b },
 		"sub": func(a, b int) int { return a - b },
+		"query": func(name, defaultValue string, q url.Values) string {
+			value := q.Get(name)
+			if value == "" {
+				return defaultValue
+			}
+			return value
+		},
 	}
 
 	var err error
