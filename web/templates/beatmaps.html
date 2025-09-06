@@ -97,7 +97,7 @@
             </tr>
             {{ $index := 0 }}
             {{ range $map := .Beatmaps }}
-            <tr class="row2">
+            <tr class="{{ if mod $index 2 }}row1{{ else }}row2{{ end }}">
                 {{ $starRating := $map.StarRating $.Mods }}
                 {{ $aimStars := $map.AimStars $.Mods }}
                 {{ $speedStars := $map.SpeedStars $.Mods }}

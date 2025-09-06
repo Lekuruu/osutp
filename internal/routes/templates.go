@@ -45,6 +45,9 @@ func init() {
 	funcs := template.FuncMap{
 		"add": func(a, b int) int { return a + b },
 		"sub": func(a, b int) int { return a - b },
+		"mod": func(a, b int) int { return a % b },
+		"mul": func(a, b int) int { return a * b },
+		"div": func(a, b int) int { return a / b },
 		"query": func(name, defaultValue string, q url.Values) string {
 			value := q.Get(name)
 			if value == "" {
