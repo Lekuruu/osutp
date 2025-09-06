@@ -3,11 +3,9 @@ package routes
 import (
 	"github.com/Lekuruu/osutp-web/internal/common"
 	"github.com/Lekuruu/osutp-web/internal/services"
-	"golang.org/x/text/language"
-	"golang.org/x/text/message"
 )
 
-var printer = message.NewPrinter(language.English)
+const playersPerPage = 50
 
 func Players(ctx *common.Context) {
 	pageViews, err := services.IncreasePageViews("players", ctx.State)
@@ -16,6 +14,27 @@ func Players(ctx *common.Context) {
 		return
 	}
 
-	data := map[string]interface{}{"PageViews": pageViews}
+	currentPage := GetPageFromQuery(ctx)
+	queryOffset := (currentPage - 1) * playersPerPage
+
+	players, err := services.FetchBestPlayers(queryOffset, playersPerPage, ctx.State)
+	if err != nil {
+		ctx.Response.WriteHeader(500)
+		return
+	}
+
+	totalPlayers, err := services.TotalPlayers(ctx.State)
+	if err != nil {
+		ctx.Response.WriteHeader(500)
+		return
+	}
+	totalPages := int(totalPlayers) / playersPerPage
+	pagination := NewPaginationData(currentPage, totalPages, playersPerPage, int(totalPlayers))
+
+	data := map[string]interface{}{
+		"PageViews":  pageViews,
+		"Players":    players,
+		"Pagination": pagination,
+	}
 	renderTemplate(ctx, "players", data)
 }

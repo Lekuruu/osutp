@@ -12,9 +12,12 @@ import (
 	"github.com/Lekuruu/osutp-web/internal/common"
 	"github.com/Lekuruu/osutp-web/internal/services"
 	"github.com/xeonx/timeago"
+	"golang.org/x/text/language"
+	"golang.org/x/text/message"
 )
 
 var templates *template.Template
+var printer = message.NewPrinter(language.English)
 
 func renderTemplate(ctx *common.Context, tmpl string, pageData map[string]interface{}) {
 	lastUpdate, err := services.PageLastUpdated("players", ctx.State)
@@ -30,6 +33,7 @@ func renderTemplate(ctx *common.Context, tmpl string, pageData map[string]interf
 		"LastUpdate":  timeago.English.Format(lastUpdate),
 		"Server":      ctx.State.Config.Server,
 		"Query":       ctx.Request.URL.Query(),
+		"Printer":     printer,
 	}
 	for k, v := range pageData {
 		data[k] = v
