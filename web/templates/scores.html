@@ -89,10 +89,10 @@
                 </td>
                 <td style="padding-left:3px">{{ $score.MaxCombo }}</td>
                 <td style="padding-left:5px">{{ $score.AmountMiss }}</td>
-                <td><span style="font-weight:bold">{{ printf "%.0f" $score.TotalTp }}</span></td>
-                <td>{{ printf "%.0f" $score.AimTp }}</td>
-                <td>{{ printf "%.0f" $score.SpeedTp }}</td>
-                <td>{{ printf "%.0f" $score.AccTp }}</td>
+                <td><span style="font-weight:bold">{{ $.Printer.Sprintf "%.0f" $score.TotalTp }}</span></td>
+                <td>{{ $.Printer.Sprintf "%.0f" $score.AimTp }}</td>
+                <td>{{ $.Printer.Sprintf "%.0f" $score.SpeedTp }}</td>
+                <td>{{ $.Printer.Sprintf "%.0f" $score.AccTp }}</td>
             </tr>
             {{ end }}
         </tbody>
