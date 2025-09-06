@@ -41,7 +41,7 @@ input:focus {
     outline: 0;
     color: #333;
     border-color: #aaaaff;
-    box-shadow: inset 0 1px 3px rgba(0, 0, 0, .05), 0 0 8px rgba(82, 168, 236, .6);
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05), 0 0 8px rgba(82, 168, 236, 0.6);
 }
 
 :focus {
@@ -134,13 +134,19 @@ dd {
     margin-left: 15px;
 }
 
-.beatmaps {    padding-top: 10px;
+.beatmaps {
+    padding-top: 10px;
     padding-bottom: 10px;
-
     border-spacing: 0px;
-
     margin: auto;
     width: 100%;
+}
+
+.beatmaps .beatmap-title {
+	max-width: 350px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
 }
 
 .beatmaps th {
@@ -157,21 +163,25 @@ dd {
     height: 14px;
 }
 
-.beatmaps tr.row1 {    background: #e7e7ff;
+.beatmaps tr.row1 {
+    background: #e7e7ff;
     cursor: pointer;
 }
 
-.beatmaps tr.row2 {    background: #f2f2ff;
+.beatmaps tr.row2 {
+    background: #f2f2ff;
     cursor: pointer;
 }
 
-.beatmaps tr.row-highlight {    background: #ffe8d2;
+.beatmaps tr.row-highlight {
+    background: #ffe8d2;
     cursor: pointer;
 }
 
 .beatmaps tr.row1:hover,
 .beatmaps tr.row2:hover,
-.beatmaps tr.row-highlight:hover {    background: #ccccff;
+.beatmaps tr.row-highlight:hover {
+    background: #ccccff;
     cursor: pointer;
 }
 
@@ -183,7 +193,6 @@ dd {
 .changelog {
     padding: 0;
     margin: 0;
-
 }
 
 .changelog li {
@@ -223,7 +232,6 @@ dd {
     border: none;
 }
 
-
 .content-with-bg {
     background-image: url("/images/bg.png");
     padding: 10px 2px 1px 2px;
@@ -240,7 +248,7 @@ dd {
 
 .error {
     font-weight: bold;
-    color: #C00000;
+    color: #c00000;
 }
 
 .flag {
@@ -259,15 +267,15 @@ dd {
     padding-top: 30px;
     padding-bottom: 10px;
     text-align: center;
-    color: #9999CC;
+    color: #9999cc;
 }
 
 .footer-content a {
-    color: #7777BB;
+    color: #7777bb;
 }
 
 .footer-content a:hover {
-    color: #7777BB;
+    color: #7777bb;
 }
 
 .form {
@@ -290,7 +298,6 @@ dd {
     background-image: url("/images/logo.png");
     padding: 30px 0px 0px 0px;
     height: 174px;
-
 }
 
 .header-content {
@@ -304,11 +311,10 @@ dd {
 }
 
 .line {
-
     height: 1px;
     margin: 3px auto 3px auto;
     width: 60%;
-    background: #7777BB;
+    background: #7777bb;
 }
 
 .mainbody {
@@ -407,9 +413,8 @@ dd {
     border-bottom: 1px solid #e9e9ff;
 }
 
-
 .sf-menu a:hover {
-    color: #FFFFFF;
+    color: #ffffff;
     border-bottom: 1px solid #89acfe;
 }
 
@@ -422,8 +427,9 @@ dd {
     background: #498cee;
 }
 
-.success {    font-weight: bold;
-    color: #00A000;
+.success {
+    font-weight: bold;
+    color: #00a000;
 }
 
 .top {

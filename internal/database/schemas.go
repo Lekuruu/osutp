@@ -122,6 +122,10 @@ type Player struct {
 	LastUpdate       time.Time `gorm:"not null;default:CURRENT_TIMESTAMP"`
 }
 
+func (player *Player) CountryName() string {
+	return GetCountryNameFromCode(player.Country)
+}
+
 type Score struct {
 	ID         int       `gorm:"primaryKey;autoIncrement;not null"`
 	BeatmapID  int       `gorm:"not null;index"`
@@ -144,10 +148,25 @@ type Score struct {
 	AccTp      float64   `gorm:"not null;default:0;index"`
 	CreatedAt  time.Time `gorm:"not null;default:CURRENT_TIMESTAMP"`
 	LastUpdate time.Time `gorm:"not null;default:CURRENT_TIMESTAMP"`
+
+	Player  Player  `gorm:"foreignKey:PlayerID"`
+	Beatmap Beatmap `gorm:"foreignKey:BeatmapID"`
+}
+
+func (score *Score) IsNew() bool {
+	return time.Since(score.CreatedAt) < 24*time.Hour
 }
 
 func (score *Score) Relaxing() bool {
 	return score.Mods&tp.Relax != 0 || score.Mods&tp.Autopilot != 0
+}
+
+func (score *Score) FormattedAccuracy() string {
+	return fmt.Sprintf("%.2f%%", score.Accuracy*100)
+}
+
+func (score *Score) ModsList() []string {
+	return tp.GetModsList(score.Mods)
 }
 
 func (score *Score) DifficultyMods() uint32 {
