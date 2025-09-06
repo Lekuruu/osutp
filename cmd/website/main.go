@@ -16,6 +16,8 @@ func InitializeRoutes(server *common.Server) {
 	server.Router.HandleFunc("/banners", server.ContextMiddleware(routes.Banners)).Methods("GET")
 	server.Router.HandleFunc("/beatmaps", server.ContextMiddleware(routes.Beatmaps)).Methods("GET")
 	server.Router.HandleFunc("/changelog", server.ContextMiddleware(routes.Changelog)).Methods("GET")
+	server.Router.HandleFunc("/banners/{pid:[0-9]+}", server.ContextMiddleware(routes.Banners)).Methods("GET")
+	server.Router.HandleFunc("/banner/{pid:[0-9]+}", server.ContextMiddleware(routes.BannerImage)).Methods("GET")
 
 	// Initialize static routes
 	server.Router.PathPrefix("/js/").Handler(http.StripPrefix("/js/", http.FileServer(http.Dir("web/static/js/"))))

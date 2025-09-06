@@ -32,6 +32,7 @@ func renderTemplate(ctx *common.Context, tmpl string, pageData map[string]interf
 		"LoadTime":    fmt.Sprintf("%.4f", time.Since(ctx.Start).Seconds()),
 		"LastUpdate":  timeago.English.Format(lastUpdate),
 		"Server":      ctx.State.Config.Server,
+		"Config":      ctx.State.Config,
 		"Query":       ctx.Request.URL.Query(),
 		"Printer":     printer,
 	}

@@ -16,6 +16,7 @@ type Config struct {
 		ApiUrl string `envconfig:"SERVER_API_URL" default:"https://api.titanic.sh"`
 	}
 	TpServiceUrl string `envconfig:"TP_SERVICE_URL" default:"http://localhost:5028"`
+	TpWebsiteUrl string `envconfig:"TP_WEBSITE_URL" default:"https://tp.titanic.sh"`
 }
 
 func LoadConfig() (*Config, error) {

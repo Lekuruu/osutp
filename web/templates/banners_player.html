@@ -1,0 +1,33 @@
+{{ define "banners_player" }}
+{{ template "header" . }}
+    <div class="description">
+        <h1>Banners for <a href="/scores?pid={{ .Player.ID }}">{{ .Player.Name }}</a></h1>
+        <p>You can put the following banners into your userpage or forum signature to show everyone where you stand in the tp ranking.</p>
+    </div>
+    <div class="banner">
+        <h2>Clean style:</h2>
+        <img src="/banner/{{ .Player.ID }}" alt="{{ .Player.Name }}'s banner">
+        <p>BB-code for userpage / forum:</p>
+        <p><input type="text" value="[url={{ .Config.TpWebsiteUrl }}][img]{{ .Config.TpWebsiteUrl }}/banner/{{ .Player.ID }}[/img][/url]" size="80" onclick="this.select()" readonly=""></p>
+    </div>
+    <div class="banner">
+        <h2>Clean style centered:</h2>
+        <img src="/banner/{{ .Player.ID }}?id=1" alt="{{ .Player.Name }}'s banner">
+        <p>BB-code for userpage / forum:</p>
+        <p><input type="text" value="[url={{ .Config.TpWebsiteUrl }}][img]{{ .Config.TpWebsiteUrl }}/banner/{{ .Player.ID }}?id=1[/img][/url]" size="80" onclick="this.select()" readonly=""></p>
+    </div>
+    <div class="banner">
+        <h2>Clean style 1 line:</h2>
+        <img src="/banner/{{ .Player.ID }}?id=2" alt="{{ .Player.Name }}'s banner">
+        <p>BB-code for userpage / forum:</p>
+        <p><input type="text" value="[url={{ .Config.TpWebsiteUrl }}][img]{{ .Config.TpWebsiteUrl }}/banner/{{ .Player.ID }}?id=2[/img][/url]" size="80" onclick="this.select()" readonly=""></p>
+    </div>
+    <p>Choose another player:</p>
+    <form class="form" action="/banners" method="get">
+        <div class="search-form-banners">
+            <input type="text" name="pn" placeholder="Player name">
+            <input type="submit" value="Submit">
+        </div>
+    </form>
+{{ template "footer" . }}
+{{ end }}
