@@ -1,10 +1,12 @@
 {{ define "scores" }}
 {{ template "header" . }}
-    <h1>Global top scores</h1>
-    <p>
-        The scores with the highest tp values are listed here.
-        If you want to sort the scores by their aim, speed or acc rating then simply click on the respective column title.
-    </p>
+    <div class="description">
+        <h1>Global top scores</h1>
+        <p>
+            The scores with the highest tp values are listed here.
+            If you want to sort the scores by their aim, speed or acc rating then simply click on the respective column title.
+        </p>
+    </div>
     <form class="form" action="/scores" method="get">
         <div class="search-form-search">
             <input type="text" name="pn" size="15" maxlength="40" placeholder="Player name">
