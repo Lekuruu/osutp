@@ -1,0 +1,98 @@
+{{ define "scores_beatmap" }}
+{{ template "header" . }}
+    <div class="description">
+        <h1>Top scores of » <a href="{{ .Server.WebUrl }}/b/{{ .Beatmap.ID }}">{{ .Beatmap.FullName }}</a></h1>
+        <h2>
+            mapped by <a href="{{ .Server.WebUrl }}/u/{{ .Beatmap.Creator }}">{{ .Beatmap.Creator }}</a>
+        </h2>
+        <p>
+            The scores with the highest tp values are listed here.
+            If you want to sort the scores by their aim, speed or acc rating then simply click on the respective column title.
+        </p>
+    </div>
+    <form class="form" action="/scores" method="get">
+        <div class="search-form-search">
+            <input type="text" name="pn" size="15" maxlength="40" placeholder="Player name">
+            <input type="text" name="bn" size="30" maxlength="100" placeholder="Beatmap name" value="{{ .Beatmap.FullName }}">
+            <input type="submit" value="Search">
+            <input type="checkbox" name="n" value="1"> Show new scores only
+        </div>
+    </form>
+    {{ template "pagination" .Pagination }}
+    <table class="beatmaps">
+        <tbody>
+            <tr>
+                <th>Rank</th>
+                <th>Player name</th>
+                <th style="padding-left:0px">Mods</th>
+                <th style="padding-left:0px">Accuracy</th>
+                <th style="padding-left:0px">Combo</th>
+                <th style="padding-left:0px">Miss</th>
+                {{ $sort := query "s" "0" .Query }}
+                <th style="padding-left:0px">
+                    <a href="/scores?bid={{ .Beatmap.ID }}">Rating</a>{{ if eq $sort "0" }}&nbsp;↓{{ end }}
+                </th>
+                <th style="padding-left:0px">
+                    <a href="/scores?bid={{ .Beatmap.ID }}&s=1">Aim</a>{{ if eq $sort "1" }}&nbsp;↓{{ end }}
+                </th>
+                <th style="padding-left:0px">
+                    <a href="/scores?bid={{ .Beatmap.ID }}&s=2">Speed</a>{{ if eq $sort "2" }}&nbsp;↓{{ end }}
+                </th>
+                <th style="padding-left:0px">
+                    <a href="/scores?bid={{ .Beatmap.ID }}&s=3">Acc</a>{{ if eq $sort "3" }}&nbsp;↓{{ end }}
+                </th>
+            </tr>
+            {{ $index := 0 }}
+            {{ range $score := .BestScores }}
+            {{ if $score.IsNew }}
+            <tr class="row-highlight">
+            {{ else }}
+            <tr class="{{ if mod $index 2 }}row1{{ else }}row2{{ end }}">
+            {{ end }}
+                <td>
+                    <span style="font-weight:bold">#{{ add $index $.Pagination.Start }}</span>&nbsp;&nbsp;
+                    {{ if $score.IsNew }}
+                    <span style="color:#AA8800">new</span>
+                    {{ end }}
+                </td>
+                {{ $index = add $index 1 }}
+                <td>
+                    <a href="/players/{{ lower $score.Player.Country }}">
+                        <img class="flag"
+                             src="/images/flags/{{ lower $score.Player.Country }}.gif"
+                             alt="{{ $score.Player.CountryName }}"
+                             onmouseover="Tip('{{ $score.Player.CountryName }}')"
+                             onmouseout="UnTip()">
+                    </a>
+                    <a href="/scores?pid={{ $score.Player.ID }}">
+                        {{ $score.Player.Name }}
+                    </a>
+                </td>
+                <td>
+                    {{ $mods := $score.ModsList }}
+                    {{ if eq (len $mods) 0 }}
+                        None
+                    {{ else }}
+                        {{ range $i, $mod := $mods }}
+                            <span class="mod-{{ lower $mod }}">{{ $mod }}</span>{{ if lt (add $i 1) (len $mods) }}, {{ end }}
+                        {{ end }}
+                    {{ end }}
+                </td>
+                <td onmouseover="Tip('300: {{ $score.Amount300 }}&lt;br/&gt;100: {{ $score.Amount100 }}&lt;br/&gt;50: {{ $score.Amount50 }}&lt;br/&gt;Miss: {{ $score.AmountMiss }}')"
+                    onmouseout="UnTip()"
+                    style="padding-left:3px">
+                    {{ $score.FormattedAccuracy }}
+                </td>
+                <td style="padding-left:3px">{{ $score.MaxCombo }}</td>
+                <td style="padding-left:5px">{{ $score.AmountMiss }}</td>
+                <td><span style="font-weight:bold">{{ printf "%.0f" $score.TotalTp }}</span></td>
+                <td>{{ printf "%.0f" $score.AimTp }}</td>
+                <td>{{ printf "%.0f" $score.SpeedTp }}</td>
+                <td>{{ printf "%.0f" $score.AccTp }}</td>
+            </tr>
+            {{ end }}
+        </tbody>
+    </table>
+    {{ template "pagination" .Pagination }}
+{{ template "footer" . }}
+{{ end }}

@@ -29,6 +29,12 @@ func Scores(ctx *common.Context) {
 		return
 	}
 
+	beatmapId := ctx.Request.URL.Query().Get("bid")
+	if beatmapId != "" {
+		ScoresByBeatmap(pageViews, beatmapId, ctx)
+		return
+	}
+
 	currentPage := GetPageFromQuery(ctx)
 	queryOffset := (currentPage - 1) * scoresPerPage
 
@@ -116,6 +122,52 @@ func ScoresByPlayerName(playerName string, ctx *common.Context) {
 
 	ctx.Response.Header().Set("Location", fmt.Sprintf("/scores?pid=%d", player.ID))
 	ctx.Response.WriteHeader(302)
+}
+
+func ScoresByBeatmap(pageViews int64, beatmapIdQuery string, ctx *common.Context) {
+	beatmapId, err := strconv.Atoi(beatmapIdQuery)
+	if err != nil {
+		ctx.Response.WriteHeader(400)
+		return
+	}
+
+	beatmap, err := services.FetchBeatmapById(beatmapId, ctx.State)
+	if err != nil {
+		ctx.Response.WriteHeader(404)
+		return
+	}
+
+	currentPage := GetPageFromQuery(ctx)
+	queryOffset := (currentPage - 1) * scoresPerPage
+
+	bestScores, err := services.FetchBestScoresByBeatmap(
+		beatmap.ID, queryOffset, scoresPerPage,
+		GetSortColumnFromQuery(ctx), ctx.State,
+	)
+	if err != nil {
+		ctx.Response.WriteHeader(500)
+		return
+	}
+
+	totalScores, err := services.FetchTotalScoresByBeatmap(beatmap.ID, ctx.State)
+	if err != nil {
+		ctx.Response.WriteHeader(500)
+		return
+	}
+
+	totalPages := int(totalScores) / scoresPerPage
+	pagination := NewPaginationData(
+		currentPage, totalPages,
+		scoresPerPage, int(totalScores),
+	)
+
+	data := map[string]interface{}{
+		"PageViews":  pageViews,
+		"BestScores": bestScores,
+		"Pagination": pagination,
+		"Beatmap":    beatmap,
+	}
+	renderTemplate(ctx, "scores_beatmap", data)
 }
 
 func GetSortColumnFromQuery(ctx *common.Context) string {

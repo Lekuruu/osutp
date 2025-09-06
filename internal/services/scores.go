@@ -95,6 +95,22 @@ func FetchBestScores(offset int, limit int, sort string, state *common.State) ([
 	return scores, nil
 }
 
+func FetchBestScoresByBeatmap(beatmapId int, offset int, limit int, sort string, state *common.State) ([]database.Score, error) {
+	var scores []database.Score
+	preload := []string{"Player"}
+	result := database.
+		PreloadQuery(state.Database, preload).
+		Where("beatmap_id = ?", beatmapId).
+		Order(sort).
+		Offset(offset).
+		Limit(limit).
+		Find(&scores)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return scores, nil
+}
+
 func FetchTotalPersonalBestScores(playerId int, state *common.State) (int64, error) {
 	var count int64
 	allowedStatuses := []int{1, 2} // Ranked and Approved
@@ -103,6 +119,18 @@ func FetchTotalPersonalBestScores(playerId int, state *common.State) (int64, err
 		Joins("JOIN beatmaps ON beatmaps.id = scores.beatmap_id").
 		Where("scores.player_id = ?", playerId).
 		Where("beatmaps.status IN ?", allowedStatuses).
+		Count(&count).Error
+	if err != nil {
+		return 0, err
+	}
+	return count, nil
+}
+
+func FetchTotalScoresByBeatmap(beatmapId int, state *common.State) (int64, error) {
+	var count int64
+	err := state.Database.
+		Model(&database.Score{}).
+		Where("beatmap_id = ?", beatmapId).
 		Count(&count).Error
 	if err != nil {
 		return 0, err
