@@ -24,7 +24,7 @@ func FetchPlayerById(playerId int, state *common.State) (*database.Player, error
 
 func FetchPlayerByName(name string, state *common.State) (*database.Player, error) {
 	player := &database.Player{}
-	result := state.Database.Where("name = ?", name).First(player)
+	result := state.Database.Where("name ILIKE ?", name).First(player)
 	if result.Error != nil {
 		return nil, result.Error
 	}
