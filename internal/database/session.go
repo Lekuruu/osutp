@@ -42,3 +42,13 @@ func CreateSession(path string) (*gorm.DB, error) {
 	}
 	return db, nil
 }
+
+func PreloadQuery(database *gorm.DB, preload []string) *gorm.DB {
+	result := database
+
+	for _, p := range preload {
+		result = result.Preload(p)
+	}
+
+	return result
+}

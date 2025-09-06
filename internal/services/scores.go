@@ -61,6 +61,30 @@ func FetchPersonalBestScores(playerId int, state *common.State) ([]database.Scor
 	return scores, nil
 }
 
+func FetchBestScores(offset int, limit int, sort string, state *common.State) ([]database.Score, error) {
+	var scores []database.Score
+	preload := []string{"Player", "Beatmap"}
+	result := database.
+		PreloadQuery(state.Database, preload).
+		Order(sort).
+		Offset(offset).
+		Limit(limit).
+		Find(&scores)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return scores, nil
+}
+
+func FetchTotalScores(state *common.State) (int64, error) {
+	var count int64
+	err := state.Database.Model(&database.Score{}).Count(&count).Error
+	if err != nil {
+		return 0, err
+	}
+	return count, nil
+}
+
 func DeleteScore(id int, state *common.State) error {
 	result := state.Database.Delete(&database.Score{}, id)
 	if result.Error != nil {
