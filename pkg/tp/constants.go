@@ -99,3 +99,94 @@ const (
 	ScoreV2     uint32 = 1 << 29
 	Mirror      uint32 = 1 << 30
 )
+
+var Mods = []uint32{
+	NoFail,
+	Easy,
+	NoVideo,
+	Hidden,
+	HardRock,
+	SuddenDeath,
+	DoubleTime,
+	Relax,
+	HalfTime,
+	Nightcore,
+	Flashlight,
+	Autoplay,
+	SpunOut,
+	Autopilot,
+	Perfect,
+	Key4,
+	Key5,
+	Key6,
+	Key7,
+	Key8,
+	FadeIn,
+	Random,
+	Cinema,
+	Target,
+	Key9,
+	KeyCoop,
+	Key1,
+	Key3,
+	Key2,
+	ScoreV2,
+	Mirror,
+}
+
+var ModsNames = map[uint32]string{
+	NoFail:      "NF",
+	Easy:        "EZ",
+	NoVideo:     "NV",
+	Hidden:      "HD",
+	HardRock:    "HR",
+	SuddenDeath: "SD",
+	DoubleTime:  "DT",
+	Relax:       "RX",
+	HalfTime:    "HT",
+	Nightcore:   "NC",
+	Flashlight:  "FL",
+	Autoplay:    "AP",
+	SpunOut:     "SO",
+	Autopilot:   "AT",
+	Perfect:     "PF",
+	Key4:        "4K",
+	Key5:        "5K",
+	Key6:        "6K",
+	Key7:        "7K",
+	Key8:        "8K",
+	FadeIn:      "FI",
+	Random:      "RD",
+	Cinema:      "CN",
+	Target:      "TP",
+	Key9:        "9K",
+	KeyCoop:     "COOP",
+	Key1:        "1K",
+	Key3:        "3K",
+	Key2:        "2K",
+	ScoreV2:     "V2",
+	Mirror:      "MR",
+}
+
+func GetModsList(mods uint32) []string {
+	result := []string{}
+	for _, mod := range Mods {
+		if mods&mod != 0 {
+			result = append(result, ModsNames[mod])
+		}
+	}
+	return result
+}
+
+func GetModsString(mods uint32) string {
+	result := ""
+	for _, mod := range Mods {
+		if mods&mod != 0 {
+			result += ModsNames[mod]
+		}
+	}
+	if result == "" {
+		return "NM"
+	}
+	return result
+}
