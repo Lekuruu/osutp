@@ -126,6 +126,25 @@ func (player *Player) CountryName() string {
 	return GetCountryNameFromCode(player.Country)
 }
 
+func (player *Player) CountryRankOrdinal() string {
+	rank := player.CountryRank
+
+	if rank >= 11 && rank <= 13 {
+		return fmt.Sprintf("%dth", rank)
+	}
+
+	switch rank % 10 {
+	case 1:
+		return fmt.Sprintf("%dst", rank)
+	case 2:
+		return fmt.Sprintf("%dnd", rank)
+	case 3:
+		return fmt.Sprintf("%drd", rank)
+	default:
+		return fmt.Sprintf("%dth", rank)
+	}
+}
+
 type Score struct {
 	ID         int       `gorm:"primaryKey;autoIncrement;not null"`
 	BeatmapID  int       `gorm:"not null;index"`
