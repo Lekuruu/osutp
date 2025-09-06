@@ -7,12 +7,15 @@ import (
 	"golang.org/x/image/font"
 )
 
+var TahomaFontPath = "../web/static/fonts/tahoma.ttf"
+var TahomaBoldFontPath = "../web/static/fonts/tahoma-bold.ttf"
+
 func LoadDefaultFont(size float64) (font.Face, error) {
-	return LoadTrueTypeFont("../web/static/fonts/tahoma.ttf", defaultFontOptions(size))
+	return LoadTrueTypeFont(TahomaFontPath, defaultFontOptions(size))
 }
 
 func LoadDefaultFontBold(size float64) (font.Face, error) {
-	return LoadTrueTypeFont("../web/static/fonts/tahoma-bold.ttf", defaultFontOptions(size))
+	return LoadTrueTypeFont(TahomaBoldFontPath, defaultFontOptions(size))
 }
 
 func LoadTrueTypeFont(path string, options *truetype.Options) (font.Face, error) {
