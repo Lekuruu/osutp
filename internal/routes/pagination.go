@@ -1,5 +1,11 @@
 package routes
 
+import (
+	"strconv"
+
+	"github.com/Lekuruu/osutp-web/internal/common"
+)
+
 type PaginationData struct {
 	PageViews    int
 	CurrentPage  int
@@ -38,4 +44,16 @@ func TestPaginationData() *PaginationData {
 		Start:        1,
 		End:          50,
 	}
+}
+
+func GetPageFromQuery(ctx *common.Context) int {
+	currentPage := ctx.Request.URL.Query().Get("p")
+	if currentPage == "" {
+		currentPage = "1"
+	}
+	currentPageInt, err := strconv.Atoi(currentPage)
+	if err != nil {
+		currentPageInt = 1
+	}
+	return currentPageInt
 }

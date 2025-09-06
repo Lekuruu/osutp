@@ -80,18 +80,6 @@ func GetModsFromQuery(ctx *common.Context) uint32 {
 	return mods
 }
 
-func GetPageFromQuery(ctx *common.Context) int {
-	currentPage := ctx.Request.URL.Query().Get("p")
-	if currentPage == "" {
-		currentPage = "1"
-	}
-	currentPageInt, err := strconv.Atoi(currentPage)
-	if err != nil {
-		currentPageInt = 1
-	}
-	return currentPageInt
-}
-
 func ApplyRankedFilter(filters []string, ctx *common.Context) []string {
 	statusQuery := ctx.Request.URL.Query().Get("u")
 	switch statusQuery {
