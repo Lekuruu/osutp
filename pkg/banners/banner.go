@@ -66,6 +66,9 @@ func (b *CleanStyleBanner) Render() image.Image {
 
 	// Use bounds of top and bottom to calculate new width & height
 	width := top.Bounds().Dx()
+	if bottom.Bounds().Dx() > width {
+		width = bottom.Bounds().Dx()
+	}
 	height := top.Bounds().Dy() + bottom.Bounds().Dy() + yOffset
 	imagePointOffset := image.Point{Y: top.Bounds().Dy() + yOffset}
 
@@ -85,7 +88,7 @@ func NewCleanStyleBanner(player Player) *CleanStyleBanner {
 	if err != nil {
 		return nil
 	}
-	defaultFontBoldLarge, err := LoadDefaultFontBold(25)
+	defaultFontBoldLarge, err := LoadDefaultFontBold(22)
 	if err != nil {
 		return nil
 	}
@@ -147,7 +150,7 @@ func NewCleanStyleCenteredBanner(player Player) *CleanStyleCenteredBanner {
 	if err != nil {
 		return nil
 	}
-	defaultFontBoldLarge, err := LoadDefaultFontBold(25)
+	defaultFontBoldLarge, err := LoadDefaultFontBold(22)
 	if err != nil {
 		return nil
 	}
@@ -200,7 +203,7 @@ func NewCleanStyleOneLineBanner(player Player) *CleanStyleOneLineBanner {
 	if err != nil {
 		return nil
 	}
-	defaultFontBoldLarge, err := LoadDefaultFontBold(25)
+	defaultFontBoldLarge, err := LoadDefaultFontBold(22)
 	if err != nil {
 		return nil
 	}

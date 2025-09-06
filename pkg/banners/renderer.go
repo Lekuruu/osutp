@@ -14,12 +14,12 @@ import (
 var printer = message.NewPrinter(message.MatchLanguage("en"))
 
 const (
-	ColorDarkBlue = 0x1e1e64
+	ColorDarkBlue = 0x2a2a7a
 	ColorBlack    = 0x000028
 )
 
 var (
-	ColorDarkBlueRGBA = color.RGBA{0x1e, 0x1e, 0x64, 0xff}
+	ColorDarkBlueRGBA = color.RGBA{0x2a, 0x2a, 0x7a, 0xff}
 	ColorBlackRGBA    = color.RGBA{0x00, 0x00, 0x28, 0xff}
 )
 
@@ -75,7 +75,7 @@ func renderGlobal(banner Banner) image.Image {
 		textRank,
 		boldFontLarge,
 		ColorBlackRGBA, img,
-		image.Point{X: marginX + textPrefixWidth + textUsernameWidth, Y: marginY + int(boldFontLarge.Metrics().Ascent.Round()) - 4},
+		image.Point{X: marginX + textPrefixWidth + textUsernameWidth, Y: marginY + int(boldFontLarge.Metrics().Ascent.Round()) - 2},
 	)
 	return img
 }
