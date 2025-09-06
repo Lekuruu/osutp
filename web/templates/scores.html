@@ -24,10 +24,19 @@
                 <th style="padding-left:0px">Accuracy</th>
                 <th style="padding-left:0px">Combo</th>
                 <th style="padding-left:0px">Miss</th>
-                <th style="padding-left:0px"><a href="/scores">Rating</a>&nbsp;↓</th>
-                <th style="padding-left:0px"><a href="/scores?s=1">Aim</a></th>
-                <th style="padding-left:0px"><a href="/scores?s=2">Speed</a></th>
-                <th style="padding-left:0px"><a href="/scores?s=3">Acc</a></th>
+                {{ $sort := query "s" "0" .Query }}
+                <th style="padding-left:0px">
+                    <a href="/scores">Rating</a>{{ if eq $sort "0" }}&nbsp;↓{{ end }}
+                </th>
+                <th style="padding-left:0px">
+                    <a href="/scores?s=1">Aim</a>{{ if eq $sort "1" }}&nbsp;↓{{ end }}
+                </th>
+                <th style="padding-left:0px">
+                    <a href="/scores?s=2">Speed</a>{{ if eq $sort "2" }}&nbsp;↓{{ end }}
+                </th>
+                <th style="padding-left:0px">
+                    <a href="/scores?s=3">Acc</a>{{ if eq $sort "3" }}&nbsp;↓{{ end }}
+                </th>
             </tr>
             {{ $index := 0 }}
             {{ range $score := .BestScores }}

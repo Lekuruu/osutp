@@ -1,6 +1,8 @@
 package routes
 
 import (
+	"strconv"
+
 	"github.com/Lekuruu/osutp-web/internal/common"
 	"github.com/Lekuruu/osutp-web/internal/services"
 )
@@ -17,7 +19,10 @@ func Scores(ctx *common.Context) {
 	currentPage := GetPageFromQuery(ctx)
 	queryOffset := (currentPage - 1) * scoresPerPage
 
-	bestScores, err := services.FetchBestScores(queryOffset, scoresPerPage, "total_tp DESC", ctx.State)
+	bestScores, err := services.FetchBestScores(
+		queryOffset, scoresPerPage,
+		GetSortColumnFromQuery(ctx), ctx.State,
+	)
 	if err != nil {
 		ctx.Response.WriteHeader(500)
 		return
@@ -28,8 +33,12 @@ func Scores(ctx *common.Context) {
 		ctx.Response.WriteHeader(500)
 		return
 	}
+
 	totalPages := int(totalScores) / scoresPerPage
-	pagination := NewPaginationData(currentPage, totalPages, scoresPerPage, int(totalScores))
+	pagination := NewPaginationData(
+		currentPage, totalPages,
+		scoresPerPage, int(totalScores),
+	)
 
 	data := map[string]interface{}{
 		"PageViews":  pageViews,
@@ -37,4 +46,25 @@ func Scores(ctx *common.Context) {
 		"Pagination": pagination,
 	}
 	renderTemplate(ctx, "scores", data)
+}
+
+func GetSortColumnFromQuery(ctx *common.Context) string {
+	sort := ctx.Request.URL.Query().Get("s")
+	sortColumn, err := strconv.Atoi(sort)
+	if err != nil {
+		return "total_tp DESC"
+	}
+
+	switch sortColumn {
+	case 0:
+		return "total_tp DESC"
+	case 1:
+		return "aim_tp DESC"
+	case 2:
+		return "speed_tp DESC"
+	case 3:
+		return "acc_tp DESC"
+	default:
+		return "total_tp DESC"
+	}
 }
