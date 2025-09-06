@@ -134,6 +134,11 @@ dd {
     margin-left: 15px;
 }
 
+.banner-image {
+    transform: scale(0.825);
+    transform-origin: top left;
+}
+
 .beatmaps {
     padding-top: 10px;
     padding-bottom: 10px;
