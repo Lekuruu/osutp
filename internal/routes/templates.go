@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"strings"
 	"time"
 
 	"github.com/Lekuruu/osutp-web/internal/common"
@@ -43,11 +44,13 @@ func renderTemplate(ctx *common.Context, tmpl string, pageData map[string]interf
 
 func init() {
 	funcs := template.FuncMap{
-		"add": func(a, b int) int { return a + b },
-		"sub": func(a, b int) int { return a - b },
-		"mod": func(a, b int) int { return a % b },
-		"mul": func(a, b int) int { return a * b },
-		"div": func(a, b int) int { return a / b },
+		"add":   func(a, b int) int { return a + b },
+		"sub":   func(a, b int) int { return a - b },
+		"mod":   func(a, b int) int { return a % b },
+		"mul":   func(a, b int) int { return a * b },
+		"div":   func(a, b int) int { return a / b },
+		"lower": func(s string) string { return strings.ToLower(s) },
+		"upper": func(s string) string { return strings.ToUpper(s) },
 		"query": func(name, defaultValue string, q url.Values) string {
 			value := q.Get(name)
 			if value == "" {
