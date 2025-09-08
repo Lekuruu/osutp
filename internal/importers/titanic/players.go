@@ -28,7 +28,7 @@ type UserModel struct {
 }
 
 func (user *UserModel) ToSchema() *database.Player {
-	createdAt, err := time.Parse(time.RFC3339, user.CreatedAt)
+	createdAt, err := time.Parse("2006-01-02T15:04:05", user.CreatedAt)
 	if err != nil {
 		createdAt = time.Now().UTC()
 	}
