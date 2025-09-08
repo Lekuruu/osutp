@@ -107,7 +107,7 @@
                 <td><span style="font-weight:bold">#{{ add $index $.Pagination.Start }}</span></td>
                 {{ $index = add $index 1 }}
                 <td onmouseover="Tip('Creator: {{ $map.Creator }}&lt;br/&gt;Source: {{ $map.Source }}')" onmouseout="UnTip()">
-                    <a href="{{ $.Server.WebUrl }}/b/{{ $map.ID }}">
+                    <a href="/scores?bid={{ $map.ID }}">
                         <span style="color:#6666aa">{{ $map.Artist }}</span> - <span style="color:#000000">{{ $map.Title }}</span> 
                         <span style="color:#222244">[{{ $map.Version }}]</span>
                     </a>
