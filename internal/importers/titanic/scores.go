@@ -48,7 +48,7 @@ type ScoreModel struct {
 }
 
 func (score *ScoreModel) ToSchema() *database.Score {
-	createdAt, err := time.Parse("2006-01-02T15:04:05", score.SubmittedAt)
+	createdAt, err := time.Parse(time.RFC3339, score.SubmittedAt)
 	if err != nil {
 		createdAt = time.Now().UTC()
 	}
