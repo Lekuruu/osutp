@@ -83,7 +83,7 @@ type BeatmapModel struct {
 }
 
 func (beatmap *BeatmapModel) ToSchema(beatmapset *BeatmapsetModel) *database.Beatmap {
-	createdAt, err := time.Parse(time.RFC3339, beatmap.CreatedAt)
+	createdAt, err := time.Parse("2006-01-02T15:04:05", beatmap.CreatedAt)
 	if err != nil {
 		createdAt = time.Now().UTC()
 	}
