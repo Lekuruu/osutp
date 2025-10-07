@@ -1,8 +1,8 @@
 package routes
 
 import (
-	"github.com/Lekuruu/osutp-web/internal/common"
-	"github.com/Lekuruu/osutp-web/internal/services"
+	"github.com/Lekuruu/osutp/internal/common"
+	"github.com/Lekuruu/osutp/internal/services"
 )
 
 func Changelog(ctx *common.Context) {

@@ -5,9 +5,9 @@ import (
 	"image/png"
 	"strconv"
 
-	"github.com/Lekuruu/osutp-web/internal/common"
-	"github.com/Lekuruu/osutp-web/internal/services"
-	"github.com/Lekuruu/osutp-web/pkg/banners"
+	"github.com/Lekuruu/osutp/internal/common"
+	"github.com/Lekuruu/osutp/internal/services"
+	"github.com/Lekuruu/osutp/pkg/banners"
 )
 
 func BannerImage(ctx *common.Context) {

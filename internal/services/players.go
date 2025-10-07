@@ -1,8 +1,8 @@
 package services
 
 import (
-	"github.com/Lekuruu/osutp-web/internal/common"
-	"github.com/Lekuruu/osutp-web/internal/database"
+	"github.com/Lekuruu/osutp/internal/common"
+	"github.com/Lekuruu/osutp/internal/database"
 )
 
 func PlayerUser(player *database.Player, state *common.State) error {

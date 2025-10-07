@@ -7,7 +7,7 @@ import (
 
 	_ "embed"
 
-	"github.com/Lekuruu/osutp-web/pkg/banners"
+	"github.com/Lekuruu/osutp/pkg/banners"
 )
 
 func TestBannerRenderRegular(t *testing.T) {

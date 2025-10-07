@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/Lekuruu/osutp-web/internal/common"
-	"github.com/Lekuruu/osutp-web/internal/services"
+	"github.com/Lekuruu/osutp/internal/common"
+	"github.com/Lekuruu/osutp/internal/services"
 	"gorm.io/gorm"
 )
 

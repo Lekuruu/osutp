@@ -3,7 +3,7 @@ package routes
 import (
 	"strconv"
 
-	"github.com/Lekuruu/osutp-web/internal/common"
+	"github.com/Lekuruu/osutp/internal/common"
 )
 
 type PaginationData struct {

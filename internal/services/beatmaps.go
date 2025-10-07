@@ -3,8 +3,8 @@ package services
 import (
 	"fmt"
 
-	"github.com/Lekuruu/osutp-web/internal/common"
-	"github.com/Lekuruu/osutp-web/internal/database"
+	"github.com/Lekuruu/osutp/internal/common"
+	"github.com/Lekuruu/osutp/internal/database"
 )
 
 func CreateBeatmap(beatmap *database.Beatmap, state *common.State) error {

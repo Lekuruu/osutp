@@ -3,8 +3,8 @@ package services
 import (
 	"time"
 
-	"github.com/Lekuruu/osutp-web/internal/common"
-	"github.com/Lekuruu/osutp-web/internal/database"
+	"github.com/Lekuruu/osutp/internal/common"
+	"github.com/Lekuruu/osutp/internal/database"
 	"gorm.io/gorm"
 )
 

@@ -1,4 +1,4 @@
-module github.com/Lekuruu/osutp-web
+module github.com/Lekuruu/osutp
 
 go 1.24.5
 

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/Lekuruu/osutp-web/pkg/tp"
+	"github.com/Lekuruu/osutp/pkg/tp"
 )
 
 type Page struct {

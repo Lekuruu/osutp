@@ -4,8 +4,8 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/Lekuruu/osutp-web/internal/common"
-	"github.com/Lekuruu/osutp-web/internal/routes"
+	"github.com/Lekuruu/osutp/internal/common"
+	"github.com/Lekuruu/osutp/internal/routes"
 )
 
 func InitializeRoutes(server *common.Server) {

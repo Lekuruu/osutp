@@ -3,7 +3,7 @@ package tests
 import (
 	"testing"
 
-	"github.com/Lekuruu/osutp-web/pkg/tp"
+	"github.com/Lekuruu/osutp/pkg/tp"
 	osr "github.com/robloxxa/go-osr"
 )
 

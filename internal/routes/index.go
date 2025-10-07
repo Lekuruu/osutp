@@ -3,7 +3,7 @@ package routes
 import (
 	"net/http"
 
-	"github.com/Lekuruu/osutp-web/internal/common"
+	"github.com/Lekuruu/osutp/internal/common"
 )
 
 func Index(ctx *common.Context) {

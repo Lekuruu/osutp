@@ -4,7 +4,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/Lekuruu/osutp-web/internal/database"
+	"github.com/Lekuruu/osutp/internal/database"
 	"gorm.io/gorm"
 )
 

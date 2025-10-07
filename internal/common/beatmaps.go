@@ -3,8 +3,8 @@ package common
 import (
 	"math"
 
-	"github.com/Lekuruu/osutp-web/internal/database"
-	"github.com/Lekuruu/osutp-web/pkg/tp"
+	"github.com/Lekuruu/osutp/internal/database"
+	"github.com/Lekuruu/osutp/pkg/tp"
 	osu "github.com/natsukagami/go-osu-parser"
 )
 

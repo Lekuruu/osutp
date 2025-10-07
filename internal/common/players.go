@@ -1,7 +1,7 @@
 package common
 
 import (
-	"github.com/Lekuruu/osutp-web/internal/database"
+	"github.com/Lekuruu/osutp/internal/database"
 )
 
 func UpdatePlayerRating(player *database.Player, bestScores []database.Score, state *State) error {

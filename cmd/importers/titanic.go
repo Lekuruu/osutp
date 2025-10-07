@@ -1,9 +1,9 @@
 package main
 
 import (
-	"github.com/Lekuruu/osutp-web/internal/common"
-	"github.com/Lekuruu/osutp-web/internal/importers/titanic"
-	"github.com/Lekuruu/osutp-web/internal/services"
+	"github.com/Lekuruu/osutp/internal/common"
+	"github.com/Lekuruu/osutp/internal/importers/titanic"
+	"github.com/Lekuruu/osutp/internal/services"
 )
 
 func main() {

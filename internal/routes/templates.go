@@ -9,8 +9,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Lekuruu/osutp-web/internal/common"
-	"github.com/Lekuruu/osutp-web/internal/services"
+	"github.com/Lekuruu/osutp/internal/common"
+	"github.com/Lekuruu/osutp/internal/services"
 	"github.com/xeonx/timeago"
 	"golang.org/x/text/language"
 	"golang.org/x/text/message"

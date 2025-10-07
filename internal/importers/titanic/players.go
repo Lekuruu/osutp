@@ -4,9 +4,9 @@ import (
 	"sort"
 	"time"
 
-	"github.com/Lekuruu/osutp-web/internal/common"
-	"github.com/Lekuruu/osutp-web/internal/database"
-	"github.com/Lekuruu/osutp-web/internal/services"
+	"github.com/Lekuruu/osutp/internal/common"
+	"github.com/Lekuruu/osutp/internal/database"
+	"github.com/Lekuruu/osutp/internal/services"
 )
 
 type UserModel struct {
