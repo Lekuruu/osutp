@@ -2,6 +2,7 @@ package common
 
 import (
 	"math"
+	"sync"
 
 	"github.com/Lekuruu/osutp/internal/database"
 	"github.com/Lekuruu/osutp/pkg/tp"
@@ -19,24 +20,43 @@ func UpdateBeatmapDifficulty(file []byte, schema *database.Beatmap, state *State
 		return err
 	}
 
+	// Calculate difficulty attributes for all mod
+	// combinations in parallel to speed up the process
 	attributes := database.DifficultyAttributes{}
-	for _, mod := range modCombinations {
-		result := tp.CalculateDifficulty(&beatmap, uint32(mod))
-		if result == nil {
-			continue
-		}
+	var wg sync.WaitGroup
+	var mu sync.Mutex
 
-		attributes[mod] = map[string]float64{}
-		attributes[mod]["ApproachRate"] = round(float64(result.ApproachRate), 6)
-		attributes[mod]["OverallDifficulty"] = round(float64(result.OverallDifficulty), 6)
-		attributes[mod]["HpDrainRate"] = round(float64(result.HpDrainRate), 6)
-		attributes[mod]["CircleSize"] = round(float64(result.CircleSize), 6)
-		attributes[mod]["SpeedDifficulty"] = round(result.SpeedDifficulty, 6)
-		attributes[mod]["AimDifficulty"] = round(result.AimDifficulty, 6)
-		attributes[mod]["SpeedStars"] = round(result.SpeedStars, 6)
-		attributes[mod]["AimStars"] = round(result.AimStars, 6)
-		attributes[mod]["StarRating"] = round(result.StarRating, 6)
+	for _, mod := range modCombinations {
+		wg.Add(1)
+
+		go func(mod uint32) {
+			defer wg.Done()
+
+			result := tp.CalculateDifficulty(&beatmap, uint32(mod))
+			if result == nil {
+				return
+			}
+
+			modAttrs := map[string]float64{
+				"ApproachRate":      round(float64(result.ApproachRate), 6),
+				"OverallDifficulty": round(float64(result.OverallDifficulty), 6),
+				"HpDrainRate":       round(float64(result.HpDrainRate), 6),
+				"CircleSize":        round(float64(result.CircleSize), 6),
+				"SpeedDifficulty":   round(result.SpeedDifficulty, 6),
+				"AimDifficulty":     round(result.AimDifficulty, 6),
+				"SpeedStars":        round(result.SpeedStars, 6),
+				"AimStars":          round(result.AimStars, 6),
+				"StarRating":        round(result.StarRating, 6),
+			}
+
+			mu.Lock()
+			attributes[mod] = modAttrs
+			mu.Unlock()
+		}(mod)
 	}
+
+	// Wait for difficulty calculations to finish
+	wg.Wait()
 
 	schema.DifficultyAttributes = attributes
 	schema.AmountNormal = beatmap.NbCircles
