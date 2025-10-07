@@ -1,7 +1,6 @@
 package tests
 
 import (
-	"strings"
 	"testing"
 
 	"github.com/Lekuruu/osutp-web/pkg/tp"
@@ -64,7 +63,7 @@ func TestBeatmapWahrheit(t *testing.T) {
 	performBeatmapDifficultyCalculation(t, "difficulty_test_wahrheit.osu", 0)
 }
 
-func performBeatmapDifficultyCalculation(t *testing.T, beatmapFile string, mods int) *tp.DifficultyCalculationResult {
+func performBeatmapDifficultyCalculation(t *testing.T, beatmapFile string, mods uint32) *tp.DifficultyCalculationResult {
 	t.Helper()
 
 	beatmap, err := osu.ParseFile(beatmapFile)
@@ -72,19 +71,9 @@ func performBeatmapDifficultyCalculation(t *testing.T, beatmapFile string, mods 
 		t.Fatalf("Failed to parse beatmap: %v", err)
 	}
 
-	request := tp.NewDifficultyCalculationRequestFromBeatmap(beatmap, mods)
-	if request == nil {
-		t.Fatal("Failed to create difficulty calculation request from beatmap")
-	}
-
-	response, err := request.Perform(*serviceUrl)
-	if err != nil {
-		// Check if the service was actually running
-		if strings.Contains(err.Error(), "connection refused") {
-			t.Skipf("Skipping test because the service is not running at %s", *serviceUrl)
-			return nil
-		}
-		t.Fatalf("Failed to perform difficulty calculation request: %v", err)
+	response := tp.CalculateDifficulty(&beatmap, mods)
+	if response == nil {
+		t.Fatal("Failed to calculate difficulty")
 	}
 
 	t.Logf(

@@ -145,10 +145,9 @@ func performScorePerformanceTest(t *testing.T, replayFile string, beatmapFile st
 		t.Fatalf("failed to calculate beatmap difficulty (%s)", beatmapFile)
 	}
 
-	request := tp.NewPerformanceCalculationRequest(score, beatmapDifficulty)
-	result, err := request.Perform(*serviceUrl)
-	if err != nil {
-		t.Fatalf("failed to calculate performance (%s): %v", replayFile, err)
+	result := tp.CalculatePerformance(beatmapDifficulty, score)
+	if result == nil {
+		t.Fatalf("failed to calculate performance (%s)", replayFile)
 	}
 
 	t.Logf(

@@ -208,21 +208,18 @@ func (score *Score) DifficultyMods() uint32 {
 	return difficultyMods
 }
 
-func (score *Score) CalculationRequest(difficulty *tp.DifficultyCalculationResult) *tp.PerformanceCalculationRequest {
-	return &tp.PerformanceCalculationRequest{
-		Score: &tp.Score{
-			TotalScore:      score.TotalScore,
-			MaxCombo:        score.MaxCombo,
-			Amount300:       score.Amount300,
-			Amount100:       score.Amount100,
-			Amount50:        score.Amount50,
-			AmountMiss:      score.AmountMiss,
-			AmountGeki:      score.AmountGeki,
-			AmountKatu:      score.AmountKatu,
-			Mods:            int(score.Mods),
-			BeatmapFilename: "",
-			BeatmapChecksum: "",
-		},
-		Difficulty: difficulty,
+func (score *Score) CalculationRequest(difficulty *tp.DifficultyCalculationResult) *tp.Score {
+	return &tp.Score{
+		TotalScore:      score.TotalScore,
+		MaxCombo:        score.MaxCombo,
+		Amount300:       score.Amount300,
+		Amount100:       score.Amount100,
+		Amount50:        score.Amount50,
+		AmountMiss:      score.AmountMiss,
+		AmountGeki:      score.AmountGeki,
+		AmountKatu:      score.AmountKatu,
+		Mods:            uint32(score.Mods),
+		BeatmapFilename: "",
+		BeatmapChecksum: "",
 	}
 }

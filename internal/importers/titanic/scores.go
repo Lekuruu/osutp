@@ -9,6 +9,7 @@ import (
 	"github.com/Lekuruu/osutp-web/internal/common"
 	"github.com/Lekuruu/osutp-web/internal/database"
 	"github.com/Lekuruu/osutp-web/internal/services"
+	"github.com/Lekuruu/osutp-web/pkg/tp"
 	"gorm.io/gorm"
 )
 
@@ -129,17 +130,17 @@ func ProcessScores(scores []ScoreModel, beatmap *database.Beatmap, state *common
 			continue
 		}
 
-		request := schema.CalculationRequest(difficulty)
-		response, err := request.Perform(state.Config.TpServiceUrl)
-		if err != nil {
-			state.Logger.Log("Failed to calculate performance:", err)
+		tpScore := schema.CalculationRequest(difficulty)
+		result := tp.CalculatePerformance(difficulty, tpScore)
+		if result == nil {
+			state.Logger.Log("Failed to calculate performance")
 			continue
 		}
 
-		schema.TotalTp = response.Total
-		schema.AimTp = response.Aim
-		schema.SpeedTp = response.Speed
-		schema.AccTp = response.Acc
+		schema.TotalTp = result.Total
+		schema.AimTp = result.Aim
+		schema.SpeedTp = result.Speed
+		schema.AccTp = result.Acc
 
 		user, err := services.FetchPlayerById(score.UserID, state)
 		if err != nil && err != gorm.ErrRecordNotFound {

@@ -21,25 +21,21 @@ func UpdateBeatmapDifficulty(file []byte, schema *database.Beatmap, state *State
 
 	attributes := database.DifficultyAttributes{}
 	for _, mod := range modCombinations {
-		request := tp.NewDifficultyCalculationRequestFromBeatmap(beatmap, int(mod))
-		if request == nil {
+		result := tp.CalculateDifficulty(&beatmap, uint32(mod))
+		if result == nil {
 			continue
 		}
 
-		response, err := request.Perform(state.Config.TpServiceUrl)
-		if err != nil {
-			return err
-		}
 		attributes[mod] = map[string]float64{}
-		attributes[mod]["ApproachRate"] = round(float64(response.ApproachRate), 6)
-		attributes[mod]["OverallDifficulty"] = round(float64(response.OverallDifficulty), 6)
-		attributes[mod]["HpDrainRate"] = round(float64(response.HpDrainRate), 6)
-		attributes[mod]["CircleSize"] = round(float64(response.CircleSize), 6)
-		attributes[mod]["SpeedDifficulty"] = round(response.SpeedDifficulty, 6)
-		attributes[mod]["AimDifficulty"] = round(response.AimDifficulty, 6)
-		attributes[mod]["SpeedStars"] = round(response.SpeedStars, 6)
-		attributes[mod]["AimStars"] = round(response.AimStars, 6)
-		attributes[mod]["StarRating"] = round(response.StarRating, 6)
+		attributes[mod]["ApproachRate"] = round(float64(result.ApproachRate), 6)
+		attributes[mod]["OverallDifficulty"] = round(float64(result.OverallDifficulty), 6)
+		attributes[mod]["HpDrainRate"] = round(float64(result.HpDrainRate), 6)
+		attributes[mod]["CircleSize"] = round(float64(result.CircleSize), 6)
+		attributes[mod]["SpeedDifficulty"] = round(result.SpeedDifficulty, 6)
+		attributes[mod]["AimDifficulty"] = round(result.AimDifficulty, 6)
+		attributes[mod]["SpeedStars"] = round(result.SpeedStars, 6)
+		attributes[mod]["AimStars"] = round(result.AimStars, 6)
+		attributes[mod]["StarRating"] = round(result.StarRating, 6)
 	}
 
 	schema.DifficultyAttributes = attributes
