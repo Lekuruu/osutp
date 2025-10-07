@@ -260,12 +260,9 @@ func calculateDifficultyForType(tpHitObjects []*TpHitObject, diffType Difficulty
 	weight := 1.0
 
 	// Sort from highest to lowest strain
-	sort.Float64s(highestStrains)
-
-	// Reverse the slice
-	for i, j := 0, len(highestStrains)-1; i < j; i, j = i+1, j-1 {
-		highestStrains[i], highestStrains[j] = highestStrains[j], highestStrains[i]
-	}
+	sort.Slice(highestStrains, func(i, j int) bool {
+		return highestStrains[i] > highestStrains[j]
+	})
 
 	for _, strain := range highestStrains {
 		difficulty += weight * strain
