@@ -45,7 +45,7 @@ type DifficultyCalculationResult struct {
 	HpDrainRate       float32 `json:"hpDrainRate"`
 	OverallDifficulty float32 `json:"overallDifficulty"`
 	SliderMultiplier  float64 `json:"sliderMultiplier"`
-	SliderTickRate    float64 `json:"sliderTickRate"`
+	SliderTickRate    int     `json:"sliderTickRate"`
 }
 
 func (result *DifficultyCalculationResult) Level() float64 {
@@ -62,15 +62,23 @@ func (result *DifficultyCalculationResult) SpeedLevel() float64 {
 	return approximateTpLevel(result.SpeedDifficulty)
 }
 
+// BeatmapDifficultyAdjustment holds the adjusted difficulty attributes of a beatmap after applying mods
+type BeatmapDifficultyAdjustment struct {
+	OverallDifficulty float64
+	ApproachRate      float64
+	CircleSize        float64
+	HpDrainRate       float64
+	TimeRate          float64
+}
+
 // CalculateDifficulty calculates the difficulty of a beatmap with given mods
 func CalculateDifficulty(beatmap *osu.Beatmap, mods uint32) *DifficultyCalculationResult {
 	// Adjust beatmap attributes, based on relevant mods
-	timeRate := 1.0
-	adjustDifficulty(beatmap, mods, &timeRate)
+	adjustment := adjustDifficulty(beatmap, mods)
 
 	// Fill our custom tpHitObject class, that carries additional information
 	tpHitObjects := make([]*TpHitObject, 0, len(beatmap.HitObjects))
-	circleRadius := playfieldWidth / 16.0 * (1.0 - 0.7*(beatmap.CircleSize-5.0)/5.0)
+	circleRadius := playfieldWidth / 16.0 * (1.0 - 0.7*(adjustment.CircleSize-5.0)/5.0)
 
 	for _, hitObject := range beatmap.HitObjects {
 		tpHitObjects = append(tpHitObjects, NewTpHitObject(hitObject, circleRadius, beatmap))
@@ -82,13 +90,13 @@ func CalculateDifficulty(beatmap *osu.Beatmap, mods uint32) *DifficultyCalculati
 	})
 
 	// Calculate strain values
-	if !calculateStrainValues(tpHitObjects, timeRate) {
+	if !calculateStrainValues(tpHitObjects, adjustment.TimeRate) {
 		return nil
 	}
 
 	// Calculate difficulties
-	speedDifficulty := calculateDifficultyForType(tpHitObjects, DifficultyTypeSpeed, timeRate)
-	aimDifficulty := calculateDifficultyForType(tpHitObjects, DifficultyTypeAim, timeRate)
+	speedDifficulty := calculateDifficultyForType(tpHitObjects, DifficultyTypeSpeed, adjustment.TimeRate)
+	aimDifficulty := calculateDifficultyForType(tpHitObjects, DifficultyTypeAim, adjustment.TimeRate)
 
 	// OverallDifficulty is not considered in this algorithm and neither is HpDrainRate. That means, that in this form the algorithm determines how hard it physically is
 	// to play the map, assuming, that too much of an error will not lead to a death.
@@ -118,21 +126,21 @@ func CalculateDifficulty(beatmap *osu.Beatmap, mods uint32) *DifficultyCalculati
 	// Tune by yourself as you please. ;)
 
 	return &DifficultyCalculationResult{
+		StarRating:        starRating,
+		SpeedStars:        speedStars,
+		AimStars:          aimStars,
+		AimDifficulty:     aimDifficulty,
+		SpeedDifficulty:   speedDifficulty,
 		AmountNormal:      beatmap.NbCircles,
 		AmountSliders:     beatmap.NbSliders,
 		AmountSpinners:    beatmap.NbSpinners,
-		MaxCombo:          beatmap.MaxCombo,
-		SpeedDifficulty:   speedDifficulty,
-		AimDifficulty:     aimDifficulty,
-		SpeedStars:        speedStars,
-		AimStars:          aimStars,
-		StarRating:        starRating,
-		ApproachRate:      float32(beatmap.ApproachRate),
-		CircleSize:        float32(beatmap.CircleSize),
-		HpDrainRate:       float32(beatmap.HPDrainRate),
-		OverallDifficulty: float32(beatmap.OverallDifficulty),
-		SliderTickRate:    float64(beatmap.SliderTickRate),
+		SliderTickRate:    beatmap.SliderTickRate,
 		SliderMultiplier:  beatmap.SliderMultiplier,
+		MaxCombo:          beatmap.MaxCombo,
+		ApproachRate:      float32(adjustment.ApproachRate),
+		CircleSize:        float32(adjustment.CircleSize),
+		HpDrainRate:       float32(adjustment.HpDrainRate),
+		OverallDifficulty: float32(adjustment.OverallDifficulty),
 	}
 }
 
@@ -146,40 +154,51 @@ func mapDifficultyRange(difficulty, min, mid, max float64) float64 {
 	return mid
 }
 
-func adjustDifficulty(beatmap *osu.Beatmap, mods uint32, timeRate *float64) {
+func adjustDifficulty(beatmap *osu.Beatmap, mods uint32) *BeatmapDifficultyAdjustment {
+	adjustment := &BeatmapDifficultyAdjustment{
+		OverallDifficulty: float64(beatmap.OverallDifficulty),
+		ApproachRate:      float64(beatmap.ApproachRate),
+		CircleSize:        float64(beatmap.CircleSize),
+		HpDrainRate:       float64(beatmap.HPDrainRate),
+		TimeRate:          1.0,
+	}
+
 	if mods&HardRock != 0 {
-		beatmap.OverallDifficulty = math.Min(beatmap.OverallDifficulty*1.4, 10)
-		beatmap.CircleSize = math.Min(beatmap.CircleSize*1.3, 10)
-		beatmap.HPDrainRate = math.Min(beatmap.HPDrainRate*1.4, 10)
-		beatmap.ApproachRate = math.Min(beatmap.ApproachRate*1.4, 10)
+		adjustment.OverallDifficulty = math.Min(adjustment.OverallDifficulty*1.4, 10)
+		adjustment.CircleSize = math.Min(adjustment.CircleSize*1.3, 10)
+		adjustment.HpDrainRate = math.Min(adjustment.HpDrainRate*1.4, 10)
+		adjustment.ApproachRate = math.Min(adjustment.ApproachRate*1.4, 10)
 	}
 
 	if mods&Easy != 0 {
-		beatmap.OverallDifficulty = math.Max(beatmap.OverallDifficulty/2, 0)
-		beatmap.CircleSize = math.Max(beatmap.CircleSize/2, 0)
-		beatmap.HPDrainRate = math.Max(beatmap.HPDrainRate/2, 0)
-		beatmap.ApproachRate = math.Max(beatmap.ApproachRate/2, 0)
+		adjustment.OverallDifficulty = math.Max(adjustment.OverallDifficulty/2, 0)
+		adjustment.CircleSize = math.Max(adjustment.CircleSize/2, 0)
+		adjustment.HpDrainRate = math.Max(adjustment.HpDrainRate/2, 0)
+		adjustment.ApproachRate = math.Max(adjustment.ApproachRate/2, 0)
 	}
 
 	if mods&DoubleTime != 0 || mods&Nightcore != 0 {
-		*timeRate = 1.5
-		recalculateBeatmapDifficulty(beatmap, *timeRate)
+		adjustment.TimeRate = 1.5
+		recalculateBeatmapDifficulty(adjustment, adjustment.TimeRate)
 	}
 
 	if mods&HalfTime != 0 {
-		*timeRate = 0.75
-		recalculateBeatmapDifficulty(beatmap, *timeRate)
+		adjustment.TimeRate = 0.75
+		recalculateBeatmapDifficulty(adjustment, adjustment.TimeRate)
 	}
+
+	return adjustment
 }
 
-func recalculateBeatmapDifficulty(beatmap *osu.Beatmap, timeRate float64) {
-	preEmpt := mapDifficultyRange(beatmap.ApproachRate, 1800, 1200, 450) / timeRate
-	hitWindow300 := mapDifficultyRange(beatmap.OverallDifficulty, 80, 50, 20) / timeRate
-	beatmap.OverallDifficulty = -(hitWindow300 - 80.0) / 6.0
+func recalculateBeatmapDifficulty(adjustment *BeatmapDifficultyAdjustment, timeRate float64) {
+	preEmpt := mapDifficultyRange(adjustment.ApproachRate, 1800, 1200, 450) / timeRate
+	hitWindow300 := mapDifficultyRange(adjustment.OverallDifficulty, 80, 50, 20) / timeRate
+	adjustment.OverallDifficulty = -(hitWindow300 - 80.0) / 6.0
+
 	if preEmpt > 1200 {
-		beatmap.ApproachRate = (1800 - preEmpt) / 120
+		adjustment.ApproachRate = (1800 - preEmpt) / 120
 	} else {
-		beatmap.ApproachRate = (1200-preEmpt)/150 + 5
+		adjustment.ApproachRate = (1200-preEmpt)/150 + 5
 	}
 }
 
