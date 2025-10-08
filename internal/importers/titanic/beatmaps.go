@@ -127,6 +127,11 @@ func (importer *TitanicImporter) importBeatmapFromModel(beatmap *BeatmapModel, f
 		return nil, nil
 	}
 
+	if beatmap == nil {
+		// This can happen... somehow...
+		return nil, fmt.Errorf("beatmap model is nil")
+	}
+
 	// Check for existing beatmap entry
 	beatmapEntry, err := services.FetchBeatmapById(beatmap.ID, state)
 	if err != nil && err.Error() != "record not found" {
