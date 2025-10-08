@@ -98,3 +98,17 @@ func DeletePlayer(playerId int, state *common.State) error {
 	}
 	return nil
 }
+
+func FetchBestCountries(state *common.State) ([]database.CountryStats, error) {
+	var countries []database.CountryStats
+	result := state.Database.
+		Model(&database.Player{}).
+		Select("country, SUM(total_tp) as total_tp").
+		Group("country").
+		Order("total_tp DESC").
+		Scan(&countries)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return countries, nil
+}

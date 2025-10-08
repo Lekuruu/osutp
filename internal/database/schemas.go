@@ -149,6 +149,11 @@ func (player *Player) CountryRankOrdinal() string {
 	}
 }
 
+type CountryStats struct {
+	Country string  `json:"country"`
+	TotalTp float64 `json:"total_tp"`
+}
+
 type Score struct {
 	ID         int       `gorm:"primaryKey;autoIncrement;not null;index"`
 	BeatmapID  int       `gorm:"not null;index"`

@@ -111,6 +111,9 @@ func CreateIndexes(db *gorm.DB) error {
 
 		`CREATE INDEX IF NOT EXISTS idx_beatmaps_aim_stars
 		 ON beatmaps (json_extract(difficulty_attributes, '$.0.AimStars'));`,
+
+		`CREATE INDEX IF NOT EXISTS idx_players_country_total_tp
+		 ON players (country, total_tp DESC);`,
 	}
 
 	for _, stmt := range indexStatements {
