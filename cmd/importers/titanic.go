@@ -35,8 +35,6 @@ func main() {
 		if amount == 0 {
 			break
 		}
-
-		state.Logger.Logf("Imported %d beatmaps from page %d", amount, page)
 	}
 
 	updaters.UpdatePlayerRatings(state)
