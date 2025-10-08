@@ -1,14 +1,14 @@
 package common
 
-import "github.com/kelseyhightower/envconfig"
+import (
+	"github.com/Lekuruu/osutp/internal/database"
+	"github.com/kelseyhightower/envconfig"
+)
 
 type Config struct {
 	Web struct {
 		Host string `envconfig:"API_HOST" default:"0.0.0.0"`
 		Port int    `envconfig:"API_PORT" default:"8080"`
-	}
-	Database struct {
-		Path string `envconfig:"DB_PATH" default:"./.data/osutp.db"`
 	}
 	Server struct {
 		Type   string `envconfig:"SERVER_TYPE" default:"titanic" validate:"oneof=titanic"`
@@ -16,6 +16,7 @@ type Config struct {
 		ApiUrl string `envconfig:"SERVER_API_URL" default:"https://api.titanic.sh"`
 	}
 	TpWebsiteUrl string `envconfig:"TP_WEBSITE_URL" default:"https://tp.titanic.sh"`
+	Database     database.DatabaseConfig
 }
 
 func LoadConfig() (*Config, error) {
