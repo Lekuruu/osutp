@@ -6,111 +6,38 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"time"
 
 	"github.com/Lekuruu/osutp/internal/common"
 	"github.com/Lekuruu/osutp/internal/database"
 	"github.com/Lekuruu/osutp/internal/services"
+	"github.com/Lekuruu/osutp/internal/updaters"
 )
 
-type BeatmapSearchRequest struct {
-	Language   *int    `json:"language,omitempty"`
-	Genre      *int    `json:"genre,omitempty"`
-	Mode       *int    `json:"mode,omitempty"`
-	Uncleared  *bool   `json:"uncleared,omitempty"`
-	Unplayed   *bool   `json:"unplayed,omitempty"`
-	Cleared    *bool   `json:"cleared,omitempty"`
-	Played     *bool   `json:"played,omitempty"`
-	Query      *string `json:"query,omitempty"`
-	Category   int     `json:"category"`
-	Order      int     `json:"order"`
-	Sort       int     `json:"sort"`
-	Storyboard bool    `json:"storyboard"`
-	Video      bool    `json:"video"`
-	Titanic    bool    `json:"titanic"`
-	Page       int     `json:"page"`
-}
-
-type BeatmapsetModel struct {
-	ID                 int            `json:"id"`
-	Title              *string        `json:"title,omitempty"`
-	Artist             *string        `json:"artist,omitempty"`
-	Creator            *string        `json:"creator,omitempty"`
-	Source             *string        `json:"source,omitempty"`
-	Tags               *string        `json:"tags,omitempty"`
-	CreatorID          *int           `json:"creator_id,omitempty"`
-	Status             int            `json:"status"`
-	HasVideo           bool           `json:"has_video"`
-	HasStoryboard      bool           `json:"has_storyboard"`
-	Server             int            `json:"server"`
-	Available          bool           `json:"available"`
-	Enhanced           bool           `json:"enhanced"`
-	CreatedAt          string         `json:"created_at"`
-	ApprovedAt         *string        `json:"approved_at,omitempty"`
-	LastUpdate         string         `json:"last_update"`
-	OszFilesize        int            `json:"osz_filesize"`
-	OszFilesizeNoVideo int            `json:"osz_filesize_novideo"`
-	DisplayTitle       string         `json:"display_title"`
-	LanguageID         int            `json:"language_id"`
-	GenreID            int            `json:"genre_id"`
-	Beatmaps           []BeatmapModel `json:"beatmaps"`
-}
-
-type BeatmapModel struct {
-	ID           int     `json:"id"`
-	SetID        int     `json:"set_id"`
-	Mode         int     `json:"mode"`
-	MD5          string  `json:"md5"`
-	Status       int     `json:"status"`
-	Version      string  `json:"version"`
-	Filename     string  `json:"filename"`
-	CreatedAt    string  `json:"created_at"`
-	LastUpdate   string  `json:"last_update"`
-	Playcount    int     `json:"playcount"`
-	Passcount    int     `json:"passcount"`
-	TotalLength  int     `json:"total_length"`
-	DrainLength  int     `json:"drain_length"`
-	MaxCombo     int     `json:"max_combo"`
-	BPM          float64 `json:"bpm"`
-	CS           float64 `json:"cs"`
-	AR           float64 `json:"ar"`
-	OD           float64 `json:"od"`
-	HP           float64 `json:"hp"`
-	Diff         float64 `json:"diff"`
-	CountNormal  int     `json:"count_normal"`
-	CountSlider  int     `json:"count_slider"`
-	CountSpinner int     `json:"count_spinner"`
-}
-
-func (beatmap *BeatmapModel) ToSchema(beatmapset *BeatmapsetModel) *database.Beatmap {
-	createdAt, err := time.Parse("2006-01-02T15:04:05", beatmap.CreatedAt)
+func (importer *TitanicImporter) ImportBeatmap(beatmapID int, importLeaderboard bool, state *common.State) (*database.Beatmap, error) {
+	beatmap, err := importer.fetchBeatmapById(beatmapID)
 	if err != nil {
-		createdAt = time.Now().UTC()
+		// TODO: Delete existing beatmap, if it exists
+		return nil, err
 	}
 
-	return &database.Beatmap{
-		ID:                   beatmap.ID,
-		SetID:                beatmap.SetID,
-		Title:                dereferenceString(beatmapset.Title),
-		Artist:               dereferenceString(beatmapset.Artist),
-		Creator:              dereferenceString(beatmapset.Creator),
-		Source:               dereferenceString(beatmapset.Source),
-		Tags:                 dereferenceString(beatmapset.Tags),
-		Version:              beatmap.Version,
-		Status:               beatmap.Status,
-		AR:                   beatmap.AR,
-		OD:                   beatmap.OD,
-		CS:                   beatmap.CS,
-		AmountNormal:         beatmap.CountNormal,
-		AmountSliders:        beatmap.CountSlider,
-		AmountSpinners:       beatmap.CountSpinner,
-		MaxCombo:             beatmap.MaxCombo,
-		CreatedAt:            createdAt,
-		DifficultyAttributes: database.DifficultyAttributes{},
+	beatmapObject, err := importer.importBeatmapFromModel(beatmap, true, state)
+	if err != nil {
+		return nil, err
 	}
+	if !importLeaderboard {
+		return beatmapObject, nil
+	}
+
+	err = importer.importBeatmapLeaderboard(beatmapID, state)
+	if err != nil {
+		return nil, err
+	}
+
+	state.Logger.Logf("Imported Beatmap: '%s' (%s/b/%d)", beatmapObject.FullName(), importer.WebUrl, beatmapObject.ID)
+	return beatmapObject, nil
 }
 
-func ImportBeatmapsByDifficulty(page int, state *common.State) error {
+func (importer *TitanicImporter) ImportBeatmapsByDifficulty(page int, state *common.State) (int, error) {
 	mode := GameModeOsu
 	request := BeatmapSearchRequest{
 		Category:   BeatmapCategoryLeaderboard,
@@ -123,59 +50,115 @@ func ImportBeatmapsByDifficulty(page int, state *common.State) error {
 		Page:       page,
 	}
 
-	results, err := PerformSearchRequest(request, state)
+	results, err := importer.performSearchRequest(request, state)
 	if err != nil {
-		return err
+		return 0, err
 	}
 
 	for _, beatmapset := range results {
 		for _, beatmap := range beatmapset.Beatmaps {
-			if beatmap.Mode != GameModeOsu {
+			_, err := importer.importBeatmapFromModel(&beatmap, false, state)
+			if err != nil {
+				state.Logger.Logf("Error importing beatmap %d: %v", beatmap.ID, err)
 				continue
 			}
-			if exists, _ := services.BeatmapExists(beatmap.ID, state); exists {
+
+			err = importer.importBeatmapLeaderboard(beatmap.ID, state)
+			if err != nil {
+				state.Logger.Logf("Error importing leaderboard for beatmap %d: %v", beatmap.ID, err)
 				continue
 			}
-
-			schema := beatmap.ToSchema(&beatmapset)
-			err := services.CreateBeatmap(schema, state)
-			if err != nil {
-				return err
-			}
-
-			file, err := FetchBeatmapFile(beatmap.ID, state)
-			if err != nil {
-				return err
-			}
-
-			err = common.UpdateBeatmapDifficulty(file, schema, state)
-			if err != nil {
-				return err
-			}
-
-			state.Logger.Logf("Imported Beatmap: '%s' (%s/b/%d)", schema.FullName(), state.Config.Server.WebUrl, schema.ID)
 		}
 	}
-	return nil
+
+	state.Logger.Logf("Imported %d beatmaps from page %d", len(results), page)
+	return len(results), nil
 }
 
-func UpdateBeatmapDifficulty(beatmapID int, state *common.State) error {
-	beatmap, err := services.FetchBeatmapById(beatmapID, state)
-	if err != nil {
-		return err
+func (importer *TitanicImporter) ImportBeatmapsByDate(page int, state *common.State) (int, error) {
+	mode := GameModeOsu
+	request := BeatmapSearchRequest{
+		Category:   BeatmapCategoryLeaderboard,
+		Order:      BeatmapOrderDescending,
+		Sort:       BeatmapSortByCreated,
+		Storyboard: false,
+		Video:      false,
+		Titanic:    false,
+		Mode:       &mode,
+		Page:       page,
 	}
 
-	file, err := FetchBeatmapFile(beatmap.ID, state)
+	results, err := importer.performSearchRequest(request, state)
 	if err != nil {
-		return err
+		return 0, err
 	}
 
-	return common.UpdateBeatmapDifficulty(file, beatmap, state)
+	for _, beatmapset := range results {
+		for _, beatmap := range beatmapset.Beatmaps {
+			_, err := importer.importBeatmapFromModel(&beatmap, false, state)
+			if err != nil {
+				state.Logger.Logf("Error importing beatmap %d: %v", beatmap.ID, err)
+				continue
+			}
+
+			err = importer.importBeatmapLeaderboard(beatmap.ID, state)
+			if err != nil {
+				state.Logger.Logf("Error importing leaderboard for beatmap %d: %v", beatmap.ID, err)
+				continue
+			}
+		}
+	}
+
+	state.Logger.Logf("Imported %d beatmaps from page %d", len(results), page)
+	return len(results), nil
 }
 
-func PerformSearchRequest(request BeatmapSearchRequest, state *common.State) ([]BeatmapsetModel, error) {
+func (importer *TitanicImporter) importBeatmapFromModel(beatmap *BeatmapModel, forcedRecalculation bool, state *common.State) (*database.Beatmap, error) {
+	if beatmap.Mode != GameModeOsu {
+		// We only support osu!standard for now
+		return nil, fmt.Errorf("unsupported game mode %d for beatmap %d", beatmap.Mode, beatmap.ID)
+	}
+
+	// Check for existing beatmap entry
+	beatmapEntry, err := services.FetchBeatmapById(beatmap.ID, state)
+	if err != nil && err.Error() != "record not found" {
+		return nil, err
+	}
+
+	if beatmapEntry == nil {
+		// Create new beatmap entry if it doesn't exist
+		beatmapEntry = beatmap.ToSchema(nil)
+		err := services.CreateBeatmap(beatmapEntry, state)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	// TODO: Update beatmap metadata if beatmap was updated
+	//		 We could do this by checking for the hash of the beatmap file
+
+	if beatmapEntry.DifficultyAttributes != nil && !forcedRecalculation {
+		// Skip if difficulty attributes already exist and recalculation is not forced
+		return beatmapEntry, nil
+	}
+
+	file, err := importer.fetchBeatmapFile(beatmap.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	err = updaters.UpdateBeatmapDifficulty(file, beatmapEntry, state)
+	if err != nil {
+		return nil, err
+	}
+
+	state.Logger.Logf("Imported Beatmap: '%s' (%s/b/%d)", beatmapEntry.FullName(), importer.WebUrl, beatmapEntry.ID)
+	return beatmapEntry, nil
+}
+
+func (importer *TitanicImporter) performSearchRequest(request BeatmapSearchRequest, state *common.State) ([]BeatmapsetModel, error) {
 	jsonData, _ := json.Marshal(request)
-	url := state.Config.Server.ApiUrl + "/beatmapsets/search"
+	url := importer.ApiUrl + "/beatmapsets/search"
 
 	resp, err := http.Post(url, "application/json", bytes.NewBuffer(jsonData))
 	if err != nil {
@@ -193,14 +176,31 @@ func PerformSearchRequest(request BeatmapSearchRequest, state *common.State) ([]
 	return results, nil
 }
 
-func FetchBeatmapFile(beatmapId int, state *common.State) ([]byte, error) {
-	url := fmt.Sprintf("%s/beatmaps/%d/file", state.Config.Server.ApiUrl, beatmapId)
+func (importer *TitanicImporter) fetchBeatmapById(beatmapId int) (*BeatmapModel, error) {
+	url := fmt.Sprintf("%s/beatmaps/%d", importer.ApiUrl, beatmapId)
 	resp, err := http.Get(url)
 	if err != nil {
 		return nil, err
 	}
 	defer resp.Body.Close()
 
+	body, _ := io.ReadAll(resp.Body)
+
+	var beatmap BeatmapModel
+	if err := json.Unmarshal(body, &beatmap); err != nil {
+		return nil, err
+	}
+	return &beatmap, nil
+}
+
+func (importer *TitanicImporter) fetchBeatmapFile(beatmapId int) ([]byte, error) {
+	url := fmt.Sprintf("%s/beatmaps/%d/file", importer.ApiUrl, beatmapId)
+	resp, err := http.Get(url)
+	if err != nil {
+		return nil, err
+	}
+
+	defer resp.Body.Close()
 	return io.ReadAll(resp.Body)
 }
 

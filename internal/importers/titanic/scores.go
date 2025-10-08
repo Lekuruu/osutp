@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"time"
 
 	"github.com/Lekuruu/osutp/internal/common"
 	"github.com/Lekuruu/osutp/internal/database"
@@ -13,179 +12,60 @@ import (
 	"gorm.io/gorm"
 )
 
-type ScoreCollectionModel struct {
-	Total  int          `json:"total"`
-	Scores []ScoreModel `json:"scores"`
-}
-
-type ScoreModel struct {
-	ID            int       `json:"id"`
-	UserID        int       `json:"user_id"`
-	BeatmapID     int       `json:"beatmap_id"`
-	SubmittedAt   string    `json:"submitted_at"`
-	Mode          int       `json:"mode"`
-	StatusPP      int       `json:"status_pp"`
-	StatusScore   int       `json:"status_score"`
-	ClientVersion int       `json:"client_version"`
-	PP            float64   `json:"pp"`
-	PPv1          float64   `json:"ppv1"`
-	Acc           float64   `json:"acc"`
-	TotalScore    int       `json:"total_score"`
-	MaxCombo      int       `json:"max_combo"`
-	Mods          int       `json:"mods"`
-	Perfect       bool      `json:"perfect"`
-	Passed        bool      `json:"passed"`
-	Pinned        bool      `json:"pinned"`
-	Count300      int       `json:"n300"`
-	Count100      int       `json:"n100"`
-	Count50       int       `json:"n50"`
-	CountMiss     int       `json:"nMiss"`
-	CountGeki     int       `json:"nGeki"`
-	CountKatu     int       `json:"nKatu"`
-	Grade         string    `json:"grade"`
-	ReplayViews   int       `json:"replay_views"`
-	Failtime      *int      `json:"failtime,omitempty"`
-	User          UserModel `json:"user"`
-}
-
-func (score *ScoreModel) ToSchema() *database.Score {
-	createdAt, err := time.Parse(time.RFC3339, score.SubmittedAt)
+func (importer *TitanicImporter) ImportScore(scoreId int, state *common.State) (*database.Score, error) {
+	url := fmt.Sprintf("%s/scores/%d", importer.ApiUrl, scoreId)
+	resp, err := http.Get(url)
 	if err != nil {
-		createdAt = time.Now().UTC()
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("failed to fetch score: %s", resp.Status)
 	}
 
-	return &database.Score{
-		ID:         score.ID,
-		BeatmapID:  score.BeatmapID,
-		PlayerID:   score.UserID,
-		TotalScore: score.TotalScore,
-		MaxCombo:   score.MaxCombo,
-		Mods:       uint32(score.Mods),
-		FullCombo:  score.Perfect,
-		Grade:      score.Grade,
-		Accuracy:   score.Acc,
-		Amount300:  score.Count300,
-		Amount100:  score.Count100,
-		Amount50:   score.Count50,
-		AmountGeki: score.CountGeki,
-		AmountKatu: score.CountKatu,
-		AmountMiss: score.CountMiss,
-		CreatedAt:  createdAt,
+	var score ScoreModel
+	if err := json.NewDecoder(resp.Body).Decode(&score); err != nil {
+		return nil, fmt.Errorf("failed to decode response: %v", err)
 	}
-}
 
-func ImportOrUpdateLeaderboards(beatmaps []*database.Beatmap, state *common.State) {
-	for _, beatmap := range beatmaps {
-		if beatmap.Status <= 0 {
-			// Map is not ranked/approved/loved
-			continue
-		}
-
-		scores, err := PerformLeaderboardRequest(beatmap.ID, 0, state)
+	beatmap, err := services.FetchBeatmapById(score.BeatmapID, state)
+	if err != nil {
+		return nil, err
+	}
+	if beatmap == nil {
+		// Try to import the beatmap if it doesn't exist
+		beatmap, err = importer.ImportBeatmap(score.BeatmapID, true, state)
 		if err != nil {
-			state.Logger.Log("Failed to fetch leaderboard for beatmap", beatmap.ID, ":", err)
-			continue
-		}
-
-		if err := ProcessScores(scores, beatmap, state); err != nil {
-			state.Logger.Log("Failed to process scores for beatmap", beatmap.ID, ":", err)
-			continue
+			return nil, fmt.Errorf("failed to import beatmap %d for score %d: %v", score.BeatmapID, score.ID, err)
 		}
 	}
+
+	return importer.importScoreFromModel(score, beatmap, state)
 }
 
-func ProcessScores(scores []ScoreModel, beatmap *database.Beatmap, state *common.State) error {
+func (importer *TitanicImporter) importBeatmapLeaderboard(beatmapId int, state *common.State) error {
+	scores, err := importer.performLeaderboardRequest(beatmapId, 0, state)
+	if err != nil {
+		return err
+	}
+
+	beatmap, err := services.FetchBeatmapById(beatmapId, state)
+	if err != nil {
+		return err
+	}
+	if beatmap == nil {
+		return fmt.Errorf("beatmap with id %d not found in database", beatmapId)
+	}
+
 	for _, score := range scores {
-		if score.Mode != 0 {
-			// Only process osu! standard scores
-			continue
-		}
-		if score.User.Restricted {
-			// Skip & delete restricted users
-			services.DeleteScoresByPlayer(score.UserID, state)
-			services.DeletePlayer(score.UserID, state)
-			continue
-		}
-
-		scoreExists, err := services.ScoreExists(score.ID, state)
-		if err != nil {
-			state.Logger.Log("Failed to check if score exists:", err)
-			continue
-		}
-		if scoreExists {
-			continue
-		}
-
-		schema := score.ToSchema()
-		if schema.Relaxing() {
-			// Skip relax/autopilot scores
-			continue
-		}
-
-		difficulty, err := beatmap.DifficultyCalculationResult(schema.DifficultyMods())
-		if err != nil {
-			// Beatmap most likely has no difficulty attributes so we try to update it
-			state.Logger.Log("Failed to get difficulty calculation result:", err)
-			UpdateBeatmapDifficulty(beatmap.ID, state)
-			continue
-		}
-
-		tpScore := schema.CalculationRequest(difficulty)
-		result := tp.CalculatePerformance(difficulty, tpScore)
-		if result == nil {
-			state.Logger.Log("Failed to calculate performance")
-			continue
-		}
-
-		schema.TotalTp = result.Total
-		schema.AimTp = result.Aim
-		schema.SpeedTp = result.Speed
-		schema.AccTp = result.Acc
-
-		user, err := services.FetchPlayerById(score.UserID, state)
-		if err != nil && err != gorm.ErrRecordNotFound {
-			state.Logger.Log("Failed to fetch user:", err)
-			continue
-		}
-
-		if user == nil {
-			user = score.User.ToSchema()
-			if err := services.PlayerUser(user, state); err != nil {
-				state.Logger.Log("Failed to create user:", err)
-				continue
-			}
-		}
-
-		personalBest, err := services.FetchPersonalBestScore(user.ID, beatmap.ID, state)
-		if err != nil && err != gorm.ErrRecordNotFound {
-			state.Logger.Log("Failed to fetch personal best score:", err)
-			continue
-		}
-
-		if personalBest != nil && personalBest.TotalTp > schema.TotalTp {
-			continue
-		}
-
-		// Delete old personal best
-		if personalBest != nil {
-			if err := services.DeleteScore(personalBest.ID, state); err != nil {
-				state.Logger.Log("Failed to delete old personal best score:", err)
-				continue
-			}
-		}
-
-		if err := services.CreateScore(schema, state); err != nil {
-			state.Logger.Log("Failed to create score:", err)
-			continue
-		}
-
-		state.Logger.Logf("Imported score from '%s' on beatmap '%s' with %.2ftp", user.Name, beatmap.FullName(), schema.TotalTp)
+		importer.importScoreFromModel(score, beatmap, state)
 	}
 	return nil
 }
 
-func PerformLeaderboardRequest(beatmapId int, offset int, state *common.State) ([]ScoreModel, error) {
-	url := fmt.Sprintf("%s/beatmaps/%d/scores?offset=%d", state.Config.Server.ApiUrl, beatmapId, offset)
+func (importer *TitanicImporter) performLeaderboardRequest(beatmapId int, offset int, state *common.State) ([]ScoreModel, error) {
+	url := fmt.Sprintf("%s/beatmaps/%d/scores?offset=%d", importer.ApiUrl, beatmapId, offset)
 	resp, err := http.Get(url)
 	if err != nil {
 		return nil, err
@@ -202,4 +82,84 @@ func PerformLeaderboardRequest(beatmapId int, offset int, state *common.State) (
 	}
 
 	return scores.Scores, nil
+}
+
+func (importer *TitanicImporter) importScoreFromModel(score ScoreModel, beatmap *database.Beatmap, state *common.State) (*database.Score, error) {
+	if score.Mode != 0 {
+		// Only process osu! standard scores
+		return nil, nil
+	}
+	if score.User.Restricted {
+		// Skip & delete restricted users
+		services.DeleteScoresByPlayer(score.UserID, state)
+		services.DeletePlayer(score.UserID, state)
+		return nil, nil
+	}
+
+	scoreExists, err := services.ScoreExists(score.ID, state)
+	if err != nil {
+		return nil, fmt.Errorf("failed to check if score exists: %v", err)
+	}
+	if scoreExists {
+		return nil, nil
+	}
+
+	schema := score.ToSchema()
+	if schema.Relaxing() {
+		// Skip relax/autopilot scores
+		return nil, nil
+	}
+
+	difficulty, err := beatmap.DifficultyCalculationResult(schema.DifficultyMods())
+	if err != nil {
+		// Beatmap most likely has no difficulty attributes so we try to update it
+		importer.ImportBeatmap(beatmap.ID, false, state)
+		return nil, fmt.Errorf("failed to get difficulty calculation result: %v", err)
+	}
+
+	tpScore := schema.CalculationRequest(difficulty)
+	result := tp.CalculatePerformance(difficulty, tpScore)
+	if result == nil {
+		return nil, fmt.Errorf("failed to calculate performance")
+	}
+
+	schema.TotalTp = result.Total
+	schema.AimTp = result.Aim
+	schema.SpeedTp = result.Speed
+	schema.AccTp = result.Acc
+
+	user, err := services.FetchPlayerById(score.UserID, state)
+	if err != nil && err != gorm.ErrRecordNotFound {
+		return nil, fmt.Errorf("failed to fetch user: %v", err)
+	}
+
+	if user == nil {
+		user, err = importer.ImportUser(score.UserID, state)
+		if err != nil {
+			return nil, fmt.Errorf("failed to import user %d: %v", score.UserID, err)
+		}
+	}
+
+	personalBest, err := services.FetchPersonalBestScore(user.ID, beatmap.ID, state)
+	if err != nil && err != gorm.ErrRecordNotFound {
+		return nil, fmt.Errorf("failed to fetch personal best score: %v", err)
+	}
+
+	if personalBest != nil && personalBest.TotalTp > schema.TotalTp {
+		// We don't have a new personal best
+		return nil, nil
+	}
+
+	// Delete old personal best
+	if personalBest != nil {
+		if err := services.DeleteScore(personalBest.ID, state); err != nil {
+			return nil, fmt.Errorf("failed to delete old personal best score: %v", err)
+		}
+	}
+
+	if err := services.CreateScore(schema, state); err != nil {
+		return nil, fmt.Errorf("failed to create score: %v", err)
+	}
+
+	return schema, nil
 }

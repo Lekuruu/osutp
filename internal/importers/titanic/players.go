@@ -1,109 +1,67 @@
 package titanic
 
 import (
-	"sort"
-	"time"
+	"encoding/json"
+	"fmt"
+	"net/http"
 
 	"github.com/Lekuruu/osutp/internal/common"
 	"github.com/Lekuruu/osutp/internal/database"
 	"github.com/Lekuruu/osutp/internal/services"
 )
 
-type UserModel struct {
-	ID             int     `json:"id"`
-	Name           string  `json:"name"`
-	Country        string  `json:"country"`
-	CreatedAt      string  `json:"created_at"`
-	LatestActivity string  `json:"latest_activity"`
-	Restricted     bool    `json:"restricted"`
-	Activated      bool    `json:"activated"`
-	PreferredMode  int     `json:"preferred_mode"`
-	Playstyle      int     `json:"playstyle"`
-	Banner         *string `json:"banner,omitempty"`
-	Website        *string `json:"website,omitempty"`
-	Discord        *string `json:"discord,omitempty"`
-	Twitter        *string `json:"twitter,omitempty"`
-	Location       *string `json:"location,omitempty"`
-	Interests      *string `json:"interests,omitempty"`
+func (importer *TitanicImporter) ImportUser(userID int, state *common.State) (*database.Player, error) {
+	user, err := importer.fetchUserById(userID)
+	if err != nil {
+		return nil, err
+	}
+	if user == nil {
+		return nil, nil
+	}
+
+	return importer.importUserFromModel(*user, state)
 }
 
-func (user *UserModel) ToSchema() *database.Player {
-	createdAt, err := time.Parse("2006-01-02T15:04:05", user.CreatedAt)
-	if err != nil {
-		createdAt = time.Now().UTC()
-	}
-
-	return &database.Player{
-		ID:        user.ID,
-		Name:      user.Name,
-		Country:   user.Country,
-		CreatedAt: createdAt,
-	}
+func (importer *TitanicImporter) ImportUsersFromRankings(page int, state *common.State) (int, error) {
+	return 0, fmt.Errorf("not implemented")
 }
 
-func UpdatePlayerRatings(state *common.State) error {
-	players, err := services.FetchAllPlayers(state)
+func (importer *TitanicImporter) importUserFromModel(user UserModel, state *common.State) (*database.Player, error) {
+	// Check for existing player entry
+	userEntry, err := services.FetchPlayerById(user.ID, state)
+	if err != nil && err.Error() != "record not found" {
+		return nil, err
+	}
+
+	if userEntry != nil {
+		// TODO: Update existing player data if necessary
+		return userEntry, nil
+	}
+
+	userEntry = user.ToSchema()
+	if err := services.PlayerUser(userEntry, state); err != nil {
+		return nil, err
+	}
+
+	return userEntry, nil
+}
+
+func (importer *TitanicImporter) fetchUserById(userID int) (*UserModel, error) {
+	url := fmt.Sprintf("%s/users/%d", importer.ApiUrl, userID)
+	resp, err := http.Get(url)
 	if err != nil {
-		return err
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("failed to fetch user: %s", resp.Status)
 	}
 
-	// Update each player's rating based on their best scores
-	for _, player := range players {
-		bestScores, err := services.FetchPersonalBestScores(player.ID, state)
-		if err != nil {
-			state.Logger.Log("Failed to fetch scores for player", player.ID, ":", err)
-			continue
-		}
-
-		if err := common.UpdatePlayerRating(player, bestScores, state); err != nil {
-			state.Logger.Log("Failed to process player", player.ID, ":", err)
-			continue
-		}
-
-		state.Logger.Logf("Updated player '%s' with total tp: %.2f (#%d)", player.Name, player.TotalTp, player.GlobalRank)
+	var user UserModel
+	if err := json.NewDecoder(resp.Body).Decode(&user); err != nil {
+		return nil, fmt.Errorf("failed to decode response: %v", err)
 	}
 
-	// Save updated player data
-	if err := state.Database.Save(&players).Error; err != nil {
-		return err
-	}
-
-	// Sort players by total tp
-	sort.Slice(players, func(i, j int) bool {
-		return players[i].TotalTp > players[j].TotalTp
-	})
-	playersByCountry := make(map[string][]*database.Player)
-
-	// Update global rank & rank delta
-	state.Logger.Log("Updating global ranks...")
-
-	for index, player := range players {
-		previousRank := player.GlobalRank
-		player.GlobalRank = index + 1
-		rankDelta := previousRank - player.GlobalRank
-		player.RecentRankChange = rankDelta
-		player.LastUpdate = time.Now().UTC()
-		playersByCountry[player.Country] = append(playersByCountry[player.Country], player)
-
-		if previousRank == 0 {
-			// No rank change for new players
-			player.RecentRankChange = 0
-		}
-	}
-	state.Logger.Log("Updated country ranks...")
-
-	// Update country ranks
-	for _, countryPlayers := range playersByCountry {
-		sort.Slice(countryPlayers, func(i, j int) bool {
-			return countryPlayers[i].TotalTp > countryPlayers[j].TotalTp
-		})
-		for index, player := range countryPlayers {
-			player.CountryRank = index + 1
-		}
-	}
-
-	if err := state.Database.Save(&players).Error; err != nil {
-		return err
-	}
-	return nil
+	return &user, nil
 }
