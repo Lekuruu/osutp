@@ -57,9 +57,12 @@ func (importer *TitanicImporter) ImportBeatmapsByDifficulty(page int, state *com
 
 	for _, beatmapset := range results {
 		for _, beatmap := range beatmapset.Beatmaps {
-			_, err := importer.importBeatmapFromModel(&beatmap, false, state)
+			beatmapObject, err := importer.importBeatmapFromModel(&beatmap, false, state)
 			if err != nil {
 				state.Logger.Logf("Error importing beatmap %d: %v", beatmap.ID, err)
+				continue
+			}
+			if beatmapObject == nil {
 				continue
 			}
 
@@ -95,9 +98,12 @@ func (importer *TitanicImporter) ImportBeatmapsByDate(page int, state *common.St
 
 	for _, beatmapset := range results {
 		for _, beatmap := range beatmapset.Beatmaps {
-			_, err := importer.importBeatmapFromModel(&beatmap, false, state)
+			beatmapObject, err := importer.importBeatmapFromModel(&beatmap, false, state)
 			if err != nil {
 				state.Logger.Logf("Error importing beatmap %d: %v", beatmap.ID, err)
+				continue
+			}
+			if beatmapObject == nil {
 				continue
 			}
 
