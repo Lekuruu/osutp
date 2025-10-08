@@ -34,8 +34,6 @@ func (importer *TitanicImporter) ImportBeatmap(beatmapID int, importLeaderboard 
 	if err != nil {
 		return nil, err
 	}
-
-	state.Logger.Logf("Imported Beatmap: '%s' (%s/b/%d)", beatmapObject.FullName(), importer.WebUrl, beatmapObject.ID)
 	return beatmapObject, nil
 }
 
@@ -161,6 +159,8 @@ func (importer *TitanicImporter) importBeatmapFromModel(beatmap *BeatmapModel, f
 	if err != nil {
 		return nil, err
 	}
+
+	state.Logger.Logf("Imported Beatmap: '%s' (%s/b/%d)", beatmapEntry.FullName(), importer.WebUrl, beatmapEntry.ID)
 	return beatmapEntry, nil
 }
 
