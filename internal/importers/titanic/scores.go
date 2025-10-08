@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strings"
+	"time"
 
 	"github.com/Lekuruu/osutp/internal/common"
 	"github.com/Lekuruu/osutp/internal/database"
@@ -16,13 +18,14 @@ func (importer *TitanicImporter) ImportScore(scoreId int, state *common.State) (
 	url := fmt.Sprintf("%s/scores/%d", importer.ApiUrl, scoreId)
 	resp, err := http.Get(url)
 	if err != nil {
+		// Check for any rate limit errors and wait if needed
+		if strings.Contains(err.Error(), "429 Too Many Requests") {
+			time.Sleep(time.Second * 60)
+			return importer.ImportScore(scoreId, state)
+		}
 		return nil, err
 	}
 	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("failed to fetch score: %s", resp.Status)
-	}
 
 	var score ScoreModel
 	if err := json.NewDecoder(resp.Body).Decode(&score); err != nil {
@@ -68,13 +71,14 @@ func (importer *TitanicImporter) performLeaderboardRequest(beatmapId int, offset
 	url := fmt.Sprintf("%s/beatmaps/%d/scores?offset=%d", importer.ApiUrl, beatmapId, offset)
 	resp, err := http.Get(url)
 	if err != nil {
+		// Check for any rate limit errors and wait if needed
+		if strings.Contains(err.Error(), "429 Too Many Requests") {
+			time.Sleep(time.Second * 60)
+			return importer.performLeaderboardRequest(beatmapId, offset, state)
+		}
 		return nil, err
 	}
 	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("failed to fetch leaderboard: %s", resp.Status)
-	}
 
 	var scores ScoreCollectionModel
 	if err := json.NewDecoder(resp.Body).Decode(&scores); err != nil {

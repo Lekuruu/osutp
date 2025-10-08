@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strings"
+	"time"
 
 	"github.com/Lekuruu/osutp/internal/common"
 	"github.com/Lekuruu/osutp/internal/database"
@@ -168,6 +170,11 @@ func (importer *TitanicImporter) performSearchRequest(request BeatmapSearchReque
 
 	resp, err := http.Post(url, "application/json", bytes.NewBuffer(jsonData))
 	if err != nil {
+		// Check for any rate limit errors and wait if needed
+		if strings.Contains(err.Error(), "429 Too Many Requests") {
+			time.Sleep(time.Second * 60)
+			return importer.performSearchRequest(request, state)
+		}
 		return nil, err
 	}
 	defer resp.Body.Close()
@@ -186,6 +193,11 @@ func (importer *TitanicImporter) fetchBeatmapById(beatmapId int) (*BeatmapModel,
 	url := fmt.Sprintf("%s/beatmaps/%d", importer.ApiUrl, beatmapId)
 	resp, err := http.Get(url)
 	if err != nil {
+		// Check for any rate limit errors and wait if needed
+		if strings.Contains(err.Error(), "429 Too Many Requests") {
+			time.Sleep(time.Second * 60)
+			return importer.fetchBeatmapById(beatmapId)
+		}
 		return nil, err
 	}
 	defer resp.Body.Close()
@@ -203,6 +215,11 @@ func (importer *TitanicImporter) fetchBeatmapFile(beatmapId int) ([]byte, error)
 	url := fmt.Sprintf("%s/beatmaps/%d/file", importer.ApiUrl, beatmapId)
 	resp, err := http.Get(url)
 	if err != nil {
+		// Check for any rate limit errors and wait if needed
+		if strings.Contains(err.Error(), "429 Too Many Requests") {
+			time.Sleep(time.Second * 60)
+			return importer.fetchBeatmapFile(beatmapId)
+		}
 		return nil, err
 	}
 

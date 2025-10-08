@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strings"
+	"time"
 
 	"github.com/Lekuruu/osutp/internal/common"
 	"github.com/Lekuruu/osutp/internal/database"
@@ -50,13 +52,14 @@ func (importer *TitanicImporter) fetchUserById(userID int) (*UserModel, error) {
 	url := fmt.Sprintf("%s/users/%d", importer.ApiUrl, userID)
 	resp, err := http.Get(url)
 	if err != nil {
+		// Check for any rate limit errors and wait if needed
+		if strings.Contains(err.Error(), "429 Too Many Requests") {
+			time.Sleep(time.Second * 60)
+			return importer.fetchUserById(userID)
+		}
 		return nil, err
 	}
 	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("failed to fetch user: %s", resp.Status)
-	}
 
 	var user UserModel
 	if err := json.NewDecoder(resp.Body).Decode(&user); err != nil {
