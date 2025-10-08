@@ -29,11 +29,15 @@ func main() {
 			state.Logger.Logf("Error occurred while importing beatmaps: %v", err)
 			continue
 		}
+
+		// Update player rankings after each page
+		updaters.UpdatePlayerRatings(state)
+
 		if amount == 0 {
+			// No more beatmaps to import
 			break
 		}
 	}
 
-	updaters.UpdatePlayerRatings(state)
 	state.Logger.Log("Import completed.")
 }
