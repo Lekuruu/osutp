@@ -7,8 +7,8 @@ import (
 
 type Config struct {
 	Web struct {
-		Host string `envconfig:"API_HOST" default:"0.0.0.0"`
-		Port int    `envconfig:"API_PORT" default:"8080"`
+		Host string `envconfig:"WEB_HOST" default:"0.0.0.0"`
+		Port int    `envconfig:"WEB_PORT" default:"8080"`
 	}
 	Server struct {
 		Type   string `envconfig:"SERVER_TYPE" default:"titanic" validate:"oneof=titanic"`
