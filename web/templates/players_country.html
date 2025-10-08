@@ -1,11 +1,13 @@
 {{ define "country_players" }}
 {{ template "header" . }}
-    <h1>Global player rating</h1>
-    <p>
-        The players with the highest amount of tp are listed here. If you want to sort the players by their aim,
-        speed or accuracy rating then simply click on the respective column title. Recent changes to the underlying
-        algorithm or the website are documented <a href="/changelog">here</a>.
-    </p>
+    <div class="description">
+        <h1>Global player rating</h1>
+        <p>
+            The players with the highest amount of tp are listed here. If you want to sort the players by their aim,
+            speed or accuracy rating then simply click on the respective column title. Recent changes to the underlying
+            algorithm or the website are documented <a href="/changelog">here</a>.
+        </p>
+    </div>
     <form class="form" action="/players" method="get">
         <div class="search-form-search">
             <input type="text" name="pn" size="15" maxlength="40" placeholder="Player name">
@@ -24,6 +26,7 @@
                     onmouseover="Tip('{{ $country.CountryName }}: {{ $.Printer.Sprintf "%.0f" $country.TotalTp }}tp')"
                     onmouseout="UnTip()">
             </a>
+            &hairsp;
         {{ end }}
         {{ if lt .CountryPosition .TotalCountryPages }}
         <a href="?cp={{ add .CountryPosition 1 }}">next</a>
