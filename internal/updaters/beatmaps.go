@@ -15,7 +15,7 @@ var modCombinations []uint32 = []uint32{
 }
 
 func UpdateBeatmapDifficulty(file []byte, schema *database.Beatmap, state *common.State) error {
-	beatmap, err := osu.ParseBytes(file)
+	beatmap, err := parseBeatmapSafe(file)
 	if err != nil {
 		return err
 	}
@@ -24,7 +24,7 @@ func UpdateBeatmapDifficulty(file []byte, schema *database.Beatmap, state *commo
 	attributes := database.DifficultyAttributes{}
 
 	for _, mod := range modCombinations {
-		result := tp.CalculateDifficulty(&beatmap, uint32(mod))
+		result := tp.CalculateDifficulty(beatmap, uint32(mod))
 		if result == nil {
 			continue
 		}
@@ -49,6 +49,22 @@ func UpdateBeatmapDifficulty(file []byte, schema *database.Beatmap, state *commo
 	schema.MaxCombo = beatmap.MaxCombo
 	state.Database.Save(schema)
 	return nil
+}
+
+func parseBeatmapSafe(file []byte) (beatmap *osu.Beatmap, err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			err = r.(error)
+		}
+	}()
+
+	beatmapObject, err := osu.ParseBytes(file)
+	if err != nil {
+		return nil, err
+	}
+
+	beatmap = &beatmapObject
+	return beatmap, nil
 }
 
 func round(val float64, precision uint) float64 {
