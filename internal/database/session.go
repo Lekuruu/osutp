@@ -40,7 +40,34 @@ func CreateSession(path string) (*gorm.DB, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	err = CreateIndexes(db)
+	if err != nil {
+		return nil, err
+	}
+
 	return db, nil
+}
+
+func CreateIndexes(db *gorm.DB) error {
+	indexStatements := []string{
+		`CREATE INDEX IF NOT EXISTS idx_beatmaps_star_rating
+		 ON beatmaps (json_extract(difficulty_attributes, '$.0.StarRating'));`,
+
+		`CREATE INDEX IF NOT EXISTS idx_beatmaps_speed_stars
+		 ON beatmaps (json_extract(difficulty_attributes, '$.0.SpeedStars'));`,
+
+		`CREATE INDEX IF NOT EXISTS idx_beatmaps_aim_stars
+		 ON beatmaps (json_extract(difficulty_attributes, '$.0.AimStars'));`,
+	}
+
+	for _, stmt := range indexStatements {
+		if err := db.Exec(stmt).Error; err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 func PreloadQuery(database *gorm.DB, preload []string) *gorm.DB {
