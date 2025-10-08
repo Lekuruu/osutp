@@ -18,6 +18,7 @@ func InitializeRoutes(server *common.Server) {
 	server.Router.HandleFunc("/changelog", server.ContextMiddleware(routes.Changelog)).Methods("GET")
 	server.Router.HandleFunc("/banners/{pid:[0-9]+}", server.ContextMiddleware(routes.Banners)).Methods("GET")
 	server.Router.HandleFunc("/banner/{pid:[0-9]+}", server.ContextMiddleware(routes.BannerImage)).Methods("GET")
+	server.Router.HandleFunc("/players/{country:[a-zA-Z]{2}}", server.ContextMiddleware(routes.PlayersByCountry)).Methods("GET")
 	// TODO: Implement dynamic strain graphs
 
 	// Initialize static routes

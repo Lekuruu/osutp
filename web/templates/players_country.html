@@ -1,0 +1,58 @@
+{{ define "country_players" }}
+{{ template "header" . }}
+    <h1>Global player rating</h1>
+    <p>
+        The players with the highest amount of tp are listed here. If you want to sort the players by their aim,
+        speed or accuracy rating then simply click on the respective column title. Recent changes to the underlying
+        algorithm or the website are documented <a href="/changelog">here</a>.
+    </p>
+    <form class="form" action="/players" method="get">
+        <div class="search-form-search">
+            <input type="text" name="pn" size="15" maxlength="40" placeholder="Player name">
+            <input type="submit" value="Search">
+        </div>
+    </form>
+    {{ template "pagination" .Pagination }}
+    <table class="beatmaps">
+        <tbody>
+            <tr>
+                <th>Country Rank</th>
+                <th>Global Rank</th>
+                <th>Player name</th>
+                <th><a href="/web/20130805190254/http://osutp.net/players">Rating</a>&nbsp;↓</th>
+                <th><a href="/web/20130805190254/http://osutp.net/players?s=1">Aim</a></th>
+                <th><a href="/web/20130805190254/http://osutp.net/players?s=2">Speed</a></th>
+                <th><a href="/web/20130805190254/http://osutp.net/players?s=3">Accuracy</a></th>
+                <th></th>
+            </tr>
+            {{ range $index, $player := .Players }}
+            <tr class="{{ if mod $index 2 }}row1{{ else }}row2{{ end }}">
+                <td><span style="font-weight:bold">#{{ add $index $.Pagination.Start }}</span></td>
+                <td><span style="font-weight:bold">#{{ $player.GlobalRank }}</span></td>
+                <td>
+                    <a href="/players/{{ lower $player.Country }}">
+                        <img class="flag"
+                             src="/images/flags/{{ lower $player.Country }}.gif"
+                             alt="{{ $player.CountryName }}"
+                             onmouseover="Tip('{{ $player.CountryName }}')"
+                             onmouseout="UnTip()">
+                    </a>
+                    <a href="/scores?pid={{ $player.ID }}">
+                        {{ $player.Name }}
+                    </a>
+                </td>
+                <td><span style="font-weight:bold">{{ $.Printer.Sprintf "%.0f" $player.TotalTp }}tp</span></td>
+                <td>{{ $.Printer.Sprintf "%.0f" $player.AimTp }}</td>
+                <td>{{ $.Printer.Sprintf "%.0f" $player.SpeedTp }}</td>
+                <td>{{ $.Printer.Sprintf "%.0f" $player.AccuracyTp }}</td>
+                <td style="padding-right:5px;text-align:right">
+                    <a href="/players?p=1&amp;u={{ $player.ID }}">update</a> | 
+                    <a href="/scores?pid={{ $player.ID }}">best scores</a> | 
+                    <a href="/banners/{{ $player.ID }}">banners</a>
+                </td>
+            </tr>
+            {{ end }}
+        </tbody>
+    </table>
+{{ template "footer" . }}
+{{ end }}

@@ -53,6 +53,20 @@ func FetchBestPlayers(offset int, limit int, state *common.State) ([]*database.P
 	return players, nil
 }
 
+func FetchBestPlayersByCountry(country string, offset int, limit int, state *common.State) ([]*database.Player, error) {
+	var players []*database.Player
+	result := state.Database.
+		Where("country = ?", country).
+		Order("total_tp DESC").
+		Offset(offset).
+		Limit(limit).
+		Find(&players)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return players, nil
+}
+
 func PlayerExists(playerId int, state *common.State) (bool, error) {
 	var count int64
 	if err := state.Database.Model(&database.Player{}).Where("id = ?", playerId).Count(&count).Error; err != nil {
@@ -64,6 +78,14 @@ func PlayerExists(playerId int, state *common.State) (bool, error) {
 func TotalPlayers(state *common.State) (int64, error) {
 	var count int64
 	if err := state.Database.Model(&database.Player{}).Count(&count).Error; err != nil {
+		return 0, err
+	}
+	return count, nil
+}
+
+func TotalPlayersByCountry(country string, state *common.State) (int64, error) {
+	var count int64
+	if err := state.Database.Model(&database.Player{}).Where("country = ?", country).Count(&count).Error; err != nil {
 		return 0, err
 	}
 	return count, nil
