@@ -27,7 +27,7 @@ func NewState() *State {
 		return nil
 	}
 
-	db, err := database.CreateSession(config.Database.Path)
+	db, err := database.CreateSession(config.Database)
 	if err != nil {
 		log.Fatalf("Failed to initialize database: %v", err)
 		return nil
