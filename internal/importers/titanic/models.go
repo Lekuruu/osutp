@@ -1,6 +1,7 @@
 package titanic
 
 import (
+	"strings"
 	"time"
 
 	"github.com/Lekuruu/osutp/internal/database"
@@ -192,7 +193,7 @@ func (user *UserModel) ToSchema() *database.Player {
 	return &database.Player{
 		ID:        user.ID,
 		Name:      user.Name,
-		Country:   user.Country,
 		CreatedAt: createdAt,
+		Country:   strings.ToUpper(user.Country),
 	}
 }
