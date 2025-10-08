@@ -54,8 +54,12 @@ func (beatmap *Beatmap) FullName() string {
 	return fmt.Sprintf("%s - %s (%s) [%s]", beatmap.Artist, beatmap.Title, beatmap.Creator, beatmap.Version)
 }
 
+func (beatmap *Beatmap) HasDifficultyAttributes() bool {
+	return len(beatmap.DifficultyAttributes) > 0
+}
+
 func (beatmap *Beatmap) DifficultyCalculationResult(mods uint32) (*tp.DifficultyCalculationResult, error) {
-	if beatmap.DifficultyAttributes == nil {
+	if !beatmap.HasDifficultyAttributes() {
 		return nil, fmt.Errorf("no difficulty attributes available for beatmap %d", beatmap.ID)
 	}
 
