@@ -116,7 +116,7 @@ func (importer *TitanicImporter) ImportBeatmapsByDate(page int, state *common.St
 func (importer *TitanicImporter) importBeatmapFromModel(beatmap *BeatmapModel, forcedRecalculation bool, state *common.State) (*database.Beatmap, error) {
 	if beatmap.Mode != GameModeOsu {
 		// We only support osu!standard for now
-		return nil, fmt.Errorf("unsupported game mode %d for beatmap %d", beatmap.Mode, beatmap.ID)
+		return nil, nil
 	}
 
 	// Check for existing beatmap entry
