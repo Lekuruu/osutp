@@ -210,7 +210,14 @@ func (importer *TitanicImporter) fetchBeatmapFile(beatmapId int) ([]byte, error)
 	return io.ReadAll(resp.Body)
 }
 
-func dereferenceString(s *string) string {
+func dereferenceString(s *string) (result string) {
+	// idk why but sometimes this panics here
+	// so i just was lazy and added a recover
+	defer func() {
+		if r := recover(); r != nil {
+			result = ""
+		}
+	}()
 	if s != nil {
 		return *s
 	}
