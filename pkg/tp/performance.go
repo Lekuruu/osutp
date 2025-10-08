@@ -104,7 +104,7 @@ func CalculatePerformance(difficulty *DifficultyCalculationResult, score *Score)
 }
 
 func computeAimValue(difficulty *DifficultyCalculationResult, score *Score) float64 {
-	aimValue := math.Pow(5.0*math.Max(1.0, float64(difficulty.AimStars)/0.0358)-4.0, 3.0) / 100000.0
+	aimValue := math.Pow(5.0*math.Max(1.0, float64(difficulty.AimStars)/0.0445)-4.0, 3.0) / 100000.0
 
 	// Longer maps are worth more
 	aimValue *= 1 + 0.1*math.Min(1.0, float64(score.TotalHits())/1500.0)
@@ -153,7 +153,7 @@ func computeAimValue(difficulty *DifficultyCalculationResult, score *Score) floa
 }
 
 func computeSpeedValue(difficulty *DifficultyCalculationResult, score *Score) float64 {
-	speedValue := math.Pow(5.0*math.Max(1.0, float64(difficulty.SpeedStars)/0.0358)-4.0, 3.0) / 100000.0
+	speedValue := math.Pow(5.0*math.Max(1.0, float64(difficulty.SpeedStars)/0.0445)-4.0, 3.0) / 100000.0
 
 	// Longer maps are worth more
 	speedValue *= 1 + 0.1*math.Min(1.0, float64(score.TotalHits())/1500.0)
