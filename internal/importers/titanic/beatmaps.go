@@ -59,6 +59,7 @@ func (importer *TitanicImporter) ImportBeatmapsByDifficulty(page int, state *com
 
 	for _, beatmapset := range results {
 		for _, beatmap := range beatmapset.Beatmaps {
+			beatmap.Beatmapset = &beatmapset
 			beatmapObject, err := importer.importBeatmapFromModel(&beatmap, false, state)
 			if err != nil {
 				state.Logger.Logf("Error importing beatmap %d: %v", beatmap.ID, err)
@@ -100,6 +101,7 @@ func (importer *TitanicImporter) ImportBeatmapsByDate(page int, state *common.St
 
 	for _, beatmapset := range results {
 		for _, beatmap := range beatmapset.Beatmaps {
+			beatmap.Beatmapset = &beatmapset
 			beatmapObject, err := importer.importBeatmapFromModel(&beatmap, false, state)
 			if err != nil {
 				state.Logger.Logf("Error importing beatmap %d: %v", beatmap.ID, err)
@@ -127,11 +129,6 @@ func (importer *TitanicImporter) importBeatmapFromModel(beatmap *BeatmapModel, f
 		return nil, nil
 	}
 
-	if beatmap == nil {
-		// This can happen... somehow...
-		return nil, fmt.Errorf("beatmap model is nil")
-	}
-
 	// Check for existing beatmap entry
 	beatmapEntry, err := services.FetchBeatmapById(beatmap.ID, state)
 	if err != nil && err.Error() != "record not found" {
@@ -140,7 +137,7 @@ func (importer *TitanicImporter) importBeatmapFromModel(beatmap *BeatmapModel, f
 
 	if beatmapEntry == nil {
 		// Create new beatmap entry if it doesn't exist
-		beatmapEntry = beatmap.ToSchema(nil)
+		beatmapEntry = beatmap.ToSchema(beatmap.Beatmapset)
 		err := services.CreateBeatmap(beatmapEntry, state)
 		if err != nil {
 			return nil, err
@@ -164,8 +161,6 @@ func (importer *TitanicImporter) importBeatmapFromModel(beatmap *BeatmapModel, f
 	if err != nil {
 		return nil, err
 	}
-
-	state.Logger.Logf("Imported Beatmap: '%s' (%s/b/%d)", beatmapEntry.FullName(), importer.WebUrl, beatmapEntry.ID)
 	return beatmapEntry, nil
 }
 
@@ -233,13 +228,6 @@ func (importer *TitanicImporter) fetchBeatmapFile(beatmapId int) ([]byte, error)
 }
 
 func dereferenceString(s *string) (result string) {
-	// idk why but sometimes this panics here
-	// so i just was lazy and added a recover
-	defer func() {
-		if r := recover(); r != nil {
-			result = ""
-		}
-	}()
 	if s != nil {
 		return *s
 	}

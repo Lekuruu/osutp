@@ -50,29 +50,30 @@ type BeatmapsetModel struct {
 }
 
 type BeatmapModel struct {
-	ID           int     `json:"id"`
-	SetID        int     `json:"set_id"`
-	Mode         int     `json:"mode"`
-	MD5          string  `json:"md5"`
-	Status       int     `json:"status"`
-	Version      string  `json:"version"`
-	Filename     string  `json:"filename"`
-	CreatedAt    string  `json:"created_at"`
-	LastUpdate   string  `json:"last_update"`
-	Playcount    int     `json:"playcount"`
-	Passcount    int     `json:"passcount"`
-	TotalLength  int     `json:"total_length"`
-	DrainLength  int     `json:"drain_length"`
-	MaxCombo     int     `json:"max_combo"`
-	BPM          float64 `json:"bpm"`
-	CS           float64 `json:"cs"`
-	AR           float64 `json:"ar"`
-	OD           float64 `json:"od"`
-	HP           float64 `json:"hp"`
-	Diff         float64 `json:"diff"`
-	CountNormal  int     `json:"count_normal"`
-	CountSlider  int     `json:"count_slider"`
-	CountSpinner int     `json:"count_spinner"`
+	ID           int              `json:"id"`
+	SetID        int              `json:"set_id"`
+	Mode         int              `json:"mode"`
+	MD5          string           `json:"md5"`
+	Status       int              `json:"status"`
+	Version      string           `json:"version"`
+	Filename     string           `json:"filename"`
+	CreatedAt    string           `json:"created_at"`
+	LastUpdate   string           `json:"last_update"`
+	Playcount    int              `json:"playcount"`
+	Passcount    int              `json:"passcount"`
+	TotalLength  int              `json:"total_length"`
+	DrainLength  int              `json:"drain_length"`
+	MaxCombo     int              `json:"max_combo"`
+	BPM          float64          `json:"bpm"`
+	CS           float64          `json:"cs"`
+	AR           float64          `json:"ar"`
+	OD           float64          `json:"od"`
+	HP           float64          `json:"hp"`
+	Diff         float64          `json:"diff"`
+	CountNormal  int              `json:"count_normal"`
+	CountSlider  int              `json:"count_slider"`
+	CountSpinner int              `json:"count_spinner"`
+	Beatmapset   *BeatmapsetModel `json:"beatmapset,omitempty"`
 }
 
 func (beatmap *BeatmapModel) ToSchema(beatmapset *BeatmapsetModel) *database.Beatmap {
