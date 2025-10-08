@@ -57,3 +57,15 @@ func GetPageFromQuery(ctx *common.Context) int {
 	}
 	return currentPageInt
 }
+
+func GetCountryPositionFromQuery(ctx *common.Context) int {
+	position := ctx.Request.URL.Query().Get("cp")
+	if position == "" {
+		position = "0"
+	}
+	positionInt, err := strconv.Atoi(position)
+	if err != nil {
+		positionInt = 0
+	}
+	return positionInt
+}

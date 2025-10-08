@@ -8,6 +8,7 @@ import (
 )
 
 const playersPerPage = 50
+const countrySliceSize = 20
 
 func Players(ctx *common.Context) {
 	pageViews, err := services.IncreasePageViews("players", ctx.State)
@@ -33,10 +34,30 @@ func Players(ctx *common.Context) {
 	totalPages := int(totalPlayers) / playersPerPage
 	pagination := NewPaginationData(currentPage, totalPages, playersPerPage, int(totalPlayers))
 
+	bestCountries, err := services.FetchBestCountries(ctx.State)
+	if err != nil {
+		ctx.Response.WriteHeader(500)
+		return
+	}
+
+	countryPosition := GetCountryPositionFromQuery(ctx)
+	offset := countryPosition * countrySliceSize
+	end := offset + countrySliceSize
+	if end > len(bestCountries) {
+		end = len(bestCountries)
+	}
+	if offset > len(bestCountries) {
+		offset = len(bestCountries)
+	}
+	bestCountrySlice := bestCountries[offset:end]
+
 	data := map[string]interface{}{
-		"PageViews":  pageViews,
-		"Players":    players,
-		"Pagination": pagination,
+		"PageViews":         pageViews,
+		"Players":           players,
+		"Pagination":        pagination,
+		"BestCountries":     bestCountrySlice,
+		"CountryPosition":   countryPosition,
+		"TotalCountryPages": len(bestCountries) / countrySliceSize,
 	}
 	renderTemplate(ctx, "players", data)
 }
@@ -68,11 +89,31 @@ func PlayersByCountry(ctx *common.Context) {
 	totalPages := int(totalPlayers) / playersPerPage
 	pagination := NewPaginationData(currentPage, totalPages, playersPerPage, int(totalPlayers))
 
+	bestCountries, err := services.FetchBestCountries(ctx.State)
+	if err != nil {
+		ctx.Response.WriteHeader(500)
+		return
+	}
+
+	countryPosition := GetCountryPositionFromQuery(ctx)
+	offset := countryPosition * countrySliceSize
+	end := offset + countrySliceSize
+	if end > len(bestCountries) {
+		end = len(bestCountries)
+	}
+	if offset > len(bestCountries) {
+		offset = len(bestCountries)
+	}
+	bestCountrySlice := bestCountries[offset:end]
+
 	data := map[string]interface{}{
-		"PageViews":  pageViews,
-		"Players":    players,
-		"Country":    country,
-		"Pagination": pagination,
+		"PageViews":         pageViews,
+		"Players":           players,
+		"Country":           country,
+		"Pagination":        pagination,
+		"BestCountries":     bestCountrySlice,
+		"CountryPosition":   countryPosition,
+		"TotalCountryPages": len(bestCountries) / countrySliceSize,
 	}
 	renderTemplate(ctx, "country_players", data)
 }

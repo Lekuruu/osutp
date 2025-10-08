@@ -14,7 +14,20 @@
     </form>
     {{ template "pagination" .Pagination }}
     <div class="country-list">
-        <!-- TODO: Add country selection -->
+        {{ if gt .CountryPosition 1 }}
+        <a href="?cp={{ sub .CountryPosition 1 }}">prev</a>
+        {{ end }}
+        {{ range $index, $country := .BestCountries }}
+            <a href="/players/{{ lower $country.Country }}">
+                <img class="flag"
+                    src="/images/flags/{{ lower $country.Country }}.gif" alt=""
+                    onmouseover="Tip('{{ $country.CountryName }}: {{ $.Printer.Sprintf "%.0f" $country.TotalTp }}tp')"
+                    onmouseout="UnTip()">
+            </a>
+        {{ end }}
+        {{ if lt .CountryPosition .TotalCountryPages }}
+        <a href="?cp={{ add .CountryPosition 1 }}">next</a>
+        {{ end }}
         <p><a href="../">reset country filter</a></p>
     </div>
     <table class="beatmaps">

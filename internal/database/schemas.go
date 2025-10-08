@@ -154,6 +154,10 @@ type CountryStats struct {
 	TotalTp float64 `json:"total_tp"`
 }
 
+func (country *CountryStats) CountryName() string {
+	return GetCountryNameFromCode(country.Country)
+}
+
 type Score struct {
 	ID         int       `gorm:"primaryKey;autoIncrement;not null;index"`
 	BeatmapID  int       `gorm:"not null;index"`
