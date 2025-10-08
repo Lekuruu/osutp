@@ -147,6 +147,7 @@ func (importer *TitanicImporter) importBeatmapFromModel(beatmap *BeatmapModel, f
 
 	if beatmapEntry.DifficultyAttributes != nil && !forcedRecalculation {
 		// Skip if difficulty attributes already exist and recalculation is not forced
+		state.Logger.Logf("Skipping difficulty calculation for Beatmap: '%s' (%s/b/%d)", beatmapEntry.FullName(), importer.WebUrl, beatmapEntry.ID)
 		return beatmapEntry, nil
 	}
 
