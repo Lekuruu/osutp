@@ -8,16 +8,16 @@ import (
 )
 
 type Page struct {
-	Name       string    `gorm:"primaryKey;not null"`
+	Name       string    `gorm:"primaryKey;not null;index"`
 	Views      int64     `gorm:"not null;default:0"`
 	LastUpdate time.Time `gorm:"not null;default:CURRENT_TIMESTAMP"`
 }
 
 type Changelog struct {
-	Id          int       `gorm:"primaryKey;autoIncrement;not null"`
+	Id          int       `gorm:"primaryKey;autoIncrement;not null;index"`
 	Area        string    `gorm:"not null"`
 	Description string    `gorm:"not null"`
-	CreatedAt   time.Time `gorm:"not null;default:CURRENT_TIMESTAMP"`
+	CreatedAt   time.Time `gorm:"not null;default:CURRENT_TIMESTAMP;index"`
 }
 
 func (changelog *Changelog) Date() string {
@@ -29,7 +29,7 @@ func (changelog *Changelog) Time() string {
 }
 
 type Beatmap struct {
-	ID                   int `gorm:"primaryKey"`
+	ID                   int `gorm:"primaryKey;not null;index"`
 	SetID                int `gorm:"column:set_id;index"`
 	Title                string
 	Artist               string
@@ -108,16 +108,16 @@ func (beatmap *Beatmap) AimStars(mods uint32) float64 {
 }
 
 type Player struct {
-	ID               int       `gorm:"primaryKey;autoIncrement;not null"`
+	ID               int       `gorm:"primaryKey;autoIncrement;not null;index"`
 	Name             string    `gorm:"not null;uniqueIndex"`
 	Country          string    `gorm:"not null;default:'XX'"`
 	GlobalRank       int       `gorm:"not null;default:0;index"`
 	CountryRank      int       `gorm:"not null;default:0;index"`
 	RecentRankChange int       `gorm:"not null;default:0"`
 	TotalTp          float64   `gorm:"not null;default:0;index"`
-	AimTp            float64   `gorm:"not null;default:0"`
-	SpeedTp          float64   `gorm:"not null;default:0"`
-	AccuracyTp       float64   `gorm:"not null;default:0"`
+	AimTp            float64   `gorm:"not null;default:0;index"`
+	SpeedTp          float64   `gorm:"not null;default:0;index"`
+	AccuracyTp       float64   `gorm:"not null;default:0;index"`
 	CreatedAt        time.Time `gorm:"not null;default:CURRENT_TIMESTAMP"`
 	LastUpdate       time.Time `gorm:"not null;default:CURRENT_TIMESTAMP"`
 }
@@ -146,7 +146,7 @@ func (player *Player) CountryRankOrdinal() string {
 }
 
 type Score struct {
-	ID         int       `gorm:"primaryKey;autoIncrement;not null"`
+	ID         int       `gorm:"primaryKey;autoIncrement;not null;index"`
 	BeatmapID  int       `gorm:"not null;index"`
 	PlayerID   int       `gorm:"not null;index"`
 	TotalScore int       `gorm:"not null"`
