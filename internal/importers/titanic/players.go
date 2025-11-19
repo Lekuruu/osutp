@@ -36,7 +36,7 @@ func (importer *TitanicImporter) importUserFromModel(user UserModel, state *comm
 	}
 
 	if userEntry != nil {
-		// TODO: Update existing player data if necessary
+		importer.importUserTopPlays(user, state)
 		return userEntry, nil
 	}
 
@@ -45,7 +45,77 @@ func (importer *TitanicImporter) importUserFromModel(user UserModel, state *comm
 		return nil, err
 	}
 
+	importer.importUserTopPlays(user, state)
 	return userEntry, nil
+}
+
+func (importer *TitanicImporter) importUserTopPlays(user UserModel, state *common.State) error {
+	offset := 0
+	limit := 50
+
+	for {
+		scores, err := importer.fetchUserTopPlays(user.ID, 0, offset, limit)
+		if err != nil {
+			return fmt.Errorf("failed to fetch top plays for user %d: %v", user.ID, err)
+		}
+
+		if len(scores.Scores) == 0 {
+			// No more scores to import
+			break
+		}
+
+		for _, score := range scores.Scores {
+			beatmap, err := services.FetchBeatmapById(score.BeatmapID, state)
+			if err != nil && err.Error() != "record not found" {
+				state.Logger.Logf("Failed to fetch beatmap %d for score %d: %v", score.BeatmapID, score.ID, err)
+				continue
+			}
+			if beatmap == nil {
+				// Try to import the beatmap if it doesn't exist
+				beatmap, err = importer.ImportBeatmap(score.BeatmapID, false, state)
+				if err != nil {
+					state.Logger.Logf("Failed to import beatmap %d for score %d: %v", score.BeatmapID, score.ID, err)
+					continue
+				}
+			}
+
+			_, err = importer.importScoreFromModel(score, beatmap, state)
+			if err != nil {
+				state.Logger.Logf("Failed to import score %d: %v", score.ID, err)
+				continue
+			}
+		}
+
+		// Check if we have more scores to fetch
+		if len(scores.Scores) < limit {
+			break
+		}
+
+		offset += limit
+	}
+
+	return nil
+}
+
+func (importer *TitanicImporter) fetchUserTopPlays(userID int, mode int, offset int, limit int) (*ScoreCollectionModel, error) {
+	url := fmt.Sprintf("%s/users/%d/top/%d?offset=%d&limit=%d", importer.ApiUrl, userID, mode, offset, limit)
+	resp, err := http.Get(url)
+	if err != nil {
+		// Check for any rate limit errors and wait if needed
+		if strings.Contains(err.Error(), "429 Too Many Requests") {
+			time.Sleep(time.Second * 60)
+			return importer.fetchUserTopPlays(userID, mode, offset, limit)
+		}
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	var scores ScoreCollectionModel
+	if err := json.NewDecoder(resp.Body).Decode(&scores); err != nil {
+		return nil, fmt.Errorf("failed to decode response: %v", err)
+	}
+
+	return &scores, nil
 }
 
 func (importer *TitanicImporter) fetchUserById(userID int) (*UserModel, error) {
