@@ -58,3 +58,13 @@ func PageLastUpdated(pageName string, state *common.State) (time.Time, error) {
 	}
 	return page.LastUpdate, nil
 }
+
+func UpdatePageLastUpdated(pageName string, updateTime time.Time, state *common.State) error {
+	if !PageExists(pageName, state) {
+		return CreatePage(pageName, state)
+	}
+
+	query := state.Database.Model(&database.Page{}).Where("name = ?", pageName)
+	result := query.Update("last_update", updateTime)
+	return result.Error
+}

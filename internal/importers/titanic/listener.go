@@ -3,8 +3,10 @@ package titanic
 import (
 	"encoding/json"
 	"net/http"
+	"time"
 
 	"github.com/Lekuruu/osutp/internal/common"
+	"github.com/Lekuruu/osutp/internal/services"
 	"github.com/gorilla/websocket"
 )
 
@@ -77,5 +79,10 @@ func (importer *TitanicImporter) handleServerEvent(state *common.State, event Ti
 		beatmapsetID := int(beatmapsetIDFloat)
 		state.Logger.Logf("Received server update for beatmapset %d (%d)", beatmapsetID, event.Type)
 		go importer.ImportBeatmapset(beatmapsetID, false, state)
+	default:
+		return
 	}
+
+	// This will be displayed in the header: "updated daily - last update: <...>"
+	services.UpdatePageLastUpdated("players", time.Now(), state)
 }
