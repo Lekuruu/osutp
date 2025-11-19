@@ -5,6 +5,7 @@ import (
 
 	"github.com/Lekuruu/osutp/internal/common"
 	"github.com/Lekuruu/osutp/internal/services"
+	"github.com/Lekuruu/osutp/internal/updaters"
 )
 
 func (importer *TitanicImporter) EnqueueUserUpdate(userID int, state *common.State) error {
@@ -45,6 +46,7 @@ func (importer *TitanicImporter) EnqueueUserUpdate(userID int, state *common.Sta
 
 		services.UpdatePlayerLastUpdate(player.ID, time.Now(), state)
 		services.SetPlayerUpdatingStatus(player.ID, false, state)
+		updaters.UpdatePlayerRatings(state)
 		state.Logger.Logf("Finished updating player %d", player.ID)
 	}()
 	return nil
