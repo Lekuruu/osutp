@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/Lekuruu/osutp/internal/common"
+	"github.com/Lekuruu/osutp/internal/importers"
 	"github.com/Lekuruu/osutp/internal/routes"
 )
 
@@ -42,6 +43,13 @@ func main() {
 
 	log.SetFlags(0)
 	log.SetOutput(state.Logger)
+
+	importer, err := importers.NewImporter(state.Config)
+	if err != nil {
+		log.Fatalf("Failed to create importer: %v", err)
+		return
+	}
+	state.Extensions["importer"] = importer
 
 	server := common.NewServer(
 		state.Config.Web.Host,

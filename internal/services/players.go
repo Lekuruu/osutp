@@ -1,11 +1,13 @@
 package services
 
 import (
+	"time"
+
 	"github.com/Lekuruu/osutp/internal/common"
 	"github.com/Lekuruu/osutp/internal/database"
 )
 
-func PlayerUser(player *database.Player, state *common.State) error {
+func CreatePlayer(player *database.Player, state *common.State) error {
 	result := state.Database.Create(player)
 	if result.Error != nil {
 		return result.Error
@@ -89,6 +91,24 @@ func TotalPlayersByCountry(country string, state *common.State) (int64, error) {
 		return 0, err
 	}
 	return count, nil
+}
+
+func SetPlayerUpdatingStatus(playerId int, isUpdating bool, state *common.State) error {
+	result := state.Database.Model(&database.Player{}).Where("id = ?", playerId).Update("is_updating", isUpdating)
+	if result.Error != nil {
+		return result.Error
+	}
+
+	return nil
+}
+
+func UpdatePlayerLastUpdate(playerId int, timestamp time.Time, state *common.State) error {
+	result := state.Database.Model(&database.Player{}).Where("id = ?", playerId).Update("last_update", timestamp)
+	if result.Error != nil {
+		return result.Error
+	}
+
+	return nil
 }
 
 func DeletePlayer(playerId int, state *common.State) error {

@@ -17,6 +17,7 @@ type Importer interface {
 	ImportBeatmapsByDifficulty(page int, state *common.State) (int, error)
 	ImportBeatmapsByDate(page int, state *common.State) (int, error)
 
+	EnqueueUserUpdate(userID int, state *common.State) error
 	ListenForServerUpdates(state *common.State) error
 }
 

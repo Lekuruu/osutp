@@ -9,9 +9,10 @@ import (
 )
 
 type State struct {
-	Config   *Config
-	Database *gorm.DB
-	Logger   *Logger
+	Config     *Config
+	Database   *gorm.DB
+	Logger     *Logger
+	Extensions map[string]interface{}
 }
 
 func NewState() *State {
@@ -34,8 +35,9 @@ func NewState() *State {
 	}
 
 	return &State{
-		Logger:   NewLogger("osutp"),
-		Config:   config,
-		Database: db,
+		Logger:     NewLogger("osutp"),
+		Config:     config,
+		Database:   db,
+		Extensions: make(map[string]interface{}),
 	}
 }

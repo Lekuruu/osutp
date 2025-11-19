@@ -1,9 +1,11 @@
 package routes
 
 import (
+	"strconv"
 	"strings"
 
 	"github.com/Lekuruu/osutp/internal/common"
+	"github.com/Lekuruu/osutp/internal/importers"
 	"github.com/Lekuruu/osutp/internal/services"
 )
 
@@ -11,6 +13,11 @@ const playersPerPage = 50
 const countrySliceSize = 20
 
 func Players(ctx *common.Context) {
+	if ctx.Request.URL.Query().Get("p") == "1" {
+		// Handle manual player update request
+		HandlePlayerUpdateRequest(ctx)
+	}
+
 	pageViews, err := services.IncreasePageViews("players", ctx.State)
 	if err != nil {
 		ctx.Response.WriteHeader(500)
@@ -116,4 +123,22 @@ func PlayersByCountry(ctx *common.Context) {
 		"TotalCountryPages": len(bestCountries) / countrySliceSize,
 	}
 	renderTemplate(ctx, "country_players", data)
+}
+
+func HandlePlayerUpdateRequest(ctx *common.Context) {
+	userIdString := ctx.Request.URL.Query().Get("u")
+	userId, err := strconv.Atoi(userIdString)
+	if err != nil {
+		return
+	}
+
+	ctx.State.Logger.Logf("Received manual update request for user %d", userId)
+	importerInterface := ctx.State.Extensions["importer"]
+	if importerInterface == nil {
+		ctx.State.Logger.Logf("No importer found in state extensions")
+		return
+	}
+
+	importer := importerInterface.(importers.Importer)
+	importer.EnqueueUserUpdate(userId, ctx.State)
 }

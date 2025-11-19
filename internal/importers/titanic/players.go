@@ -41,7 +41,7 @@ func (importer *TitanicImporter) importUserFromModel(user UserModel, state *comm
 	}
 
 	userEntry = user.ToSchema()
-	if err := services.PlayerUser(userEntry, state); err != nil {
+	if err := services.CreatePlayer(userEntry, state); err != nil {
 		return nil, err
 	}
 
