@@ -15,6 +15,35 @@ import (
 	"github.com/Lekuruu/osutp/internal/updaters"
 )
 
+func (importer *TitanicImporter) ImportBeatmapset(beatmapsetID int, importLeaderboard bool, state *common.State) ([]*database.Beatmap, error) {
+	beatmapset, err := importer.fetchBeatmapsetById(beatmapsetID)
+	if err != nil {
+		return nil, err
+	}
+
+	var importedBeatmaps []*database.Beatmap
+	for _, beatmap := range beatmapset.Beatmaps {
+		beatmap.Beatmapset = beatmapset
+		beatmapObject, err := importer.importBeatmapFromModel(&beatmap, true, state)
+		if err != nil {
+			state.Logger.Logf("Error importing beatmap %d: %v", beatmap.ID, err)
+			continue
+		}
+		importedBeatmaps = append(importedBeatmaps, beatmapObject)
+
+		if !importLeaderboard {
+			continue
+		}
+		err = importer.importBeatmapLeaderboard(beatmap.ID, state)
+		if err != nil {
+			state.Logger.Logf("Error importing leaderboard for beatmap %d: %v", beatmap.ID, err)
+			continue
+		}
+	}
+
+	return importedBeatmaps, nil
+}
+
 func (importer *TitanicImporter) ImportBeatmap(beatmapID int, importLeaderboard bool, state *common.State) (*database.Beatmap, error) {
 	beatmap, err := importer.fetchBeatmapById(beatmapID)
 	if err != nil {
@@ -210,6 +239,28 @@ func (importer *TitanicImporter) fetchBeatmapById(beatmapId int) (*BeatmapModel,
 		return nil, err
 	}
 	return &beatmap, nil
+}
+
+func (importer *TitanicImporter) fetchBeatmapsetById(beatmapsetId int) (*BeatmapsetModel, error) {
+	url := fmt.Sprintf("%s/beatmapsets/%d", importer.ApiUrl, beatmapsetId)
+	resp, err := http.Get(url)
+	if err != nil {
+		// Check for any rate limit errors and wait if needed
+		if strings.Contains(err.Error(), "429 Too Many Requests") {
+			time.Sleep(time.Second * 60)
+			return importer.fetchBeatmapsetById(beatmapsetId)
+		}
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	body, _ := io.ReadAll(resp.Body)
+
+	var beatmapset BeatmapsetModel
+	if err := json.Unmarshal(body, &beatmapset); err != nil {
+		return nil, err
+	}
+	return &beatmapset, nil
 }
 
 func (importer *TitanicImporter) fetchBeatmapFile(beatmapId int) ([]byte, error) {

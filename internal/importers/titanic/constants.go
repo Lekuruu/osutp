@@ -70,3 +70,45 @@ const (
 	BeatmapGenreFolk        = 13
 	BeatmapGenreJazz        = 14
 )
+
+type UserActivityType int
+
+const (
+	ActivityRanksGained UserActivityType = iota + 1
+	ActivityNumberOne
+	ActivityBeatmapLeaderboardRank
+	ActivityLostFirstPlace
+	ActivityPPRecord
+	ActivityTopPlay
+	ActivityAchievementUnlocked
+	ActivityScoreSubmitted
+	ActivityBeatmapUploaded
+	ActivityBeatmapUpdated
+	ActivityBeatmapRevived
+	ActivityBeatmapFavouriteAdded
+	ActivityBeatmapFavouriteRemoved
+	ActivityBeatmapRated
+	ActivityBeatmapCommented
+	ActivityBeatmapDownloaded
+	ActivityBeatmapStatusUpdated
+	ActivityBeatmapNominated
+	ActivityForumTopicCreated
+	ActivityForumPostCreated
+	ActivityForumSubscribed
+	ActivityForumUnsubscribed
+	ActivityForumBookmarked
+	ActivityForumUnbookmarked
+	ActivityOsuCoinsReceived
+	ActivityOsuCoinsUsed
+	ActivityFriendAdded
+	ActivityFriendRemoved
+	ActivityReplayWatched
+	ActivityScreenshotUploaded
+	ActivityUserRegistration
+	ActivityUserLogin
+	ActivityUserChatMessage
+	ActivityUserMatchCreated
+	ActivityUserMatchJoined
+	ActivityUserMatchLeft
+	ActivityBeatmapNuked
+)
