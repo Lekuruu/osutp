@@ -7,6 +7,7 @@ import (
 
 	"github.com/Lekuruu/osutp/internal/common"
 	"github.com/Lekuruu/osutp/internal/services"
+	"github.com/Lekuruu/osutp/internal/updaters"
 	"github.com/gorilla/websocket"
 )
 
@@ -82,6 +83,9 @@ func (importer *TitanicImporter) handleServerEvent(state *common.State, event Ti
 	default:
 		return
 	}
+
+	// Update player ratings after server event
+	updaters.UpdatePlayerRatings(state)
 
 	// This will be displayed in the header: "updated daily - last update: <...>"
 	services.UpdatePageLastUpdated("players", time.Now(), state)
