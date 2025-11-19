@@ -124,6 +124,11 @@ type Player struct {
 	AccuracyTp       float64   `gorm:"not null;default:0;index"`
 	CreatedAt        time.Time `gorm:"not null;default:CURRENT_TIMESTAMP"`
 	LastUpdate       time.Time `gorm:"not null;default:CURRENT_TIMESTAMP"`
+	IsUpdating       bool      `gorm:"not null;default:false;index"`
+}
+
+func (player *Player) IsRecentlyUpdated() bool {
+	return time.Since(player.LastUpdate) < 30*time.Minute
 }
 
 func (player *Player) CountryName() string {
