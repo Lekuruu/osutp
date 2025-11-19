@@ -71,6 +71,9 @@ func main() {
 	// without having their status reset
 	go ResetIsUpdatingStatus(state)
 
+	// Run the listener for auto-importing new scores
+	go importer.ListenForServerUpdates(state)
+
 	server := common.NewServer(
 		state.Config.Web.Host,
 		state.Config.Web.Port,

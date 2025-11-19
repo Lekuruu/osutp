@@ -9,6 +9,7 @@ require (
 
 require (
 	github.com/gorilla/mux v1.8.1
+	github.com/gorilla/websocket v1.5.3
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/natsukagami/go-osu-parser v0.0.0-20180720153006-fea426291a5b
 	github.com/robloxxa/go-osr v0.0.0-20211123221033-7939beb231d2
