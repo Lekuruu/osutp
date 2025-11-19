@@ -57,6 +57,7 @@ func Scores(ctx *common.Context) {
 	pagination := NewPaginationData(
 		currentPage, totalPages,
 		scoresPerPage, int(totalScores),
+		ctx.Request.URL.Query(),
 	)
 
 	data := map[string]interface{}{
@@ -102,6 +103,7 @@ func ScoresByPlayer(pageViews int64, playerIdQuery string, ctx *common.Context) 
 	pagination := NewPaginationData(
 		currentPage, totalPages,
 		scoresPerPage, int(totalScores),
+		ctx.Request.URL.Query(),
 	)
 
 	data := map[string]interface{}{
@@ -159,6 +161,7 @@ func ScoresByBeatmap(pageViews int64, beatmapIdQuery string, ctx *common.Context
 	pagination := NewPaginationData(
 		currentPage, totalPages,
 		scoresPerPage, int(totalScores),
+		ctx.Request.URL.Query(),
 	)
 
 	data := map[string]interface{}{

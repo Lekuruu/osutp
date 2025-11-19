@@ -39,7 +39,10 @@ func Players(ctx *common.Context) {
 		return
 	}
 	totalPages := int(totalPlayers) / playersPerPage
-	pagination := NewPaginationData(currentPage, totalPages, playersPerPage, int(totalPlayers))
+	pagination := NewPaginationData(
+		currentPage, totalPages, playersPerPage,
+		int(totalPlayers), ctx.Request.URL.Query(),
+	)
 
 	bestCountries, err := services.FetchBestCountries(ctx.State)
 	if err != nil {
@@ -94,7 +97,10 @@ func PlayersByCountry(ctx *common.Context) {
 		return
 	}
 	totalPages := int(totalPlayers) / playersPerPage
-	pagination := NewPaginationData(currentPage, totalPages, playersPerPage, int(totalPlayers))
+	pagination := NewPaginationData(
+		currentPage, totalPages, playersPerPage,
+		int(totalPlayers), ctx.Request.URL.Query(),
+	)
 
 	bestCountries, err := services.FetchBestCountries(ctx.State)
 	if err != nil {

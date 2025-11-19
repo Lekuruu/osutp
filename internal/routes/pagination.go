@@ -1,22 +1,25 @@
 package routes
 
 import (
+	"html/template"
+	"net/url"
 	"strconv"
 
 	"github.com/Lekuruu/osutp/internal/common"
 )
 
 type PaginationData struct {
-	PageViews    int
-	CurrentPage  int
-	TotalPages   int
-	PerPage      int
-	TotalResults int
-	Start        int
-	End          int
+	PreviousQuery template.URL
+	PageViews     int
+	CurrentPage   int
+	TotalPages    int
+	PerPage       int
+	TotalResults  int
+	Start         int
+	End           int
 }
 
-func NewPaginationData(currentPage, totalPages, perPage, totalResults int) *PaginationData {
+func NewPaginationData(currentPage, totalPages, perPage, totalResults int, query url.Values) *PaginationData {
 	start := (currentPage - 1) * perPage
 	end := start + perPage
 	if end > totalResults && totalResults != -1 {
@@ -26,12 +29,13 @@ func NewPaginationData(currentPage, totalPages, perPage, totalResults int) *Pagi
 		start = 1
 	}
 	return &PaginationData{
-		CurrentPage:  currentPage,
-		TotalPages:   totalPages,
-		PerPage:      perPage,
-		TotalResults: totalResults,
-		Start:        start,
-		End:          end,
+		PreviousQuery: buildPreviousQuery(query),
+		CurrentPage:   currentPage,
+		TotalPages:    totalPages,
+		PerPage:       perPage,
+		TotalResults:  totalResults,
+		Start:         start,
+		End:           end,
 	}
 }
 
@@ -68,4 +72,11 @@ func GetCountryPositionFromQuery(ctx *common.Context) int {
 		positionInt = 0
 	}
 	return positionInt
+}
+
+func buildPreviousQuery(query url.Values) template.URL {
+	if len(query) == 0 {
+		return ""
+	}
+	return template.URL(query.Encode() + "&")
 }

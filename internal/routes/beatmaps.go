@@ -45,7 +45,10 @@ func Beatmaps(ctx *common.Context) {
 		return
 	}
 	totalPages := int(totalBeatmaps) / beatmapsPerPage
-	pagination := NewPaginationData(currentPage, totalPages, beatmapsPerPage, int(totalBeatmaps))
+	pagination := NewPaginationData(
+		currentPage, totalPages, beatmapsPerPage,
+		int(totalBeatmaps), ctx.Request.URL.Query(),
+	)
 
 	data := map[string]interface{}{
 		"Pagination": pagination,
