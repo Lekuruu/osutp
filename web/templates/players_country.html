@@ -39,10 +39,10 @@
                 <th>Country Rank</th>
                 <th>Global Rank</th>
                 <th>Player name</th>
-                <th><a href="/web/20130805190254/http://osutp.net/players">Rating</a>&nbsp;↓</th>
-                <th><a href="/web/20130805190254/http://osutp.net/players?s=1">Aim</a></th>
-                <th><a href="/web/20130805190254/http://osutp.net/players?s=2">Speed</a></th>
-                <th><a href="/web/20130805190254/http://osutp.net/players?s=3">Accuracy</a></th>
+                <th><a href="/players/{{ lower .Country }}">Rating</a>&nbsp;↓</th>
+                <th><a href="/players/{{ lower .Country }}?s=1">Aim</a></th>
+                <th><a href="/players/{{ lower .Country }}?s=2">Speed</a></th>
+                <th><a href="/players/{{ lower .Country }}?s=3">Accuracy</a></th>
                 <th></th>
             </tr>
             {{ range $index, $player := .Players }}
