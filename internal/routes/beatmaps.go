@@ -83,10 +83,17 @@ func GetModsFromQuery(ctx *common.Context) uint32 {
 func ApplyRankedFilter(filters []string, ctx *common.Context) []string {
 	statusQuery := ctx.Request.URL.Query().Get("u")
 	switch statusQuery {
+	case "0":
+		// No filter
 	case "1":
+		// Ranked
 		filters = append(filters, "status > 0")
 	case "2":
+		// Unranked
 		filters = append(filters, "status < 1")
+	default:
+		// "Ranked" by default
+		filters = append(filters, "status > 0")
 	}
 	return filters
 }
