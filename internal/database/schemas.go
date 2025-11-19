@@ -111,6 +111,10 @@ func (beatmap *Beatmap) AimStars(mods uint32) float64 {
 	return beatmap.DifficultyAttributes[mods]["AimStars"]
 }
 
+func (beatmap *Beatmap) IsRanked() bool {
+	return beatmap.Status > 0
+}
+
 type Player struct {
 	ID               int       `gorm:"primaryKey;autoIncrement;not null;index"`
 	Name             string    `gorm:"not null;uniqueIndex"`

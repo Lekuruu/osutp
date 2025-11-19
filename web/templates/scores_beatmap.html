@@ -6,8 +6,10 @@
             mapped by <a href="{{ .Server.WebUrl }}/u/{{ .Beatmap.Creator }}">{{ .Beatmap.Creator }}</a>
         </h2>
         <p>
+            {{ if .Beatmap.IsRanked }}
             The scores with the highest tp values are listed here.
             If you want to sort the scores by their aim, speed or acc rating then simply click on the respective column title.
+            {{ end }}
         </p>
     </div>
     <form class="form" action="/scores" method="get">
@@ -18,6 +20,7 @@
             <input type="checkbox" name="n" value="1"> Show new scores only
         </div>
     </form>
+    {{ if .Beatmap.IsRanked }}
     {{ template "pagination" .Pagination }}
     <table class="beatmaps">
         <tbody>
@@ -94,5 +97,6 @@
         </tbody>
     </table>
     {{ template "pagination" .Pagination }}
+    {{ end }}
 {{ template "footer" . }}
 {{ end }}
