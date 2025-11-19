@@ -162,3 +162,11 @@ func DeleteScoresByPlayer(playerId int, state *common.State) error {
 	}
 	return nil
 }
+
+func DeleteScoresByBeatmap(beatmapId int, state *common.State) error {
+	result := state.Database.Where("beatmap_id = ?", beatmapId).Delete(&database.Score{})
+	if result.Error != nil {
+		return result.Error
+	}
+	return nil
+}
