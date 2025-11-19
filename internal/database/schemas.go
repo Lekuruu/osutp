@@ -127,7 +127,7 @@ type Player struct {
 	IsUpdating       bool      `gorm:"not null;default:false;index"`
 }
 
-func (player *Player) IsRecentlyUpdated() bool {
+func (player *Player) WasRecentlyUpdated() bool {
 	return time.Since(player.LastUpdate) < 30*time.Minute
 }
 
