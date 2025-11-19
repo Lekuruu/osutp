@@ -55,12 +55,26 @@ func (importer *TitanicImporter) handleServerEvent(state *common.State, event Ti
 			return
 		}
 		state.Logger.Logf("Received server update for user %d (%d)", event.UserID, event.Type)
-		go importer.ImportUser(event.UserID, state)
+
+		// Update both user and associated beatmap
+		go func() {
+			importer.ImportUser(event.UserID, state)
+
+			if beatmapIDFloat, ok := event.Data["beatmap_id"].(float64); ok {
+				beatmapID := int(beatmapIDFloat)
+				importer.ImportBeatmap(beatmapID, true, state)
+			}
+		}()
 	case ActivityBeatmapStatusUpdated:
 	case ActivityBeatmapUploaded:
 	case ActivityBeatmapUpdated:
 	case ActivityBeatmapRevived:
-		beatmapsetID := event.Data["beatmapset_id"].(int)
+		beatmapsetIDFloat, ok := event.Data["beatmapset_id"].(float64)
+		if !ok {
+			state.Logger.Logf("Error: beatmapset_id not found or invalid type in event data")
+			return
+		}
+		beatmapsetID := int(beatmapsetIDFloat)
 		state.Logger.Logf("Received server update for beatmapset %d (%d)", beatmapsetID, event.Type)
 		go importer.ImportBeatmapset(beatmapsetID, false, state)
 	}
