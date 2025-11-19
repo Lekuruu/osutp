@@ -9,7 +9,7 @@ import (
 
 func (importer *TitanicImporter) ListenForServerUpdates(state *common.State) error {
 	c, _, err := websocket.DefaultDialer.Dial(state.Config.Server.ApiEventsUrl, http.Header{
-		"Authorization": []string{state.Config.Server.ApiEventsAuth},
+		"Authorization": []string{state.Config.Server.ApiAuth},
 	})
 	if err != nil {
 		state.Logger.Logf("Error connecting to websocket: %v", err)

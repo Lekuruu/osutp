@@ -11,11 +11,11 @@ type Config struct {
 		Port int    `envconfig:"WEB_PORT" default:"8080"`
 	}
 	Server struct {
-		Type          string `envconfig:"SERVER_TYPE" default:"titanic" validate:"oneof=titanic"`
-		WebUrl        string `envconfig:"SERVER_WEB_URL" default:"https://osu.titanic.sh"`
-		ApiUrl        string `envconfig:"SERVER_API_URL" default:"https://api.titanic.sh"`
-		ApiEventsUrl  string `envconfig:"SERVER_API_EVENTS_URL" default:"wss://api.titanic.sh/events/ws"`
-		ApiEventsAuth string `envconfig:"SERVER_API_EVENTS_AUTH" default:""`
+		Type         string `envconfig:"SERVER_TYPE" default:"titanic" validate:"oneof=titanic"`
+		WebUrl       string `envconfig:"SERVER_WEB_URL" default:"https://osu.titanic.sh"`
+		ApiUrl       string `envconfig:"SERVER_API_URL" default:"https://api.titanic.sh"`
+		ApiAuth      string `envconfig:"SERVER_API_AUTH" default:""`
+		ApiEventsUrl string `envconfig:"SERVER_API_EVENTS_URL" default:"wss://api.titanic.sh/events/ws"`
 	}
 	TpWebsiteUrl string `envconfig:"TP_WEBSITE_URL" default:"https://tp.titanic.sh"`
 	Database     database.DatabaseConfig
