@@ -174,6 +174,12 @@ func (importer *TitanicImporter) importBeatmapFromModel(beatmap *BeatmapModel, f
 	// TODO: Update beatmap metadata if beatmap was updated
 	//		 We could do this by checking for the hash of the beatmap file
 
+	// For now, we just update the status
+	err = services.UpdateBeatmapStatus(beatmap.ID, beatmap.Status, state)
+	if err != nil {
+		return nil, err
+	}
+
 	if beatmapEntry.HasDifficultyAttributes() && !forcedRecalculation {
 		// Skip if difficulty attributes already exist and recalculation is not forced
 		state.Logger.Logf("Skipping difficulty calculation for Beatmap: '%s' (%s/b/%d)", beatmapEntry.FullName(), importer.WebUrl, beatmapEntry.ID)

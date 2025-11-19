@@ -2,6 +2,7 @@ package services
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/Lekuruu/osutp/internal/common"
 	"github.com/Lekuruu/osutp/internal/database"
@@ -73,4 +74,20 @@ func BeatmapExists(id int, state *common.State) (bool, error) {
 		return false, err
 	}
 	return count > 0, nil
+}
+
+func UpdateBeatmapStatus(id int, status int, state *common.State) error {
+	result := state.Database.Model(&database.Beatmap{}).Where("id = ?", id).Update("status", status)
+	if result.Error != nil {
+		return result.Error
+	}
+	return nil
+}
+
+func UpdateBeatmapLastScoreUpdate(id int, timestamp time.Time, state *common.State) error {
+	result := state.Database.Model(&database.Beatmap{}).Where("id = ?", id).Update("last_score_update", timestamp)
+	if result.Error != nil {
+		return result.Error
+	}
+	return nil
 }

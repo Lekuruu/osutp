@@ -64,6 +64,8 @@ func (importer *TitanicImporter) importBeatmapLeaderboard(beatmapId int, state *
 	for _, score := range scores {
 		importer.importScoreFromModel(score, beatmap, state)
 	}
+
+	services.UpdateBeatmapLastScoreUpdate(beatmap.ID, time.Now(), state)
 	return nil
 }
 
