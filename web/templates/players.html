@@ -63,7 +63,13 @@
                 <td>{{ $.Printer.Sprintf "%.0f" $player.SpeedTp }}</td>
                 <td>{{ $.Printer.Sprintf "%.0f" $player.AccuracyTp }}</td>
                 <td style="padding-right:5px;text-align:right">
+                    {{ if $player.IsUpdating }}
+                    pending |
+                    {{ elif $player.WasRecentlyUpdated }}
+                    recent |
+                    {{ else }}
                     <a href="/players?p=1&amp;u={{ $player.ID }}">update</a> | 
+                    {{ end }}
                     <a href="/scores?pid={{ $player.ID }}">best scores</a> | 
                     <a href="/banners/{{ $player.ID }}">banners</a>
                 </td>
