@@ -92,7 +92,7 @@ func (importer *TitanicImporter) handleServerEvent(state *common.State, event Ti
 	}
 
 	// Update player ratings after server event
-	updaters.UpdatePlayerRatings(state)
+	go updaters.UpdatePlayerRatings(state)
 
 	// This will be displayed in the header: "updated daily - last update: <...>"
 	services.UpdatePageLastUpdated("players", time.Now(), state)
