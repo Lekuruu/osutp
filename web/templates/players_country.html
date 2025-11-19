@@ -68,7 +68,7 @@
                 <td style="padding-right:5px;text-align:right">
                     {{ if $player.IsUpdating }}
                     pending |
-                    {{ elif $player.WasRecentlyUpdated }}
+                    {{ else if $player.WasRecentlyUpdated }}
                     recent |
                     {{ else }}
                     <a href="/players?p=1&amp;u={{ $player.ID }}">update</a> | 
