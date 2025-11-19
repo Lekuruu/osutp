@@ -93,7 +93,7 @@ func (importer *TitanicImporter) importScoreFromModel(score ScoreModel, beatmap 
 		// Only process osu! standard scores
 		return nil, nil
 	}
-	if score.User.Restricted {
+	if score.User.Restricted || !score.User.Activated {
 		// Skip & delete restricted users
 		services.DeleteScoresByPlayer(score.UserID, state)
 		services.DeletePlayer(score.UserID, state)

@@ -20,6 +20,12 @@ func (importer *TitanicImporter) ImportUser(userID int, state *common.State) (*d
 	if user == nil {
 		return nil, nil
 	}
+	if user.Restricted || !user.Activated {
+		// Skip & delete restricted users
+		services.DeleteScoresByPlayer(userID, state)
+		services.DeletePlayer(userID, state)
+		return nil, nil
+	}
 
 	return importer.importUserFromModel(*user, state)
 }
