@@ -19,6 +19,13 @@ type TitanicEvent struct {
 }
 
 func (importer *TitanicImporter) ListenForServerUpdates(state *common.State) error {
+	defer func() {
+		if r := recover(); r != nil {
+			state.Logger.Logf("Recovered from panic: %v", r)
+			go importer.ListenForServerUpdates(state)
+		}
+	}()
+
 	c, _, err := websocket.DefaultDialer.Dial(state.Config.Server.ApiEventsUrl, http.Header{
 		"Authorization": []string{state.Config.Server.ApiAuth},
 	})
