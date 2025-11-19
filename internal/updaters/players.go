@@ -40,8 +40,6 @@ func updatePlayerTpRatings(players []*database.Player, state *common.State) erro
 			state.Logger.Log("Failed to process player", player.ID, ":", err)
 			continue
 		}
-
-		state.Logger.Logf("Updated player '%s' with total tp: %.2f (#%d)", player.Name, player.TotalTp, player.GlobalRank)
 	}
 
 	// Save updated player data
