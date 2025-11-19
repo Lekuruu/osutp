@@ -78,5 +78,6 @@ func buildPreviousQuery(query url.Values) template.URL {
 	if len(query) == 0 {
 		return ""
 	}
+	query.Del("p")
 	return template.URL(query.Encode() + "&")
 }
