@@ -34,7 +34,6 @@ func (importer *TitanicImporter) importUserFromModel(user UserModel, state *comm
 	if err != nil && err.Error() != "record not found" {
 		return nil, err
 	}
-
 	if userEntry != nil {
 		importer.importUserTopPlays(user, state)
 		return userEntry, nil
@@ -67,14 +66,13 @@ func (importer *TitanicImporter) importUserTopPlays(user UserModel, state *commo
 		for _, score := range scores.Scores {
 			beatmap, err := services.FetchBeatmapById(score.BeatmapID, state)
 			if err != nil && err.Error() != "record not found" {
-				state.Logger.Logf("Failed to fetch beatmap %d for score %d: %v", score.BeatmapID, score.ID, err)
 				continue
 			}
+
 			if beatmap == nil {
 				// Try to import the beatmap if it doesn't exist
 				beatmap, err = importer.ImportBeatmap(score.BeatmapID, false, state)
 				if err != nil {
-					state.Logger.Logf("Failed to import beatmap %d for score %d: %v", score.BeatmapID, score.ID, err)
 					continue
 				}
 			}
