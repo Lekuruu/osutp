@@ -44,9 +44,9 @@ func (importer *TitanicImporter) EnqueueUserUpdate(userID int, state *common.Sta
 			return
 		}
 
+		updaters.UpdatePlayerRatings(state)
 		services.UpdatePlayerLastUpdate(player.ID, time.Now(), state)
 		services.SetPlayerUpdatingStatus(player.ID, false, state)
-		updaters.UpdatePlayerRatings(state)
 		state.Logger.Logf("Finished updating player %d", player.ID)
 	}()
 	return nil
