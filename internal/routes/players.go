@@ -73,6 +73,11 @@ func Players(ctx *common.Context) {
 }
 
 func PlayersByCountry(ctx *common.Context) {
+	if ctx.Request.URL.Query().Get("p") == "1" {
+		// Handle manual player update request
+		HandlePlayerUpdateRequest(ctx)
+	}
+
 	country := strings.ToUpper(ctx.Vars["country"])
 	pageName := "players_" + country
 
