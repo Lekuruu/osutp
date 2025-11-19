@@ -7,6 +7,7 @@ import (
 	"github.com/Lekuruu/osutp/internal/common"
 	"github.com/Lekuruu/osutp/internal/importers"
 	"github.com/Lekuruu/osutp/internal/routes"
+	"github.com/Lekuruu/osutp/internal/services"
 )
 
 func InitializeRoutes(server *common.Server) {
@@ -35,6 +36,21 @@ func InitializeRoutes(server *common.Server) {
 	})
 }
 
+func ResetIsUpdatingStatus(state *common.State) {
+	players, err := services.FetchAllPlayers(state)
+	if err != nil {
+		log.Fatalf("Failed to fetch players: %v", err)
+		return
+	}
+
+	for _, player := range players {
+		if player.IsUpdating {
+			log.Printf("Resetting updating status for player %d", player.ID)
+			services.SetPlayerUpdatingStatus(player.ID, false, state)
+		}
+	}
+}
+
 func main() {
 	state := common.NewState()
 	if state == nil {
@@ -50,6 +66,10 @@ func main() {
 		return
 	}
 	state.Extensions["importer"] = importer
+
+	// Server might have restarted while players were being updated
+	// without having their status reset
+	go ResetIsUpdatingStatus(state)
 
 	server := common.NewServer(
 		state.Config.Web.Host,
