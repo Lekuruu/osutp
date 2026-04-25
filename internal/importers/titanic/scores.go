@@ -163,6 +163,7 @@ func (importer *TitanicImporter) importScoreFromModel(score ScoreModel, beatmap 
 	schema.AimTp = result.Aim
 	schema.SpeedTp = result.Speed
 	schema.AccTp = result.Acc
+	schema.LastUpdate = time.Now().UTC()
 
 	user, err := services.FetchPlayerById(score.UserID, state)
 	if err != nil && err != gorm.ErrRecordNotFound {

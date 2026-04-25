@@ -53,7 +53,7 @@ func FetchPersonalBestScores(playerId int, state *common.State) ([]database.Scor
 		Joins("JOIN beatmaps ON beatmaps.id = scores.beatmap_id").
 		Where("scores.player_id = ?", playerId).
 		Where("beatmaps.status IN ?", allowedStatuses).
-		Order("scores.total_tp DESC").
+		Order("scores.total_tp DESC, scores.total_score DESC").
 		Find(&scores)
 	if result.Error != nil {
 		return nil, result.Error

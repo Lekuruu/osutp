@@ -103,6 +103,24 @@ func applyPerformanceSettings(db *gorm.DB, config DatabaseConfig) error {
 
 func CreateIndexes(db *gorm.DB) error {
 	indexStatements := []string{
+		// Remove duplicate scores, keeping only the best one per player and beatmap
+		`DELETE FROM scores
+		 WHERE id IN (
+			 SELECT id
+			 FROM (
+				 SELECT id,
+					ROW_NUMBER() OVER (
+						PARTITION BY player_id, beatmap_id
+						ORDER BY total_tp DESC, total_score DESC, accuracy DESC, max_combo DESC, amount_miss ASC, created_at DESC, id ASC
+					) AS row_number
+				 FROM scores
+			 )
+			 WHERE row_number > 1
+		 );`,
+
+		`CREATE UNIQUE INDEX IF NOT EXISTS idx_scores_player_beatmap_unique
+		 ON scores (player_id, beatmap_id);`,
+
 		`CREATE INDEX IF NOT EXISTS idx_beatmaps_star_rating
 		 ON beatmaps (json_extract(difficulty_attributes, '$.0.StarRating'));`,
 
