@@ -148,25 +148,91 @@ func FetchTotalScores(state *common.State) (int64, error) {
 }
 
 func DeleteScore(id int, state *common.State) error {
+	_, err := DeleteScoreWithCount(id, state)
+	return err
+}
+
+func DeleteScoreWithCount(id int, state *common.State) (int64, error) {
 	result := state.Database.Delete(&database.Score{}, id)
 	if result.Error != nil {
-		return result.Error
+		return 0, result.Error
 	}
-	return nil
+	return result.RowsAffected, nil
 }
 
 func DeleteScoresByPlayer(playerId int, state *common.State) error {
+	_, err := DeleteScoresByPlayerWithCount(playerId, state)
+	return err
+}
+
+func DeleteScoresByPlayerWithCount(playerId int, state *common.State) (int64, error) {
 	result := state.Database.Where("player_id = ?", playerId).Delete(&database.Score{})
 	if result.Error != nil {
-		return result.Error
+		return 0, result.Error
 	}
-	return nil
+	return result.RowsAffected, nil
+}
+
+func DeleteScoresByPlayerExcept(playerId int, retainedScoreIds []int, state *common.State) (int64, error) {
+	var localScoreIds []int
+	if err := state.Database.
+		Model(&database.Score{}).
+		Where("player_id = ?", playerId).
+		Pluck("id", &localScoreIds).Error; err != nil {
+		return 0, err
+	}
+
+	return deleteScoresExcept(localScoreIds, retainedScoreIds, state)
 }
 
 func DeleteScoresByBeatmap(beatmapId int, state *common.State) error {
+	_, err := DeleteScoresByBeatmapWithCount(beatmapId, state)
+	return err
+}
+
+func DeleteScoresByBeatmapWithCount(beatmapId int, state *common.State) (int64, error) {
 	result := state.Database.Where("beatmap_id = ?", beatmapId).Delete(&database.Score{})
 	if result.Error != nil {
-		return result.Error
+		return 0, result.Error
 	}
-	return nil
+	return result.RowsAffected, nil
+}
+
+func DeleteScoresByBeatmapExcept(beatmapId int, retainedScoreIds []int, state *common.State) (int64, error) {
+	var localScoreIds []int
+	if err := state.Database.
+		Model(&database.Score{}).
+		Where("beatmap_id = ?", beatmapId).
+		Pluck("id", &localScoreIds).Error; err != nil {
+		return 0, err
+	}
+
+	return deleteScoresExcept(localScoreIds, retainedScoreIds, state)
+}
+
+func deleteScoresExcept(localScoreIds []int, retainedScoreIds []int, state *common.State) (int64, error) {
+	retained := make(map[int]struct{}, len(retainedScoreIds))
+	for _, id := range retainedScoreIds {
+		retained[id] = struct{}{}
+	}
+
+	staleScoreIds := make([]int, 0)
+	for _, id := range localScoreIds {
+		if _, ok := retained[id]; !ok {
+			staleScoreIds = append(staleScoreIds, id)
+		}
+	}
+
+	var deleted int64
+	for start := 0; start < len(staleScoreIds); start += 500 {
+		end := min(start+500, len(staleScoreIds))
+
+		result := state.Database.Delete(&database.Score{}, staleScoreIds[start:end])
+		if result.Error != nil {
+			return deleted, result.Error
+		}
+		deleted += result.RowsAffected
+	}
+
+	return deleted, nil
 }

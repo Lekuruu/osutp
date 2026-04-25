@@ -18,11 +18,17 @@ func (importer *TitanicImporter) ImportBeatmapset(beatmapsetID int, importLeader
 		return nil, err
 	}
 	if beatmapset == nil {
+		if err := importer.cleanupMissingBeatmapset(beatmapsetID, state); err != nil {
+			return nil, err
+		}
 		return nil, nil
 	}
 
 	var importedBeatmaps []*database.Beatmap
+	remoteBeatmapIDs := make(map[int]struct{}, len(beatmapset.Beatmaps))
+
 	for _, beatmap := range beatmapset.Beatmaps {
+		remoteBeatmapIDs[beatmap.ID] = struct{}{}
 		beatmap.Beatmapset = beatmapset
 		beatmapObject, err := importer.importBeatmapFromModel(&beatmap, true, state)
 		if err != nil {
@@ -41,16 +47,21 @@ func (importer *TitanicImporter) ImportBeatmapset(beatmapsetID int, importLeader
 		}
 	}
 
+	if err := importer.cleanupBeatmapsetRemovedBeatmaps(beatmapsetID, remoteBeatmapIDs, state); err != nil {
+		return importedBeatmaps, err
+	}
 	return importedBeatmaps, nil
 }
 
 func (importer *TitanicImporter) ImportBeatmap(beatmapID int, importLeaderboard bool, state *common.State) (*database.Beatmap, error) {
 	beatmap, err := importer.fetchBeatmapById(beatmapID)
 	if err != nil {
-		// TODO: Delete existing beatmap, if it exists
 		return nil, err
 	}
 	if beatmap == nil {
+		if err := importer.cleanupMissingBeatmap(beatmapID, state); err != nil {
+			return nil, err
+		}
 		return nil, nil
 	}
 

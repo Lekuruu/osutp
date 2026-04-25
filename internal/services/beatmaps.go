@@ -84,6 +84,19 @@ func UpdateBeatmapStatus(id int, status int, state *common.State) error {
 	return nil
 }
 
+func DeleteBeatmap(id int, state *common.State) error {
+	_, err := DeleteBeatmapWithCount(id, state)
+	return err
+}
+
+func DeleteBeatmapWithCount(id int, state *common.State) (int64, error) {
+	result := state.Database.Delete(&database.Beatmap{}, id)
+	if result.Error != nil {
+		return 0, result.Error
+	}
+	return result.RowsAffected, nil
+}
+
 func UpdateBeatmapLastScoreUpdate(id int, timestamp time.Time, state *common.State) error {
 	result := state.Database.Model(&database.Beatmap{}).Where("id = ?", id).Update("last_score_update", timestamp)
 	if result.Error != nil {

@@ -112,11 +112,16 @@ func UpdatePlayerLastUpdate(playerId int, timestamp time.Time, state *common.Sta
 }
 
 func DeletePlayer(playerId int, state *common.State) error {
+	_, err := DeletePlayerWithCount(playerId, state)
+	return err
+}
+
+func DeletePlayerWithCount(playerId int, state *common.State) (int64, error) {
 	result := state.Database.Delete(&database.Player{}, playerId)
 	if result.Error != nil {
-		return result.Error
+		return 0, result.Error
 	}
-	return nil
+	return result.RowsAffected, nil
 }
 
 func FetchBestCountries(state *common.State) ([]database.CountryStats, error) {

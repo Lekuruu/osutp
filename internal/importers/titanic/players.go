@@ -17,12 +17,20 @@ func (importer *TitanicImporter) ImportUser(userID int, state *common.State) (*d
 		return nil, err
 	}
 	if user == nil {
+		if err := importer.cleanupUnavailableUser(userID, "missing", state); err != nil {
+			return nil, err
+		}
 		return nil, nil
 	}
 	if user.Restricted || !user.Activated {
-		// Skip & delete restricted users
-		services.DeleteScoresByPlayer(userID, state)
-		services.DeletePlayer(userID, state)
+		// Skip & delete restricted/deactivated users
+		reason := "restricted"
+		if !user.Activated {
+			reason = "deactivated"
+		}
+		if err := importer.cleanupUnavailableUser(userID, reason, state); err != nil {
+			return nil, err
+		}
 		return nil, nil
 	}
 
@@ -40,7 +48,9 @@ func (importer *TitanicImporter) importUserFromModel(user UserModel, state *comm
 		return nil, err
 	}
 	if userEntry != nil {
-		importer.importUserTopPlays(user, state)
+		if err := importer.importUserTopPlays(user, state); err != nil {
+			return nil, err
+		}
 		return userEntry, nil
 	}
 
@@ -49,7 +59,9 @@ func (importer *TitanicImporter) importUserFromModel(user UserModel, state *comm
 		return nil, err
 	}
 
-	importer.importUserTopPlays(user, state)
+	if err := importer.importUserTopPlays(user, state); err != nil {
+		return nil, err
+	}
 	return userEntry, nil
 }
 
@@ -57,9 +69,16 @@ func (importer *TitanicImporter) importUserTopPlays(user UserModel, state *commo
 	offset := 0
 	limit := 50
 
+	remoteScoreIDs := make([]int, 0)
+	importErrors := make([]error, 0)
+
 	for {
 		scores, err := importer.fetchUserTopPlays(user.ID, 0, offset, limit)
 		if err != nil {
+			var statusErr *HttpStatusError
+			if errors.As(err, &statusErr) && statusErr.statusCode == http.StatusNotFound {
+				return importer.cleanupUnavailableUser(user.ID, "missing", state)
+			}
 			return fmt.Errorf("failed to fetch top plays for user %d: %v", user.ID, err)
 		}
 
@@ -69,8 +88,11 @@ func (importer *TitanicImporter) importUserTopPlays(user UserModel, state *commo
 		}
 
 		for _, score := range scores.Scores {
+			remoteScoreIDs = append(remoteScoreIDs, score.ID)
+
 			beatmap, err := services.FetchBeatmapById(score.BeatmapID, state)
 			if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+				importErrors = append(importErrors, fmt.Errorf("failed to fetch beatmap %d: %w", score.BeatmapID, err))
 				continue
 			}
 
@@ -78,6 +100,11 @@ func (importer *TitanicImporter) importUserTopPlays(user UserModel, state *commo
 				// Try to import the beatmap if it doesn't exist
 				beatmap, err = importer.ImportBeatmap(score.BeatmapID, false, state)
 				if err != nil {
+					state.Logger.Logf("Failed to import beatmap %d for user %d top play %d: %v", score.BeatmapID, user.ID, score.ID, err)
+					importErrors = append(importErrors, err)
+					continue
+				}
+				if beatmap == nil {
 					continue
 				}
 			}
@@ -85,6 +112,7 @@ func (importer *TitanicImporter) importUserTopPlays(user UserModel, state *commo
 			_, err = importer.importScoreFromModel(score, beatmap, state)
 			if err != nil {
 				state.Logger.Logf("Failed to import score %d: %v", score.ID, err)
+				importErrors = append(importErrors, err)
 				continue
 			}
 		}
@@ -97,11 +125,20 @@ func (importer *TitanicImporter) importUserTopPlays(user UserModel, state *commo
 		offset += limit
 	}
 
+	if err := importer.reconcileUserTopPlays(user.ID, remoteScoreIDs, state); err != nil {
+		return err
+	}
+	if len(importErrors) > 0 {
+		return fmt.Errorf("failed to import %d top plays for user %d: %w", len(importErrors), user.ID, errors.Join(importErrors...))
+	}
 	return nil
 }
 
 func (importer *TitanicImporter) fetchUserTopPlays(userID int, mode int, offset int, limit int) (*ScoreCollectionModel, error) {
-	url := fmt.Sprintf("%s/users/%d/top/%d?offset=%d&limit=%d", importer.ApiUrl, userID, mode, offset, limit)
+	url := fmt.Sprintf(
+		"%s/users/%d/top/%s?offset=%d&limit=%d",
+		importer.ApiUrl, userID, modeToAcronym(mode), offset, limit,
+	)
 	var scores ScoreCollectionModel
 	if err := importer.GetJson(url, &scores); err != nil {
 		return nil, err
@@ -122,4 +159,19 @@ func (importer *TitanicImporter) fetchUserById(userID int) (*UserModel, error) {
 	}
 
 	return &user, nil
+}
+
+func modeToAcronym(mode int) string {
+	switch mode {
+	case 0:
+		return "osu"
+	case 1:
+		return "taiko"
+	case 2:
+		return "fruits"
+	case 3:
+		return "mania"
+	default:
+		return "osu"
+	}
 }

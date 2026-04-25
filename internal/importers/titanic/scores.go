@@ -19,6 +19,17 @@ func (importer *TitanicImporter) ImportScore(scoreId int, state *common.State) (
 	if err := importer.GetJson(url, &score); err != nil {
 		var statusErr *HttpStatusError
 		if errors.As(err, &statusErr) && statusErr.statusCode == http.StatusNotFound {
+			deleted, err := services.DeleteScoreWithCount(scoreId, state)
+			if err != nil {
+				state.Logger.Logf("Failed to cleanup missing score %d: %v", scoreId, err)
+				return nil, err
+			}
+			if deleted > 0 {
+				state.Logger.Logf("Cleaned up local score %d after confirmed remote 404", scoreId)
+				if err := importer.recomputeRatingsAfterCleanup(state); err != nil {
+					return nil, err
+				}
+			}
 			return nil, nil
 		}
 		return nil, err
@@ -53,6 +64,8 @@ func (importer *TitanicImporter) importBeatmapLeaderboard(beatmapId int, state *
 
 	offset := 0
 	limit := 100
+	remoteScoreIDs := make([]int, 0)
+	importErrors := make([]error, 0)
 
 	for {
 		scores, err := importer.performLeaderboardRequest(beatmapId, offset, limit, state)
@@ -65,7 +78,11 @@ func (importer *TitanicImporter) importBeatmapLeaderboard(beatmapId int, state *
 		}
 
 		for _, score := range scores {
-			importer.importScoreFromModel(score, beatmap, state)
+			remoteScoreIDs = append(remoteScoreIDs, score.ID)
+			if _, err := importer.importScoreFromModel(score, beatmap, state); err != nil {
+				state.Logger.Logf("Failed to import leaderboard score %d for beatmap %d: %v", score.ID, beatmapId, err)
+				importErrors = append(importErrors, err)
+			}
 		}
 
 		if len(scores) < limit {
@@ -74,7 +91,17 @@ func (importer *TitanicImporter) importBeatmapLeaderboard(beatmapId int, state *
 		offset += limit
 	}
 
-	services.UpdateBeatmapLastScoreUpdate(beatmap.ID, time.Now(), state)
+	if err := importer.reconcileBeatmapScores(beatmap.ID, remoteScoreIDs, state); err != nil {
+		return err
+	}
+
+	if len(importErrors) > 0 {
+		return fmt.Errorf("failed to import %d scores for beatmap %d: %w", len(importErrors), beatmapId, errors.Join(importErrors...))
+	}
+
+	if err := services.UpdateBeatmapLastScoreUpdate(beatmap.ID, time.Now(), state); err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -94,9 +121,14 @@ func (importer *TitanicImporter) importScoreFromModel(score ScoreModel, beatmap 
 		return nil, nil
 	}
 	if score.User.Restricted || !score.User.Activated {
-		// Skip & delete restricted users
-		services.DeleteScoresByPlayer(score.UserID, state)
-		services.DeletePlayer(score.UserID, state)
+		// Skip & delete restricted/deactivated users
+		reason := "restricted"
+		if !score.User.Activated {
+			reason = "deactivated"
+		}
+		if err := importer.cleanupUnavailableUser(score.UserID, reason, state); err != nil {
+			return nil, err
+		}
 		return nil, nil
 	}
 
