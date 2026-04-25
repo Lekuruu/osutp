@@ -118,7 +118,7 @@ func CreateIndexes(db *gorm.DB) error {
 			 WHERE row_number > 1
 		 );`,
 
-		`CREATE UNIQUE INDEX IF NOT EXISTS idx_scores_player_beatmap_unique
+		`CREATE INDEX IF NOT EXISTS idx_scores_player_beatmap
 		 ON scores (player_id, beatmap_id);`,
 
 		`CREATE INDEX IF NOT EXISTS idx_beatmaps_star_rating
