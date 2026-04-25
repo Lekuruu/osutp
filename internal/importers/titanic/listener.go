@@ -53,7 +53,7 @@ func (importer *TitanicImporter) ListenForServerUpdates(state *common.State) err
 			continue
 		}
 
-		importer.handleServerEvent(state, event)
+		go importer.handleServerEvent(state, event)
 	}
 }
 
@@ -61,22 +61,32 @@ func (importer *TitanicImporter) handleServerEvent(state *common.State, event Ti
 	switch event.Type {
 	case ActivityUserRegistration:
 		state.Logger.Logf("Received server update for user %d (%d)", event.UserID, event.Type)
-		go importer.ImportUser(event.UserID, state)
+
+		if _, err := importer.ImportUser(event.UserID, state); err != nil {
+			state.Logger.Logf("Error importing user %d from event: %v", event.UserID, err)
+			return
+		}
+		importer.onServerEventFinished(state)
 	case ActivityBeatmapLeaderboardRank:
 		if event.Mode != 0 {
 			return
 		}
 		state.Logger.Logf("Received server update for user %d (%d)", event.UserID, event.Type)
 
-		// Update both user and associated beatmap
-		go func() {
-			importer.ImportUser(event.UserID, state)
+		if _, err := importer.ImportUser(event.UserID, state); err != nil {
+			state.Logger.Logf("Error importing user %d from event: %v", event.UserID, err)
+		}
 
-			if beatmapIDFloat, ok := event.Data["beatmap_id"].(float64); ok {
-				beatmapID := int(beatmapIDFloat)
-				importer.ImportBeatmap(beatmapID, true, state)
+		if beatmapIdFloat, ok := event.Data["beatmap_id"].(float64); !ok {
+			state.Logger.Logf("Error: beatmap_id not found or invalid type in event data")
+		} else {
+			beatmapId := int(beatmapIdFloat)
+			if _, err := importer.ImportBeatmap(beatmapId, true, state); err != nil {
+				state.Logger.Logf("Error importing beatmap %d from event: %v", beatmapId, err)
 			}
-		}()
+		}
+
+		importer.onServerEventFinished(state)
 	case ActivityBeatmapStatusUpdated,
 		ActivityBeatmapUploaded,
 		ActivityBeatmapUpdated,
@@ -88,13 +98,23 @@ func (importer *TitanicImporter) handleServerEvent(state *common.State, event Ti
 		}
 		beatmapsetID := int(beatmapsetIDFloat)
 		state.Logger.Logf("Received server update for beatmapset %d (%d)", beatmapsetID, event.Type)
-		go importer.ImportBeatmapset(beatmapsetID, false, state)
+
+		if _, err := importer.ImportBeatmapset(beatmapsetID, false, state); err != nil {
+			state.Logger.Logf("Error importing beatmapset %d from event: %v", beatmapsetID, err)
+			return
+		}
+
+		importer.onServerEventFinished(state)
 	default:
 		return
 	}
+}
 
-	// Update player ratings after server event
-	go updaters.UpdatePlayerRatings(state)
+func (importer *TitanicImporter) onServerEventFinished(state *common.State) {
+	if err := updaters.UpdatePlayerRatings(state); err != nil {
+		state.Logger.Logf("Error updating player ratings: %v", err)
+		return
+	}
 
 	// This will be displayed in the header: "updated daily - last update: <...>"
 	services.UpdatePageLastUpdated("players", time.Now(), state)
