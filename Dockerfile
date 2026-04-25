@@ -1,4 +1,4 @@
-FROM golang:1.24-alpine AS build
+FROM golang:1.25-alpine AS build
 
 # Install C toolchain + sqlite3 headers
 RUN apk add --no-cache \
