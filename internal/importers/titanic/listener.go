@@ -2,6 +2,7 @@ package titanic
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"time"
 
@@ -19,32 +20,62 @@ type TitanicEvent struct {
 }
 
 func (importer *TitanicImporter) ListenForServerUpdates(state *common.State) error {
+	attempt := 0
+
+	for {
+		connected, connectedFor, err := importer.listenForUpdatesUntilDisconnect(state)
+		if connected && connectedFor >= time.Minute {
+			attempt = 0
+		}
+		if err != nil {
+			state.Logger.Logf("Websocket event listener disconnected: %v", err)
+		}
+
+		delay := websocketReconnectDelay(attempt)
+		state.Logger.Logf("Reconnecting websocket event listener in %s", delay)
+		time.Sleep(delay)
+		attempt++
+	}
+}
+
+func (importer *TitanicImporter) listenForUpdatesUntilDisconnect(state *common.State) (connected bool, connectedFor time.Duration, err error) {
+	var connectedAt time.Time
 	defer func() {
 		if r := recover(); r != nil {
-			state.Logger.Logf("Recovered from panic: %v", r)
-			go importer.ListenForServerUpdates(state)
+			if connected {
+				connectedFor = time.Since(connectedAt)
+			}
+			err = fmt.Errorf("panic while listening for server updates: %v", r)
+			state.Logger.Logf("Recovered from websocket listener panic: %v", r)
 		}
 	}()
+	state.Logger.Logf("Connecting websocket event listener to '%s'", state.Config.Server.ApiEventsUrl)
 
 	c, _, err := websocket.DefaultDialer.Dial(state.Config.Server.ApiEventsUrl, http.Header{
 		"Authorization": []string{state.Config.Server.ApiAuth},
 	})
 	if err != nil {
-		state.Logger.Logf("Error connecting to websocket: %v", err)
-		return err
+		return false, 0, fmt.Errorf("failed to connect websocket: %w", err)
 	}
-	defer c.Close()
+
+	connected = true
+	connectedAt = time.Now()
+	defer func() {
+		if closeErr := c.Close(); closeErr != nil {
+			state.Logger.Logf("Error closing websocket event listener: %v", closeErr)
+		}
+		state.Logger.Log("Websocket event listener connection closed")
+	}()
 
 	state.Logger.Logf(
-		"Listening for server updates on '%s'",
+		"Websocket event listener connected to '%s'",
 		state.Config.Server.ApiEventsUrl,
 	)
-
 	for {
 		_, message, err := c.ReadMessage()
 		if err != nil {
-			state.Logger.Log("Error reading websocket message:", err)
-			continue
+			connectedFor = time.Since(connectedAt)
+			return connected, connectedFor, fmt.Errorf("failed to read websocket message after %s: %w", connectedFor.Round(time.Second), err)
 		}
 
 		var event TitanicEvent
@@ -55,6 +86,13 @@ func (importer *TitanicImporter) ListenForServerUpdates(state *common.State) err
 
 		go importer.handleServerEvent(state, event)
 	}
+}
+
+func websocketReconnectDelay(attempt int) time.Duration {
+	if attempt > 5 {
+		attempt = 5
+	}
+	return backoffDelay(attempt)
 }
 
 func (importer *TitanicImporter) handleServerEvent(state *common.State, event TitanicEvent) {
