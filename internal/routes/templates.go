@@ -19,14 +19,14 @@ import (
 var templates *template.Template
 var printer = message.NewPrinter(language.English)
 
-func renderTemplate(ctx *common.Context, tmpl string, pageData map[string]interface{}) {
+func renderTemplate(ctx *common.Context, tmpl string, pageData map[string]any) {
 	lastUpdate, err := services.PageLastUpdated("players", ctx.State)
 	if err != nil {
 		ctx.Response.WriteHeader(500)
 		return
 	}
 
-	data := map[string]interface{}{
+	data := map[string]any{
 		"Title":       "osu!DiffCalc - web version",
 		"Description": "An attempt to accurately compute beatmap difficulty and player ranking.",
 		"LoadTime":    fmt.Sprintf("%.4f", time.Since(ctx.Start).Seconds()),

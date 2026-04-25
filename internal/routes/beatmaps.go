@@ -50,7 +50,7 @@ func Beatmaps(ctx *common.Context) {
 		int(totalBeatmaps), ctx.Request.URL.Query(),
 	)
 
-	data := map[string]interface{}{
+	data := map[string]any{
 		"Pagination": pagination,
 		"PageViews":  pageViews,
 		"Beatmaps":   beatmaps,

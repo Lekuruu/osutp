@@ -12,10 +12,10 @@ import (
 )
 
 type TitanicEvent struct {
-	UserID int                    `json:"user_id"`
-	Mode   int                    `json:"mode"`
-	Type   UserActivityType       `json:"type"`
-	Data   map[string]interface{} `json:"data"`
+	UserID int              `json:"user_id"`
+	Mode   int              `json:"mode"`
+	Type   UserActivityType `json:"type"`
+	Data   map[string]any   `json:"data"`
 }
 
 func (importer *TitanicImporter) ListenForServerUpdates(state *common.State) error {

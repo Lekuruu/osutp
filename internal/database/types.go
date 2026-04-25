@@ -8,7 +8,7 @@ import (
 
 type DifficultyAttributes map[uint32]map[string]float64
 
-func (d *DifficultyAttributes) Scan(value interface{}) error {
+func (d *DifficultyAttributes) Scan(value any) error {
 	bytes, ok := value.([]byte)
 	if !ok {
 		return fmt.Errorf("failed to scan DifficultyAttributes: %v", value)

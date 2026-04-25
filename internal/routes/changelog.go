@@ -18,7 +18,7 @@ func Changelog(ctx *common.Context) {
 		return
 	}
 
-	data := map[string]interface{}{
+	data := map[string]any{
 		"PageViews":  pageViews,
 		"Changelogs": changelogs,
 	}

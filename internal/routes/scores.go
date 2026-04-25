@@ -60,7 +60,7 @@ func Scores(ctx *common.Context) {
 		ctx.Request.URL.Query(),
 	)
 
-	data := map[string]interface{}{
+	data := map[string]any{
 		"PageViews":  pageViews,
 		"BestScores": bestScores,
 		"Pagination": pagination,
@@ -106,7 +106,7 @@ func ScoresByPlayer(pageViews int64, playerIdQuery string, ctx *common.Context) 
 		ctx.Request.URL.Query(),
 	)
 
-	data := map[string]interface{}{
+	data := map[string]any{
 		"PageViews":  pageViews,
 		"BestScores": bestScores,
 		"Pagination": pagination,
@@ -164,7 +164,7 @@ func ScoresByBeatmap(pageViews int64, beatmapIdQuery string, ctx *common.Context
 		ctx.Request.URL.Query(),
 	)
 
-	data := map[string]interface{}{
+	data := map[string]any{
 		"PageViews":  pageViews,
 		"BestScores": bestScores,
 		"Pagination": pagination,

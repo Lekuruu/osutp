@@ -12,7 +12,7 @@ type State struct {
 	Config     *Config
 	Database   *gorm.DB
 	Logger     *Logger
-	Extensions map[string]interface{}
+	Extensions map[string]any
 }
 
 func NewState() *State {
@@ -38,6 +38,6 @@ func NewState() *State {
 		Logger:     NewLogger("osutp"),
 		Config:     config,
 		Database:   db,
-		Extensions: make(map[string]interface{}),
+		Extensions: make(map[string]any),
 	}
 }

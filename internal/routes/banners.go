@@ -43,7 +43,7 @@ func Banners(ctx *common.Context) {
 			return
 		}
 
-		data := map[string]interface{}{
+		data := map[string]any{
 			"PageViews": pageViews,
 			"Player":    player,
 		}
@@ -51,6 +51,6 @@ func Banners(ctx *common.Context) {
 		return
 	}
 
-	data := map[string]interface{}{"PageViews": pageViews}
+	data := map[string]any{"PageViews": pageViews}
 	renderTemplate(ctx, "banners", data)
 }

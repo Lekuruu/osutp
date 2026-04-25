@@ -12,6 +12,6 @@ func Info(ctx *common.Context) {
 		return
 	}
 
-	data := map[string]interface{}{"PageViews": pageViews}
+	data := map[string]any{"PageViews": pageViews}
 	renderTemplate(ctx, "info", data)
 }

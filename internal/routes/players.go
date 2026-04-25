@@ -61,7 +61,7 @@ func Players(ctx *common.Context) {
 	}
 	bestCountrySlice := bestCountries[offset:end]
 
-	data := map[string]interface{}{
+	data := map[string]any{
 		"PageViews":         pageViews,
 		"Players":           players,
 		"Pagination":        pagination,
@@ -124,7 +124,7 @@ func PlayersByCountry(ctx *common.Context) {
 	}
 	bestCountrySlice := bestCountries[offset:end]
 
-	data := map[string]interface{}{
+	data := map[string]any{
 		"PageViews":         pageViews,
 		"Players":           players,
 		"Country":           country,
