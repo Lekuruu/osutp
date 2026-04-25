@@ -2,14 +2,24 @@ package updaters
 
 import (
 	"sort"
-	"time"
 
 	"github.com/Lekuruu/osutp/internal/common"
 	"github.com/Lekuruu/osutp/internal/database"
 	"github.com/Lekuruu/osutp/internal/services"
 )
 
+var updateLock = make(chan struct{}, 1)
+
 func UpdatePlayerRatings(state *common.State) error {
+	// Prevent concurrent updates to player ratings
+	select {
+	case updateLock <- struct{}{}:
+		defer func() { <-updateLock }()
+	default:
+		state.Logger.Log("Player rating update already in progress, skipping...")
+		return nil
+	}
+
 	players, err := services.FetchAllPlayers(state)
 	if err != nil {
 		return err
@@ -62,7 +72,6 @@ func updatePlayerRanks(players []*database.Player, state *common.State) error {
 		player.GlobalRank = index + 1
 		rankDelta := previousRank - player.GlobalRank
 		player.RecentRankChange = rankDelta
-		player.LastUpdate = time.Now().UTC()
 		playersByCountry[player.Country] = append(playersByCountry[player.Country], player)
 
 		if previousRank == 0 {
