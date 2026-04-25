@@ -1,10 +1,9 @@
 package titanic
 
 import (
-	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
-	"strings"
 	"time"
 
 	"github.com/Lekuruu/osutp/internal/common"
@@ -16,24 +15,17 @@ import (
 
 func (importer *TitanicImporter) ImportScore(scoreId int, state *common.State) (*database.Score, error) {
 	url := fmt.Sprintf("%s/scores/%d", importer.ApiUrl, scoreId)
-	resp, err := http.Get(url)
-	if err != nil {
-		// Check for any rate limit errors and wait if needed
-		if strings.Contains(err.Error(), "429 Too Many Requests") {
-			time.Sleep(time.Second * 60)
-			return importer.ImportScore(scoreId, state)
+	var score ScoreModel
+	if err := importer.GetJson(url, &score); err != nil {
+		var statusErr *HttpStatusError
+		if errors.As(err, &statusErr) && statusErr.statusCode == http.StatusNotFound {
+			return nil, nil
 		}
 		return nil, err
 	}
-	defer resp.Body.Close()
-
-	var score ScoreModel
-	if err := json.NewDecoder(resp.Body).Decode(&score); err != nil {
-		return nil, fmt.Errorf("failed to decode response: %v", err)
-	}
 
 	beatmap, err := services.FetchBeatmapById(score.BeatmapID, state)
-	if err != nil {
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, err
 	}
 	if beatmap == nil {
@@ -42,17 +34,15 @@ func (importer *TitanicImporter) ImportScore(scoreId int, state *common.State) (
 		if err != nil {
 			return nil, fmt.Errorf("failed to import beatmap %d for score %d: %v", score.BeatmapID, score.ID, err)
 		}
+		if beatmap == nil {
+			return nil, nil
+		}
 	}
 
 	return importer.importScoreFromModel(score, beatmap, state)
 }
 
 func (importer *TitanicImporter) importBeatmapLeaderboard(beatmapId int, state *common.State) error {
-	scores, err := importer.performLeaderboardRequest(beatmapId, 0, state)
-	if err != nil {
-		return err
-	}
-
 	beatmap, err := services.FetchBeatmapById(beatmapId, state)
 	if err != nil {
 		return err
@@ -61,30 +51,38 @@ func (importer *TitanicImporter) importBeatmapLeaderboard(beatmapId int, state *
 		return fmt.Errorf("beatmap with id %d not found in database", beatmapId)
 	}
 
-	for _, score := range scores {
-		importer.importScoreFromModel(score, beatmap, state)
+	offset := 0
+	limit := 100
+
+	for {
+		scores, err := importer.performLeaderboardRequest(beatmapId, offset, limit, state)
+		if err != nil {
+			return err
+		}
+
+		if len(scores) == 0 {
+			break
+		}
+
+		for _, score := range scores {
+			importer.importScoreFromModel(score, beatmap, state)
+		}
+
+		if len(scores) < limit {
+			break
+		}
+		offset += limit
 	}
 
 	services.UpdateBeatmapLastScoreUpdate(beatmap.ID, time.Now(), state)
 	return nil
 }
 
-func (importer *TitanicImporter) performLeaderboardRequest(beatmapId int, offset int, state *common.State) ([]ScoreModel, error) {
-	url := fmt.Sprintf("%s/beatmaps/%d/scores?offset=%d", importer.ApiUrl, beatmapId, offset)
-	resp, err := http.Get(url)
-	if err != nil {
-		// Check for any rate limit errors and wait if needed
-		if strings.Contains(err.Error(), "429 Too Many Requests") {
-			time.Sleep(time.Second * 60)
-			return importer.performLeaderboardRequest(beatmapId, offset, state)
-		}
-		return nil, err
-	}
-	defer resp.Body.Close()
-
+func (importer *TitanicImporter) performLeaderboardRequest(beatmapId int, offset int, limit int, state *common.State) ([]ScoreModel, error) {
+	url := fmt.Sprintf("%s/beatmaps/%d/scores?offset=%d&limit=%d", importer.ApiUrl, beatmapId, offset, limit)
 	var scores ScoreCollectionModel
-	if err := json.NewDecoder(resp.Body).Decode(&scores); err != nil {
-		return nil, fmt.Errorf("failed to decode response: %v", err)
+	if err := importer.GetJson(url, &scores); err != nil {
+		return nil, err
 	}
 
 	return scores.Scores, nil
@@ -143,6 +141,10 @@ func (importer *TitanicImporter) importScoreFromModel(score ScoreModel, beatmap 
 		user, err = importer.ImportUser(score.UserID, state)
 		if err != nil {
 			return nil, fmt.Errorf("failed to import user %d: %v", score.UserID, err)
+		}
+		if user == nil {
+			// User does not exist or is restricted.
+			return nil, nil
 		}
 	}
 

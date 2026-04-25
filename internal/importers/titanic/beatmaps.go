@@ -1,13 +1,10 @@
 package titanic
 
 import (
-	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
-	"io"
 	"net/http"
-	"strings"
-	"time"
 
 	"github.com/Lekuruu/osutp/internal/common"
 	"github.com/Lekuruu/osutp/internal/database"
@@ -19,6 +16,9 @@ func (importer *TitanicImporter) ImportBeatmapset(beatmapsetID int, importLeader
 	beatmapset, err := importer.fetchBeatmapsetById(beatmapsetID)
 	if err != nil {
 		return nil, err
+	}
+	if beatmapset == nil {
+		return nil, nil
 	}
 
 	var importedBeatmaps []*database.Beatmap
@@ -49,6 +49,9 @@ func (importer *TitanicImporter) ImportBeatmap(beatmapID int, importLeaderboard 
 	if err != nil {
 		// TODO: Delete existing beatmap, if it exists
 		return nil, err
+	}
+	if beatmap == nil {
+		return nil, nil
 	}
 
 	beatmapObject, err := importer.importBeatmapFromModel(beatmap, true, state)
@@ -156,6 +159,17 @@ func (importer *TitanicImporter) importBeatmapFromModel(beatmap *BeatmapModel, f
 		return nil, nil
 	}
 
+	if beatmap.Beatmapset == nil {
+		beatmapset, err := importer.fetchBeatmapsetById(beatmap.SetID)
+		if err != nil {
+			return nil, err
+		}
+		if beatmapset == nil {
+			beatmapset = &BeatmapsetModel{}
+		}
+		beatmap.Beatmapset = beatmapset
+	}
+
 	// Check for existing beatmap entry
 	beatmapEntry, err := services.FetchBeatmapById(beatmap.ID, state)
 	if err != nil && err.Error() != "record not found" {
@@ -201,25 +215,13 @@ func (importer *TitanicImporter) importBeatmapFromModel(beatmap *BeatmapModel, f
 }
 
 func (importer *TitanicImporter) performSearchRequest(request BeatmapSearchRequest, state *common.State) ([]BeatmapsetModel, error) {
-	jsonData, _ := json.Marshal(request)
-	url := importer.ApiUrl + "/beatmapsets/search"
-
-	resp, err := http.Post(url, "application/json", bytes.NewBuffer(jsonData))
+	jsonData, err := json.Marshal(request)
 	if err != nil {
-		// Check for any rate limit errors and wait if needed
-		if strings.Contains(err.Error(), "429 Too Many Requests") {
-			time.Sleep(time.Second * 60)
-			return importer.performSearchRequest(request, state)
-		}
 		return nil, err
 	}
-	defer resp.Body.Close()
-
-	// Read response
-	body, _ := io.ReadAll(resp.Body)
-
+	url := importer.ApiUrl + "/beatmapsets/search"
 	var results []BeatmapsetModel
-	if err := json.Unmarshal(body, &results); err != nil {
+	if err := importer.PostJson(url, jsonData, &results); err != nil {
 		return nil, err
 	}
 	return results, nil
@@ -227,21 +229,12 @@ func (importer *TitanicImporter) performSearchRequest(request BeatmapSearchReque
 
 func (importer *TitanicImporter) fetchBeatmapById(beatmapId int) (*BeatmapModel, error) {
 	url := fmt.Sprintf("%s/beatmaps/%d", importer.ApiUrl, beatmapId)
-	resp, err := http.Get(url)
-	if err != nil {
-		// Check for any rate limit errors and wait if needed
-		if strings.Contains(err.Error(), "429 Too Many Requests") {
-			time.Sleep(time.Second * 60)
-			return importer.fetchBeatmapById(beatmapId)
-		}
-		return nil, err
-	}
-	defer resp.Body.Close()
-
-	body, _ := io.ReadAll(resp.Body)
-
 	var beatmap BeatmapModel
-	if err := json.Unmarshal(body, &beatmap); err != nil {
+	if err := importer.GetJson(url, &beatmap); err != nil {
+		var statusErr *HttpStatusError
+		if errors.As(err, &statusErr) && statusErr.statusCode == http.StatusNotFound {
+			return nil, nil
+		}
 		return nil, err
 	}
 	return &beatmap, nil
@@ -249,21 +242,12 @@ func (importer *TitanicImporter) fetchBeatmapById(beatmapId int) (*BeatmapModel,
 
 func (importer *TitanicImporter) fetchBeatmapsetById(beatmapsetId int) (*BeatmapsetModel, error) {
 	url := fmt.Sprintf("%s/beatmapsets/%d", importer.ApiUrl, beatmapsetId)
-	resp, err := http.Get(url)
-	if err != nil {
-		// Check for any rate limit errors and wait if needed
-		if strings.Contains(err.Error(), "429 Too Many Requests") {
-			time.Sleep(time.Second * 60)
-			return importer.fetchBeatmapsetById(beatmapsetId)
-		}
-		return nil, err
-	}
-	defer resp.Body.Close()
-
-	body, _ := io.ReadAll(resp.Body)
-
 	var beatmapset BeatmapsetModel
-	if err := json.Unmarshal(body, &beatmapset); err != nil {
+	if err := importer.GetJson(url, &beatmapset); err != nil {
+		var statusErr *HttpStatusError
+		if errors.As(err, &statusErr) && statusErr.statusCode == http.StatusNotFound {
+			return nil, nil
+		}
 		return nil, err
 	}
 	return &beatmapset, nil
@@ -271,18 +255,7 @@ func (importer *TitanicImporter) fetchBeatmapsetById(beatmapsetId int) (*Beatmap
 
 func (importer *TitanicImporter) fetchBeatmapFile(beatmapId int) ([]byte, error) {
 	url := fmt.Sprintf("%s/beatmaps/%d/file", importer.ApiUrl, beatmapId)
-	resp, err := http.Get(url)
-	if err != nil {
-		// Check for any rate limit errors and wait if needed
-		if strings.Contains(err.Error(), "429 Too Many Requests") {
-			time.Sleep(time.Second * 60)
-			return importer.fetchBeatmapFile(beatmapId)
-		}
-		return nil, err
-	}
-
-	defer resp.Body.Close()
-	return io.ReadAll(resp.Body)
+	return importer.GetBytes(url)
 }
 
 func dereferenceString(s *string) (result string) {

@@ -1,15 +1,14 @@
 package titanic
 
 import (
-	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
-	"strings"
-	"time"
 
 	"github.com/Lekuruu/osutp/internal/common"
 	"github.com/Lekuruu/osutp/internal/database"
 	"github.com/Lekuruu/osutp/internal/services"
+	"gorm.io/gorm"
 )
 
 func (importer *TitanicImporter) ImportUser(userID int, state *common.State) (*database.Player, error) {
@@ -37,7 +36,7 @@ func (importer *TitanicImporter) ImportUsersFromRankings(page int, state *common
 func (importer *TitanicImporter) importUserFromModel(user UserModel, state *common.State) (*database.Player, error) {
 	// Check for existing player entry
 	userEntry, err := services.FetchPlayerById(user.ID, state)
-	if err != nil && err.Error() != "record not found" {
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, err
 	}
 	if userEntry != nil {
@@ -71,7 +70,7 @@ func (importer *TitanicImporter) importUserTopPlays(user UserModel, state *commo
 
 		for _, score := range scores.Scores {
 			beatmap, err := services.FetchBeatmapById(score.BeatmapID, state)
-			if err != nil && err.Error() != "record not found" {
+			if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 				continue
 			}
 
@@ -103,20 +102,9 @@ func (importer *TitanicImporter) importUserTopPlays(user UserModel, state *commo
 
 func (importer *TitanicImporter) fetchUserTopPlays(userID int, mode int, offset int, limit int) (*ScoreCollectionModel, error) {
 	url := fmt.Sprintf("%s/users/%d/top/%d?offset=%d&limit=%d", importer.ApiUrl, userID, mode, offset, limit)
-	resp, err := http.Get(url)
-	if err != nil {
-		// Check for any rate limit errors and wait if needed
-		if strings.Contains(err.Error(), "429 Too Many Requests") {
-			time.Sleep(time.Second * 60)
-			return importer.fetchUserTopPlays(userID, mode, offset, limit)
-		}
-		return nil, err
-	}
-	defer resp.Body.Close()
-
 	var scores ScoreCollectionModel
-	if err := json.NewDecoder(resp.Body).Decode(&scores); err != nil {
-		return nil, fmt.Errorf("failed to decode response: %v", err)
+	if err := importer.GetJson(url, &scores); err != nil {
+		return nil, err
 	}
 
 	return &scores, nil
@@ -124,20 +112,13 @@ func (importer *TitanicImporter) fetchUserTopPlays(userID int, mode int, offset 
 
 func (importer *TitanicImporter) fetchUserById(userID int) (*UserModel, error) {
 	url := fmt.Sprintf("%s/users/%d", importer.ApiUrl, userID)
-	resp, err := http.Get(url)
-	if err != nil {
-		// Check for any rate limit errors and wait if needed
-		if strings.Contains(err.Error(), "429 Too Many Requests") {
-			time.Sleep(time.Second * 60)
-			return importer.fetchUserById(userID)
+	var user UserModel
+	if err := importer.GetJson(url, &user); err != nil {
+		var statusErr *HttpStatusError
+		if errors.As(err, &statusErr) && statusErr.statusCode == http.StatusNotFound {
+			return nil, nil
 		}
 		return nil, err
-	}
-	defer resp.Body.Close()
-
-	var user UserModel
-	if err := json.NewDecoder(resp.Body).Decode(&user); err != nil {
-		return nil, fmt.Errorf("failed to decode response: %v", err)
 	}
 
 	return &user, nil
