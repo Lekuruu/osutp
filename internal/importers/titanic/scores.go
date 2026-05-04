@@ -120,16 +120,22 @@ func (importer *TitanicImporter) importScoreFromModel(score ScoreModel, beatmap 
 		// Only process osu! standard scores
 		return nil, nil
 	}
-	if score.User.ID == score.UserID && score.User.HasAvailabilityStatus() && (score.User.IsRestricted() || score.User.IsDeactivated()) {
-		// Score payloads can omit user availability fields. Verify with the user endpoint before destructive cleanup.
-		cleaned, err := importer.cleanupUserIfUnavailable(score.UserID, state)
+
+	hasFullUserModel := score.User.ID == score.UserID && score.User.HasAvailabilityStatus()
+	eligibleForCleanup := score.User.IsRestricted() || score.User.IsDeactivated()
+
+	if hasFullUserModel && eligibleForCleanup {
+		// Score data may only partially embed user data, so verify
+		// with /users/{id} before we cleanup the user
+		user, err := importer.ImportUser(score.UserID, state)
 		if err != nil {
 			return nil, err
 		}
-		if cleaned {
+		if user == nil {
 			return nil, nil
 		}
 		state.Logger.Logf("Ignoring unavailable user status from score %d because user %d is active", score.ID, score.UserID)
+		return nil, nil
 	}
 
 	scoreExists, err := services.ScoreExists(score.ID, state)
