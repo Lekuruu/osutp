@@ -65,7 +65,7 @@ func (importer *TitanicImporter) importBeatmapLeaderboard(beatmapId int, state *
 	offset := 0
 	limit := 100
 	remoteScoreIDs := make([]int, 0)
-	importErrors := make([]error, 0)
+	importErrorCount := 0
 
 	for {
 		scores, err := importer.performLeaderboardRequest(beatmapId, offset, limit, state)
@@ -81,7 +81,7 @@ func (importer *TitanicImporter) importBeatmapLeaderboard(beatmapId int, state *
 			remoteScoreIDs = append(remoteScoreIDs, score.ID)
 			if _, err := importer.importScoreFromModel(score, beatmap, state); err != nil {
 				state.Logger.Logf("Failed to import leaderboard score %d for beatmap %d: %v", score.ID, beatmapId, err)
-				importErrors = append(importErrors, err)
+				importErrorCount++
 			}
 		}
 
@@ -95,8 +95,8 @@ func (importer *TitanicImporter) importBeatmapLeaderboard(beatmapId int, state *
 		return err
 	}
 
-	if len(importErrors) > 0 {
-		return fmt.Errorf("failed to import %d scores for beatmap %d: %w", len(importErrors), beatmapId, errors.Join(importErrors...))
+	if importErrorCount > 0 {
+		state.Logger.Logf("Skipped %d leaderboard scores for beatmap %d due to score-level import errors", importErrorCount, beatmapId)
 	}
 
 	if err := services.UpdateBeatmapLastScoreUpdate(beatmap.ID, time.Now(), state); err != nil {
@@ -155,8 +155,18 @@ func (importer *TitanicImporter) importScoreFromModel(score ScoreModel, beatmap 
 	difficulty, err := beatmap.DifficultyCalculationResult(schema.DifficultyMods())
 	if err != nil {
 		// Beatmap most likely has no difficulty attributes so we try to update it
-		importer.ImportBeatmap(beatmap.ID, false, state)
-		return nil, fmt.Errorf("failed to get difficulty calculation result: %v", err)
+		updatedBeatmap, importErr := importer.ImportBeatmap(beatmap.ID, false, state)
+		if importErr != nil {
+			return nil, fmt.Errorf("failed to import beatmap %d after missing difficulty attributes: %w", beatmap.ID, importErr)
+		}
+		if updatedBeatmap == nil {
+			return nil, fmt.Errorf("failed to get difficulty calculation result: %v", err)
+		}
+
+		difficulty, err = updatedBeatmap.DifficultyCalculationResult(schema.DifficultyMods())
+		if err != nil {
+			return nil, fmt.Errorf("failed to get difficulty calculation result: %v", err)
+		}
 	}
 
 	tpScore := schema.CalculationRequest(difficulty)

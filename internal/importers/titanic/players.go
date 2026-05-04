@@ -70,7 +70,7 @@ func (importer *TitanicImporter) importUserTopPlays(user UserModel, state *commo
 	limit := 50
 
 	remoteScoreIDs := make([]int, 0)
-	importErrors := make([]error, 0)
+	importErrorCount := 0
 
 	for {
 		scores, err := importer.fetchUserTopPlays(user.ID, 0, offset, limit)
@@ -92,7 +92,8 @@ func (importer *TitanicImporter) importUserTopPlays(user UserModel, state *commo
 
 			beatmap, err := services.FetchBeatmapById(score.BeatmapID, state)
 			if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
-				importErrors = append(importErrors, fmt.Errorf("failed to fetch beatmap %d: %w", score.BeatmapID, err))
+				state.Logger.Logf("Failed to fetch beatmap %d for user %d top play %d: %v", score.BeatmapID, user.ID, score.ID, err)
+				importErrorCount++
 				continue
 			}
 
@@ -101,7 +102,7 @@ func (importer *TitanicImporter) importUserTopPlays(user UserModel, state *commo
 				beatmap, err = importer.ImportBeatmap(score.BeatmapID, false, state)
 				if err != nil {
 					state.Logger.Logf("Failed to import beatmap %d for user %d top play %d: %v", score.BeatmapID, user.ID, score.ID, err)
-					importErrors = append(importErrors, err)
+					importErrorCount++
 					continue
 				}
 				if beatmap == nil {
@@ -112,7 +113,7 @@ func (importer *TitanicImporter) importUserTopPlays(user UserModel, state *commo
 			_, err = importer.importScoreFromModel(score, beatmap, state)
 			if err != nil {
 				state.Logger.Logf("Failed to import score %d: %v", score.ID, err)
-				importErrors = append(importErrors, err)
+				importErrorCount++
 				continue
 			}
 		}
@@ -128,8 +129,8 @@ func (importer *TitanicImporter) importUserTopPlays(user UserModel, state *commo
 	if err := importer.reconcileUserTopPlays(user.ID, remoteScoreIDs, state); err != nil {
 		return err
 	}
-	if len(importErrors) > 0 {
-		return fmt.Errorf("failed to import %d top plays for user %d: %w", len(importErrors), user.ID, errors.Join(importErrors...))
+	if importErrorCount > 0 {
+		state.Logger.Logf("Skipped %d top plays for user %d due to score-level import errors", importErrorCount, user.ID)
 	}
 	return nil
 }
