@@ -172,8 +172,8 @@ type UserModel struct {
 	Country        string  `json:"country"`
 	CreatedAt      string  `json:"created_at"`
 	LatestActivity string  `json:"latest_activity"`
-	Restricted     bool    `json:"restricted"`
-	Activated      bool    `json:"activated"`
+	Restricted     *bool   `json:"restricted,omitempty"`
+	Activated      *bool   `json:"activated,omitempty"`
 	PreferredMode  int     `json:"preferred_mode"`
 	Playstyle      int     `json:"playstyle"`
 	Banner         *string `json:"banner,omitempty"`
@@ -196,4 +196,16 @@ func (user *UserModel) ToSchema() *database.Player {
 		CreatedAt: createdAt,
 		Country:   strings.ToUpper(user.Country),
 	}
+}
+
+func (user *UserModel) IsRestricted() bool {
+	return user.Restricted != nil && *user.Restricted
+}
+
+func (user *UserModel) IsDeactivated() bool {
+	return user.Activated != nil && !*user.Activated
+}
+
+func (user *UserModel) HasAvailabilityStatus() bool {
+	return user.Restricted != nil || user.Activated != nil
 }

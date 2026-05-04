@@ -83,6 +83,24 @@ func (importer *TitanicImporter) cleanupUnavailableUser(userID int, reason strin
 	return importer.recomputeRatingsAfterCleanup(state)
 }
 
+func (importer *TitanicImporter) cleanupUserIfUnavailable(userID int, state *common.State) (bool, error) {
+	user, err := importer.fetchUserById(userID)
+	if err != nil {
+		return false, err
+	}
+	if user == nil {
+		return true, importer.cleanupUnavailableUser(userID, "missing", state)
+	}
+	if user.IsRestricted() || user.IsDeactivated() {
+		reason := "restricted"
+		if user.IsDeactivated() {
+			reason = "deactivated"
+		}
+		return true, importer.cleanupUnavailableUser(userID, reason, state)
+	}
+	return false, nil
+}
+
 func (importer *TitanicImporter) reconcileBeatmapScores(beatmapID int, remoteScoreIDs []int, state *common.State) error {
 	deleted, err := services.DeleteScoresByBeatmapExcept(beatmapID, remoteScoreIDs, state)
 	if err != nil {

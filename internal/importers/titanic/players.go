@@ -22,10 +22,10 @@ func (importer *TitanicImporter) ImportUser(userID int, state *common.State) (*d
 		}
 		return nil, nil
 	}
-	if user.Restricted || !user.Activated {
+	if user.IsRestricted() || user.IsDeactivated() {
 		// Skip & delete restricted/deactivated users
 		reason := "restricted"
-		if !user.Activated {
+		if user.IsDeactivated() {
 			reason = "deactivated"
 		}
 		if err := importer.cleanupUnavailableUser(userID, reason, state); err != nil {
