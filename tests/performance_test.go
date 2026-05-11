@@ -151,11 +151,13 @@ func performScorePerformanceTest(t *testing.T, replayFile string, beatmapFile st
 	}
 
 	t.Logf(
-		"Performance for %s: %.2f (Aim: %.2f, Speed: %.2f, Acc: %.2f)",
+		"Performance for %s: %.2f (Aim: %.2f, Speed: %.2f, Acc: %.2f, Combo: %d/%d)",
 		replayFile,
 		result.Total,
 		result.Aim,
 		result.Speed,
 		result.Acc,
+		score.MaxCombo,
+		beatmapDifficulty.MaxCombo,
 	)
 }
