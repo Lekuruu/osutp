@@ -29,6 +29,14 @@ const (
 	strainStep = 400.0
 )
 
+// Approximation of the osu!tp beatmap "Level" scale
+const (
+	TpLevelScalingFactor         = 0.0877
+	TpLevelOffset                = 68.3
+	TpLevelCombinationPower      = 3.6
+	TpLevelCombinationMultiplier = 1.03
+)
+
 // DifficultyCalculationResult represents the computed difficulty and star ratings of a beatmap.
 type DifficultyCalculationResult struct {
 	AmountNormal      int     `json:"amountNormal"`
@@ -49,17 +57,17 @@ type DifficultyCalculationResult struct {
 }
 
 func (result *DifficultyCalculationResult) Level() float64 {
-	aimLevel := result.AimLevel()
 	speedLevel := result.SpeedLevel()
-	return ((speedLevel + aimLevel) + math.Abs(speedLevel-aimLevel)) / 2.125
+	aimLevel := result.AimLevel()
+	return CombineTpLevels(speedLevel, aimLevel)
 }
 
 func (result *DifficultyCalculationResult) AimLevel() float64 {
-	return approximateTpLevel(result.AimDifficulty)
+	return ApproximateTpLevel(result.AimDifficulty)
 }
 
 func (result *DifficultyCalculationResult) SpeedLevel() float64 {
-	return approximateTpLevel(result.SpeedDifficulty)
+	return ApproximateTpLevel(result.SpeedDifficulty)
 }
 
 // BeatmapDifficultyAdjustment holds the adjusted difficulty attributes of a beatmap after applying mods
@@ -277,6 +285,20 @@ func calculateDifficultyForType(tpHitObjects []*TpHitObject, diffType Difficulty
 	return difficulty
 }
 
-func approximateTpLevel(value float64) float64 {
-	return 0.0877*value - 68.3
+func ApproximateTpLevel(value float64) float64 {
+	return math.Max(0, TpLevelScalingFactor*value-TpLevelOffset)
+}
+
+func CombineTpLevels(speedLevel, aimLevel float64) float64 {
+	speedLevel = math.Max(0, speedLevel)
+	aimLevel = math.Max(0, aimLevel)
+	if speedLevel == 0 && aimLevel == 0 {
+		return 0
+	}
+
+	combined := math.Pow(
+		(math.Pow(speedLevel, TpLevelCombinationPower)+math.Pow(aimLevel, TpLevelCombinationPower))/2,
+		1/TpLevelCombinationPower,
+	)
+	return combined * TpLevelCombinationMultiplier
 }

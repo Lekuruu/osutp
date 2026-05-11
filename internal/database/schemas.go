@@ -103,12 +103,32 @@ func (beatmap *Beatmap) StarRating(mods uint32) float64 {
 	return beatmap.DifficultyAttributes[mods]["StarRating"]
 }
 
+func (beatmap *Beatmap) Level(mods uint32) float64 {
+	return tp.CombineTpLevels(beatmap.SpeedLevel(mods), beatmap.AimLevel(mods))
+}
+
 func (beatmap *Beatmap) SpeedStars(mods uint32) float64 {
 	return beatmap.DifficultyAttributes[mods]["SpeedStars"]
 }
 
 func (beatmap *Beatmap) AimStars(mods uint32) float64 {
 	return beatmap.DifficultyAttributes[mods]["AimStars"]
+}
+
+func (beatmap *Beatmap) SpeedLevel(mods uint32) float64 {
+	attributes := beatmap.DifficultyAttributes[mods]
+	if level, ok := attributes["SpeedLevel"]; ok {
+		return level
+	}
+	return tp.ApproximateTpLevel(attributes["SpeedDifficulty"])
+}
+
+func (beatmap *Beatmap) AimLevel(mods uint32) float64 {
+	attributes := beatmap.DifficultyAttributes[mods]
+	if level, ok := attributes["AimLevel"]; ok {
+		return level
+	}
+	return tp.ApproximateTpLevel(attributes["AimDifficulty"])
 }
 
 func (beatmap *Beatmap) IsRanked() bool {
