@@ -3,8 +3,8 @@ package tests
 import (
 	"testing"
 
+	osu "github.com/Lekuruu/osutp/pkg/osu"
 	"github.com/Lekuruu/osutp/pkg/tp"
-	osu "github.com/natsukagami/go-osu-parser"
 )
 
 func TestBeatmapRogUnlimitation(t *testing.T) {

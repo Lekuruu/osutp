@@ -4,7 +4,7 @@ import (
 	"math"
 	"sort"
 
-	osu "github.com/natsukagami/go-osu-parser"
+	osu "github.com/Lekuruu/osutp/pkg/osu"
 )
 
 // DifficultyType represents the type of difficulty being calculated
@@ -45,7 +45,7 @@ type DifficultyCalculationResult struct {
 	HpDrainRate       float32 `json:"hpDrainRate"`
 	OverallDifficulty float32 `json:"overallDifficulty"`
 	SliderMultiplier  float64 `json:"sliderMultiplier"`
-	SliderTickRate    int     `json:"sliderTickRate"`
+	SliderTickRate    float64 `json:"sliderTickRate"`
 }
 
 func (result *DifficultyCalculationResult) Level() float64 {
