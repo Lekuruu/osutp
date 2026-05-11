@@ -155,9 +155,14 @@ func mapDifficultyRange(difficulty, min, mid, max float64) float64 {
 }
 
 func adjustDifficulty(beatmap *osu.Beatmap, mods uint32) *BeatmapDifficultyAdjustment {
+	approachRate := beatmap.ApproachRate
+	if approachRate == 0 {
+		approachRate = beatmap.OverallDifficulty
+	}
+
 	adjustment := &BeatmapDifficultyAdjustment{
+		ApproachRate:      float64(approachRate),
 		OverallDifficulty: float64(beatmap.OverallDifficulty),
-		ApproachRate:      float64(beatmap.ApproachRate),
 		CircleSize:        float64(beatmap.CircleSize),
 		HpDrainRate:       float64(beatmap.HPDrainRate),
 		TimeRate:          1.0,
