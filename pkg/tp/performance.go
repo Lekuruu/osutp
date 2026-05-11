@@ -71,16 +71,18 @@ type PerformanceCalculationResult struct {
 }
 
 const (
-	aimScalingBase       = 0.45 // 0.04474
-	speedScalingBase     = 0.45 // 0.0449
+	aimScalingBase       = 0.04474
+	speedScalingBase     = 0.0449
 	comboScalingExponent = 0.8
 
-	aimHighARFactor = 0.3 // 0.33
+	aimHighARFactor = 0.33
 	aimHiddenBonus  = 1.18
 
-	accPrecisionExponent = 15.0 // 16.0
-	accValueMultiplier   = 8.3  // 8.34
-	accHiddenBonus       = 1.02 // 0.947
+	accPrecisionExponent = 16.0
+	accValueMultiplier   = 8.5
+	accLengthBonusCap    = 1.25
+	accLengthBonusExp    = 0.4
+	accHiddenBonus       = 1.02
 	accFlashlightBonus   = 1.02
 )
 
@@ -213,7 +215,7 @@ func computeAccValue(difficulty *DifficultyCalculationResult, score *Score) floa
 	) * accValueMultiplier
 
 	// Bonus for many hitcircles - it's harder to keep good accuracy up for longer
-	accValue *= math.Min(1.15, math.Pow(float64(difficulty.AmountNormal)/1000.0, 0.3))
+	accValue *= math.Min(accLengthBonusCap, math.Pow(float64(difficulty.AmountNormal)/1000.0, accLengthBonusExp))
 
 	// Hidden Bonus
 	if score.Mods&Hidden != 0 {
