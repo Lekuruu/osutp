@@ -3,7 +3,7 @@ package tp
 import (
 	"math"
 
-	osu "github.com/natsukagami/go-osu-parser"
+	osu "github.com/Lekuruu/osutp/pkg/osu"
 )
 
 // Vector2 represents a 2D point or vector.

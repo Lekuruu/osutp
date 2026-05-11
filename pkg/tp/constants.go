@@ -1,6 +1,6 @@
 package tp
 
-import osu "github.com/natsukagami/go-osu-parser"
+import osu "github.com/Lekuruu/osutp/pkg/osu"
 
 // HitObjectType is a bit-flag enum for the type of hit object.
 type HitObjectType int

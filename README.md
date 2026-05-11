@@ -21,7 +21,7 @@ Import the packages in your Go project:
 ```go
 import (
     "github.com/Lekuruu/osutp/pkg/tp"
-    osu "github.com/natsukagami/go-osu-parser"
+    "github.com/Lekuruu/osutp/pkg/osu"
 )
 ```
 
@@ -58,6 +58,10 @@ fmt.Printf("Performance: %.2fpp\n", pp)
 // You can also use `tp.NewScoreFromReplay` to load a score from a replay
 // This will require the "github.com/robloxxa/go-osr" package
 ```
+
+### Beatmap Parser
+
+The `pkg/osu` package is a fork of [`natsukagami/go-osu-parser`](https://github.com/natsukagami/go-osu-parser). I decided to make it part of this project because the upstream repository does not have a license and because there are issues around slider tick rate and max combo calculations that had to be fixed.
 
 ## Running the Website
 

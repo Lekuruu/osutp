@@ -5,8 +5,8 @@ import (
 
 	"github.com/Lekuruu/osutp/internal/common"
 	"github.com/Lekuruu/osutp/internal/database"
+	osu "github.com/Lekuruu/osutp/pkg/osu"
 	"github.com/Lekuruu/osutp/pkg/tp"
-	osu "github.com/natsukagami/go-osu-parser"
 )
 
 var modCombinations []uint32 = []uint32{
