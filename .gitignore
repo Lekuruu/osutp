@@ -130,3 +130,6 @@ tmp/
 .env
 tests/*.png
 build.ps1
+
+# osu!performance reference files
+reference/
