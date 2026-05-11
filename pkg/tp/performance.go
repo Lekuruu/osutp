@@ -70,6 +70,20 @@ type PerformanceCalculationResult struct {
 	Acc   float64 `json:"acc"`
 }
 
+const (
+	aimScalingBase       = 0.45 // 0.04474
+	speedScalingBase     = 0.45 // 0.0449
+	comboScalingExponent = 0.8
+
+	aimHighARFactor = 0.3 // 0.33
+	aimHiddenBonus  = 1.18
+
+	accPrecisionExponent = 15.0 // 16.0
+	accValueMultiplier   = 8.3  // 8.34
+	accHiddenBonus       = 1.02 // 0.947
+	accFlashlightBonus   = 1.02
+)
+
 // CalculatePerformance calculates the tp performance of a score
 func CalculatePerformance(difficulty *DifficultyCalculationResult, score *Score) *PerformanceCalculationResult {
 	if score.IsRelaxing() || score.IsAutoplay() {
@@ -104,7 +118,7 @@ func CalculatePerformance(difficulty *DifficultyCalculationResult, score *Score)
 }
 
 func computeAimValue(difficulty *DifficultyCalculationResult, score *Score) float64 {
-	aimValue := math.Pow(5.0*math.Max(1.0, float64(difficulty.AimStars)/0.0445)-4.0, 3.0) / 100000.0
+	aimValue := math.Pow(5.0*math.Max(1.0, float64(difficulty.AimStars)/aimScalingBase)-4.0, 3.0) / 100000.0
 
 	// Longer maps are worth more
 	aimValue *= 1 + 0.1*math.Min(1.0, float64(score.TotalHits())/1500.0)
@@ -115,13 +129,13 @@ func computeAimValue(difficulty *DifficultyCalculationResult, score *Score) floa
 
 	// Combo scaling
 	if difficulty.MaxCombo > 0 {
-		aimValue *= math.Min(1.0, math.Pow(float64(score.MaxCombo), 0.8)/math.Pow(float64(difficulty.MaxCombo), 0.8))
+		aimValue *= math.Min(1.0, math.Pow(float64(score.MaxCombo), comboScalingExponent)/math.Pow(float64(difficulty.MaxCombo), comboScalingExponent))
 	}
 
 	approachRateFactor := 1.0
 
 	if difficulty.ApproachRate > 10.0 {
-		approachRateFactor += 0.3 * (float64(difficulty.ApproachRate) - 10.0)
+		approachRateFactor += aimHighARFactor * (float64(difficulty.ApproachRate) - 10.0)
 	} else if difficulty.ApproachRate < 8.0 {
 		// Hidden is worth more with lower AR
 		if score.Mods&Hidden != 0 {
@@ -135,7 +149,7 @@ func computeAimValue(difficulty *DifficultyCalculationResult, score *Score) floa
 
 	// Hidden Bonus
 	if score.Mods&Hidden != 0 {
-		aimValue *= 1.18
+		aimValue *= aimHiddenBonus
 	}
 
 	// Flashlight Bonus
@@ -153,7 +167,7 @@ func computeAimValue(difficulty *DifficultyCalculationResult, score *Score) floa
 }
 
 func computeSpeedValue(difficulty *DifficultyCalculationResult, score *Score) float64 {
-	speedValue := math.Pow(5.0*math.Max(1.0, float64(difficulty.SpeedStars)/0.045)-4.0, 3.0) / 100000.0
+	speedValue := math.Pow(5.0*math.Max(1.0, float64(difficulty.SpeedStars)/speedScalingBase)-4.0, 3.0) / 100000.0
 
 	// Longer maps are worth more
 	speedValue *= 1 + 0.1*math.Min(1.0, float64(score.TotalHits())/1500.0)
@@ -164,7 +178,7 @@ func computeSpeedValue(difficulty *DifficultyCalculationResult, score *Score) fl
 
 	// Combo scaling
 	if difficulty.MaxCombo > 0 {
-		speedValue *= math.Min(1.0, math.Pow(float64(score.MaxCombo), 0.8)/math.Pow(float64(difficulty.MaxCombo), 0.8))
+		speedValue *= math.Min(1.0, math.Pow(float64(score.MaxCombo), comboScalingExponent)/math.Pow(float64(difficulty.MaxCombo), comboScalingExponent))
 	}
 
 	// Scale speed value with accuracy, slightly
@@ -194,21 +208,21 @@ func computeAccValue(difficulty *DifficultyCalculationResult, score *Score) floa
 	// Lots of arbitrary values from testing.
 	// Considering to use derivation from perfect accuracy in a probabilistic manner - assume normal distribution
 	accValue := math.Pow(
-		math.Pow(1.3, float64(difficulty.OverallDifficulty))*math.Pow(betterAccuracyPercentage, 15)/2,
+		math.Pow(1.3, float64(difficulty.OverallDifficulty))*math.Pow(betterAccuracyPercentage, accPrecisionExponent)/2,
 		1.6,
-	) * 8.3
+	) * accValueMultiplier
 
 	// Bonus for many hitcircles - it's harder to keep good accuracy up for longer
 	accValue *= math.Min(1.15, math.Pow(float64(difficulty.AmountNormal)/1000.0, 0.3))
 
 	// Hidden Bonus
 	if score.Mods&Hidden != 0 {
-		accValue *= 1.02
+		accValue *= accHiddenBonus
 	}
 
 	// Flashlight Bonus
 	if score.Mods&Flashlight != 0 {
-		accValue *= 1.02
+		accValue *= accFlashlightBonus
 	}
 
 	return accValue
