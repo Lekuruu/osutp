@@ -194,6 +194,7 @@ func computeSpeedValue(difficulty *DifficultyCalculationResult, score *Score) fl
 
 func computeAccValue(difficulty *DifficultyCalculationResult, score *Score) float64 {
 	// This percentage only considers HitCircles of any value
+	// Sliders and spinners are ignored for the calculation because they offer free 300s
 	// In this part of the calculation we focus on hitting the timing hit window
 	betterAccuracyPercentage := 0.0
 
