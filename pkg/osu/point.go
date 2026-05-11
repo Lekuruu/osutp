@@ -13,7 +13,7 @@ type Point struct {
 
 // MarshalJSON parses Point as a 2-member array in JSON
 func (p Point) MarshalJSON() (b []byte, err error) {
-	b = []byte(fmt.Sprintf("[%v,%v]", p.X, p.Y))
+	b = fmt.Appendf(nil, "[%v,%v]", p.X, p.Y)
 	return
 }
 

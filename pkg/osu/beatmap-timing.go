@@ -8,6 +8,7 @@ func (b *Beatmap) computeDuration() {
 	for _, bt := range b.BreakTimes {
 		totalBreakTime += bt.EndTime - bt.StartTime
 	}
+
 	if len(b.HitObjects) > 0 {
 		var (
 			firstObj = b.HitObjects[0]
@@ -33,10 +34,12 @@ func (b *Beatmap) computeMaxCombo() {
 		nxOff = math.MaxFloat64
 		i     = 1
 	)
+
 	curTp = b.TimingPoints[0]
 	if len(b.TimingPoints) > i {
 		nxOff = b.TimingPoints[i].Offset
 	}
+
 	for _, h := range b.HitObjects {
 		for len(b.TimingPoints) > i && float64(h.StartTime) >= nxOff {
 			curTp = b.TimingPoints[i]
@@ -46,6 +49,7 @@ func (b *Beatmap) computeMaxCombo() {
 				nxOff = b.TimingPoints[i].Offset
 			}
 		}
+
 		switch h.ObjectName {
 		case "spinner":
 		case "circle":

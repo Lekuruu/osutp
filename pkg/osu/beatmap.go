@@ -3,7 +3,6 @@ package osu
 // Beatmap is the returned struct, representing
 // an osu! beatmap.
 type Beatmap struct {
-
 	// Metadata
 	Artist        string
 	ArtistUnicode string
@@ -13,6 +12,7 @@ type Beatmap struct {
 	Creator       string
 	Source        string
 	Tags          []string
+
 	// Game Metadata
 	Version           string
 	BeatmapID         int
@@ -33,6 +33,7 @@ type Beatmap struct {
 	HPDrainRate       float64
 	OverallDifficulty float64
 	ApproachRate      float64
+
 	// Beatmap information
 	NbCircles        int     `json:"nbCircles"`
 	NbSliders        int     `json:"nbSliders"`

@@ -9,7 +9,6 @@
 package osu
 
 import (
-	"io/ioutil"
 	"os"
 	"strings"
 )
@@ -28,7 +27,7 @@ func ParseFile(file string) (b Beatmap, e error) {
 		bytes []byte
 		err   error
 	)
-	if bytes, err = ioutil.ReadFile(file); err != nil {
+	if bytes, err = os.ReadFile(file); err != nil {
 		return b, err
 	}
 	return ParseBytes(bytes)
@@ -42,7 +41,7 @@ func ParseBytes(bytes []byte) (b Beatmap, err error) {
 // ParseString parses a file given its contents as a string.
 func ParseString(str string) (b Beatmap, err error) {
 	p := newBeatmapParser()
-	for _, line := range strings.Split(str, "\n") {
+	for line := range strings.SplitSeq(str, "\n") {
 		p.ReadLine(line)
 	}
 	B, err := p.BuildBeatmap()

@@ -3,7 +3,6 @@ package osu
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"testing"
 )
@@ -22,10 +21,10 @@ func runTest(num int) func(t *testing.T) {
 		if bytes, err := json.MarshalIndent(b, "", "\t"); err != nil {
 			t.Error(err)
 		} else if os.Getenv("UPDATE_GOLDEN") != "" {
-			if err := ioutil.WriteFile(outfile, bytes, 0644); err != nil {
+			if err := os.WriteFile(outfile, bytes, 0644); err != nil {
 				t.Error(err)
 			}
-		} else if ans, err := ioutil.ReadFile(outfile); err != nil {
+		} else if ans, err := os.ReadFile(outfile); err != nil {
 			t.Error(err)
 		} else if string(bytes) != string(ans) {
 			t.Errorf("Test v%d: Output are not the same", num)
